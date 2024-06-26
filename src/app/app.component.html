@@ -1,5 +1,8 @@
 <h1>{{title | uppercase }}</h1>
 <button (click)="title = 'new '+title">Change Title</button>
+<button routerLink="/shop">
+   <span>Home</span>
+</button>
 
 <ul>
     @for (item of items; track $index) {

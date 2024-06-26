@@ -40,7 +40,7 @@
               "src/styles.scss"
             ],
             "scripts": [
-              "src/assets/scripts/telegram-web-app.js"
+               "src/assets/scripts/telegram-web-app.js"
             ]
           },
           "configurations": {
