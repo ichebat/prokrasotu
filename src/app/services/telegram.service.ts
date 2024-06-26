@@ -2,9 +2,9 @@ import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 
 interface TgButton{
-  show(): void
-  hide(): void
-  setText(text: string):void
+  show(): void;
+  hide(): void;
+  setText(text: string):void;
 }
 
 

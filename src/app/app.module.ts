@@ -7,6 +7,7 @@ import { ShopComponent } from './pages/shop/shop.component';
 import { FeedbackComponent } from './pages/feedback/feedback.component';
 import { ProductComponent } from './pages/product/product.component';
 import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.component';
+import { TelegramService } from './services/telegram.service';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,7 @@ import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.compone
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [TelegramService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
