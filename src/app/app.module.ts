@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -8,6 +9,7 @@ import { FeedbackComponent } from './pages/feedback/feedback.component';
 import { ProductComponent } from './pages/product/product.component';
 import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.component';
 import { TelegramService } from './services/telegram.service';
+import { ProductListComponent } from './components/product-list/product-list.component';
 
 @NgModule({
   declarations: [
@@ -15,11 +17,13 @@ import { TelegramService } from './services/telegram.service';
     ShopComponent,
     FeedbackComponent,
     ProductComponent,
-    PagenotfoundComponent
+    PagenotfoundComponent,
+    ProductListComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [TelegramService],
   bootstrap: [AppComponent]

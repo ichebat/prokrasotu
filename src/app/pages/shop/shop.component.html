@@ -1,1 +1,17 @@
 <p>shop works!</p>
+<!-- <button (click)="productsService.fetchProducts()">Get Products</button> -->
+
+    <app-product-list 
+    title="Отдельный навык" 
+    subtitle="Изучите востребованные технологии, чтобы расширить свой стек и добавить заветную галочку в резюме" 
+    [products]="productsService.byGroup['skill']"/>
+
+    <app-product-list 
+    title="Интенсивы" 
+    subtitle="Экспресс-программы, где за короткий период вы получаете максимум пользы" 
+    [products]="productsService.byGroup['intensive']"/>
+
+    <app-product-list 
+    title="Бесплатные курсы" 
+    subtitle="Необходимые навыки и проекты в портфолио за ваши старания" 
+    [products]="productsService.byGroup['course']"/>
