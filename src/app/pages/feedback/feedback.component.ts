@@ -17,18 +17,19 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.telegramService.MainButton.setText('ОЛтправить сообщение');
-    this.telegramService.MainButton.show();
-    this.telegramService.MainButton.disable();
+    this.telegramService.MainButton.setText('Отправить сообщение в PROКРАСОТУ');
+    // this.telegramService.MainButton.show();
+    // this.telegramService.MainButton.disable();
+    this.telegramService.MainButton.hide();
     this.telegramService.MainButton.onClick(this.sendData);
   }
 
   handleChange(event) {
     this.feedback.set(event.target.value);
     if (this.feedback().trim()) {
-      this.telegramService.MainButton.enable();
+      this.telegramService.MainButton.show();
     } else {
-      this.telegramService.MainButton.disable();
+      this.telegramService.MainButton.hide();
     }
   }
 

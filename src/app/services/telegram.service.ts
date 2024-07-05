@@ -9,6 +9,7 @@ interface TgButton {
   offClick(fn: Function): void;
   enable(): void;
   disable(): void;
+  isVisible: boolean;
 }
 
 @Injectable({
@@ -29,6 +30,10 @@ export class TelegramService {
 
   get BackButton(): TgButton {
     return this.tg.BackButton;
+  }
+
+  get UserName(): string {
+    return this.tg.initDataUnsafe?.user?.username;
   }
 
   //метод работает только если webapp приложение было запущено при помощи встроенной keyboard (кнопка "отправить сообщение" внизу)
