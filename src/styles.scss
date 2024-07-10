@@ -10,13 +10,7 @@
     box-sizing: border-box;
 }
 
-body{
-    font-size: 14px;
-    padding: var(--main-padding);
-    font-family: "Inter", sans-serif;
-    background: var(--tg-theme-bg-color);
-    color: var(--tg-theme-text-color);
-}
+
 
 a {
     color: var(--tg-theme-link-color);
@@ -75,6 +69,8 @@ hr{
     border-radius: 10px;
     margin-bottom: var(--main-padding);
     cursor: pointer;
+    max-width: 400px;
+    white-space: pre-wrap;//заменяет '\n' на <br>
 }
 
 .product-image{
@@ -92,3 +88,33 @@ hr{
 .product-info{
     padding: var(--main-padding);
 }
+html, body { height: 100%; }
+body { 
+    margin: 0; 
+    padding: var(--main-padding);
+    background: var(--tg-theme-bg-color);
+    color: var(--tg-theme-text-color);
+    font-family: 
+    Roboto, "Helvetica Neue", sans-serif; 
+}
+
+/* Absolute Center Spinner */
+.loading-indicator {
+    position: fixed;
+    z-index: 999;
+    height: 2em;
+    width: 2em;
+    overflow: show;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+// body{
+//     font-size: 14px;
+//     padding: var(--main-padding);
+//     font-family: "Inter", sans-serif;
+//     background: var(--tg-theme-bg-color);
+//     color: var(--tg-theme-text-color);
+// }

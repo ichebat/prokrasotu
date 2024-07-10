@@ -2,16 +2,16 @@
 <!-- <button (click)="productsService.fetchProducts()">Get Products</button> -->
 
     <app-product-list 
-    title="Отдельный навык" 
-    subtitle="Изучите востребованные технологии, чтобы расширить свой стек и добавить заветную галочку в резюме" 
-    [products]="productsService.byGroup['skill']"/>
+    title="Уход" 
+    subtitle="Описание категории ухода" 
+    [products]="productsService.byCategory['уход']"/>
 
     <app-product-list 
-    title="Интенсивы" 
-    subtitle="Экспресс-программы, где за короткий период вы получаете максимум пользы" 
-    [products]="productsService.byGroup['intensive']"/>
+    title="Окрашивание" 
+    subtitle="Описание категории окрашивания" 
+    [products]="productsService.byCategory['окрашивание']"/>
 
     <app-product-list 
-    title="Бесплатные курсы" 
-    subtitle="Необходимые навыки и проекты в портфолио за ваши старания" 
-    [products]="productsService.byGroup['course']"/>
+    title="Аксессуары" 
+    subtitle="Описание категории аксессуары" 
+    [products]="productsService.byCategory['аксессуары']"/>

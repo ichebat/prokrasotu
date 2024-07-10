@@ -1,6 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
-import { AddDomainToLinkAndImage, IProduct, ProductsService } from '../../services/products.service';
+import { IProduct, ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-shop',
@@ -19,8 +19,9 @@ export class ShopComponent implements OnInit{
     this.telegram.BackButton.hide(); 
 
     this.productsService.getProducts(  ).subscribe(res => {
-      this.products =  res;
+      //this.products =  res;
       this.productsService.setProductList(res);
+      
     });
   }
 
