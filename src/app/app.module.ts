@@ -15,6 +15,8 @@ import { MaterialModule } from './material.module'
 import { CustomHttpInterceptor } from './http-interceptor';
 import { ProductItemComponent } from './components/product-item/product-item.component';
 import { ProductIconComponent } from './components/product-icon/product-icon.component';
+import { ImgxComponent } from './components/imgx/imgx.component';
+
 
 @NgModule({
   declarations: [
@@ -25,13 +27,14 @@ import { ProductIconComponent } from './components/product-icon/product-icon.com
     PagenotfoundComponent,
     ProductListComponent,
     ProductItemComponent,
-    ProductIconComponent
+    ProductIconComponent,
+    ImgxComponent
   ],
   imports: [
     MaterialModule,
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
   ],
   providers: [
     TelegramService, 

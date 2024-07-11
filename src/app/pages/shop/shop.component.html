@@ -1,7 +1,11 @@
 <p>{{telegram.UserName}}</p>
 <!-- <button (click)="productsService.fetchProducts()">Get Products</button> -->
-
     <app-product-list 
+    title="Уход" 
+    subtitle="Описание категории ухода" 
+    [products]="productsService.cards()"/>
+
+    <!-- <app-product-list 
     title="Уход" 
     subtitle="Описание категории ухода" 
     [products]="productsService.byCategory['уход']"/>
@@ -14,4 +18,4 @@
     <app-product-list 
     title="Аксессуары" 
     subtitle="Описание категории аксессуары" 
-    [products]="productsService.byCategory['аксессуары']"/>
+    [products]="productsService.byCategory['аксессуары']"/> -->

@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 // import { MatIconRegistry } from '@angular/material/icon';
 // import { MatAutocompleteModule } from '@angular/material/autocomplete';
 // import { MatBadgeModule } from '@angular/material/badge';
-// import { MatButtonModule } from '@angular/material/button';
+ import { MatButtonModule } from '@angular/material/button';
 // import { MatButtonToggleModule } from '@angular/material/button-toggle';
  import { MatCardModule } from '@angular/material/card';
 // import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -34,7 +34,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 // import { MatSortModule } from '@angular/material/sort';
 // import { MatTableModule } from '@angular/material/table';
 // import { MatTabsModule } from '@angular/material/tabs';
-// import { MatToolbarModule } from '@angular/material/toolbar';
+ import { MatToolbarModule } from '@angular/material/toolbar';
 // import { MatTooltipModule } from '@angular/material/tooltip';
 // import { MatTreeModule } from '@angular/material/tree';
 
@@ -44,13 +44,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 // import {ScrollingModule} from '@angular/cdk/scrolling';
 
 
+
+
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
     // MatAutocompleteModule,
     // MatBadgeModule,
-    // MatButtonModule, 
+     MatButtonModule, 
     // MatButtonToggleModule,
      MatCardModule,
     // MatCheckboxModule,
@@ -78,9 +80,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     // MatStepperModule,
     // MatTableModule,
     // MatTabsModule,
-    // MatToolbarModule,
+     MatToolbarModule,
     // MatTooltipModule,
-    // MatTreeModule,    
+    // MatTreeModule, 
   ],
   exports: [
     // CdkTableModule,
@@ -88,7 +90,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     // DragDropModule,
     // MatAutocompleteModule,
     // MatBadgeModule,
-    // MatButtonModule, 
+     MatButtonModule, 
     // MatButtonToggleModule,
      MatCardModule,
     // MatCheckboxModule,
@@ -116,7 +118,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     // MatStepperModule,
     // MatTableModule,
     // MatTabsModule,
-    // MatToolbarModule,
+     MatToolbarModule,
     // MatTooltipModule,
     // MatTreeModule,
     // ScrollingModule,

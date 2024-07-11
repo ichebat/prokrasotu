@@ -1,16 +1,9 @@
 import { I18nPluralPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 const domain = 'https://result.school';
-
-export enum ProductType {
-  Empty = '',
-  Skill = 'skill',
-  Intensive = 'intensive',
-  Course = 'course',
-}
 
 export enum ProductColumns {
   colId = 0,
@@ -83,6 +76,8 @@ export class ProductsService {
   private _productList$ = new BehaviorSubject<any>([]);
   productList$ = this._productList$.asObservable();
 
+  cards = signal<IProduct[]>([]);
+
   //products: IProduct[]=[];
 
   sheetId = '1JPSzoAEUktlPgShanrrdZs3Vb5YwQVzlTeog8JmzWrI';
@@ -96,7 +91,7 @@ export class ProductsService {
 
   constructor(private _http: HttpClient) {
     //this.products = [];
-    //this.fetchProducts();
+    //this.fetchProducts();    
   }
 
   setProduct(product: any) {
@@ -105,6 +100,7 @@ export class ProductsService {
 
   setProductList(productList: any[]) {
     this._productList$.next(productList);
+    this.cards.set(productList);
   }
 
   //  fetchProducts(){

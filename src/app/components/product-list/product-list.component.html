@@ -1,6 +1,21 @@
 <h2 class="mb">{{title | uppercase }}</h2> 
 <h4 class="mb">{{subtitle | uppercase }}</h4>
 
+
+<mat-toolbar color="primary"> Responsive Card Grid </mat-toolbar>
+<div class="container responsive-grid">
+    @for (product of products; track product.id) {        
+        <app-product-icon [product]="product"/>
+    }
+</div>
+
+<!-- <div class="product-list"> -->
+    <!-- @for (product of products; track product.id) {
+        
+            <app-product-icon [product]="product"/>
+        
+    } -->
+<!-- </div> -->
 <!-- <ul class="products">
     @for (product of products; track product.id) {
         <li class="product-item" [routerLink]="'/product/'+product.id">
@@ -17,7 +32,7 @@
 </ul> -->
 
 @for (product of products; track product.id) {
-    <app-product-icon [product]="product"/>
+    <!-- <app-product-icon [product]="product"/> -->
 <!-- <div class="card">
     @if (product.imageUrl != ''){
         <img *ngIf="product.imageUrl" class="card-img-top" [src]="product.imageUrl" alt="{{ product.name }}" >
