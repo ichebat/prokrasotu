@@ -1,0 +1,80 @@
+@use "@angular/material" as mat;
+
+@include mat.core();
+
+/* For use in src/lib/core/theming/_palette.scss */
+$prokrasotu: (
+  50: #ede1e4,
+  100: #d2b5bb,
+  200: #b5848e,
+  300: #975360,
+  400: #802e3e,
+  500: #6a091c,
+  600: #620819,
+  700: #570614,
+  800: #4d0511,
+  900: #3c0209,
+  A100: #ff727c,
+  A200: #ff3f4c,
+  A400: #ff0c1c,
+  A700: #f10010,
+  contrast: (
+    50: #000000,
+    100: #000000,
+    200: #000000,
+    300: #ffffff,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff,
+    A100: #000000,
+    A200: #ffffff,
+    A400: #ffffff,
+    A700: #ffffff,
+  ),
+);
+
+// mandatory stuff for theming
+$prokrasotu-palette-primary: mat.define-palette($prokrasotu);
+$prokrasotu-palette-accent: mat.define-palette($prokrasotu);
+$prokrasotu-palette-warn: mat.define-palette($prokrasotu);
+
+// include the custom theme components into a theme object
+$prokrasotu-theme: mat.define-light-theme(
+  $prokrasotu-palette-primary,
+  $prokrasotu-palette-accent,
+  $prokrasotu-palette-warn
+);
+
+$prokrasotu-palette-dark-primary: mat.define-palette($prokrasotu);
+$prokrasotu-palette-dark-accent: mat.define-palette($prokrasotu);
+$prokrasotu-palette-dark-warn: mat.define-palette($prokrasotu);
+
+$prokrasotu-dark-theme: mat.define-dark-theme(
+  $prokrasotu-palette-dark-primary,
+  $prokrasotu-palette-dark-accent,
+  $prokrasotu-palette-dark-warn
+);
+
+.solution-dark-theme {
+    //@include mat.core-theme($piweboms-dark-theme);
+    table tbody tr:hover td{
+      color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
+    }
+  
+    mat-card-title{
+      color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
+    }
+  
+    mat-progress-spinner{
+      color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
+    }
+  
+    @include mat.all-component-colors($prokrasotu-dark-theme);
+    
+  }
+
+// include the custom theme object into the angular material theme
+@include mat.all-component-themes($prokrasotu-dark-theme);

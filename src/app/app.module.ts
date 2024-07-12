@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -16,6 +17,7 @@ import { CustomHttpInterceptor } from './http-interceptor';
 import { ProductItemComponent } from './components/product-item/product-item.component';
 import { ProductIconComponent } from './components/product-icon/product-icon.component';
 import { ImgxComponent } from './components/imgx/imgx.component';
+import { MainNavComponent } from './components/main-nav/main-nav.component';
 
 
 @NgModule({
@@ -28,11 +30,13 @@ import { ImgxComponent } from './components/imgx/imgx.component';
     ProductListComponent,
     ProductItemComponent,
     ProductIconComponent,
-    ImgxComponent
+    ImgxComponent,
+    MainNavComponent
   ],
   imports: [
     MaterialModule,
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     HttpClientModule,
   ],

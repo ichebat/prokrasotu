@@ -11,6 +11,7 @@ import { SpinnerService } from './services/spinner.service';
 import { registerLocaleData } from '@angular/common'; 
 import localeRu from '@angular/common/locales/ru'; 
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -21,7 +22,10 @@ export class AppComponent implements OnInit, AfterViewChecked {
   showSpinner = false;
   // items = [1,2,3,4,5,6,7,8,9,0];
 
+  
+
   telegram = inject(TelegramService);
+  
   /**
    *
    */
@@ -31,6 +35,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
   ) {
     this.telegram.ready();
   }
+  
+
   ngAfterViewChecked(): void {
     let showSpinner = this.spinnerService.visibility.getValue();
     if (showSpinner != this.showSpinner) {
@@ -38,12 +44,17 @@ export class AppComponent implements OnInit, AfterViewChecked {
       this.showSpinner = showSpinner;
       this.cdRef.detectChanges();
     }
+
+    
+    
   }
 
   ngOnInit() {
     registerLocaleData(localeRu);
-    
+
     this.spinnerService.hide();
+
+    
     // this.productsService.fetchProducts();
     // console.log("Length = "+this.productsService.products.length)
   }

@@ -1,9 +1,9 @@
-<h2 class="mb">{{title | uppercase }}</h2> 
-<h4 class="mb">{{subtitle | uppercase }}</h4>
+<!-- <h2 class="mb">{{title | uppercase }}</h2> 
+<h4 class="mb">{{subtitle | uppercase }}</h4> -->
 
 
-<mat-toolbar color="primary"> Responsive Card Grid </mat-toolbar>
-<div class="container responsive-grid">
+
+<div class="responsive-grid">    
     @for (product of products; track product.id) {        
         <app-product-icon [product]="product"/>
     }
@@ -31,7 +31,7 @@
     }
 </ul> -->
 
-@for (product of products; track product.id) {
+<!-- @for (product of products; track product.id) { -->
     <!-- <app-product-icon [product]="product"/> -->
 <!-- <div class="card">
     @if (product.imageUrl != ''){
@@ -62,4 +62,4 @@
       <button mat-button>SHARE</button>
     </mat-card-actions>
   </mat-card> -->
-}
+<!-- } -->
