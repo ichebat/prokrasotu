@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
+import { ThemeSwitchService } from '../../services/theme-switch.service';
 
 @Component({
   selector: 'app-main-nav',
@@ -12,7 +13,7 @@ export class MainNavComponent  implements OnInit{
   isMobile = true;
   isCollapsed = true;
 
-  constructor(private observer: BreakpointObserver) {}
+  constructor(private observer: BreakpointObserver,public readonly _themeSwitchService: ThemeSwitchService) {}
   ngOnInit(): void {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
       if(screenSize.matches){
@@ -32,4 +33,11 @@ export class MainNavComponent  implements OnInit{
       this.isCollapsed = !this.isCollapsed;
     }
   }
+
+  onThemeChange(event){
+    // alert (event.checked)
+     //this._themeSwitchService.OnThemeSwitch.next(event.checked);
+     this._themeSwitchService.OnThemeSwitch.next(event.checked);
+     window.localStorage.setItem("isDarkThemeActive", event.checked);
+   }
 }

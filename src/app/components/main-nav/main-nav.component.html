@@ -58,36 +58,68 @@
   <button mat-icon-button aria-label="Menu icon" (click)="toggleMenu()">
     <mat-icon>menu</mat-icon>
   </button>
-  
-  <h1><a routerLink="/">
-    <div class="logo">
-      <img src="./assets/img/logo.png" alt="" />
-    </div>
-  </a>
+
+  <h1>
+    <a routerLink="/">
+      <div class="logo">
+        <img src="./assets/img/logo.png" alt="" />
+      </div>
+    </a>
   </h1>
+
+  <span class="spacer"></span>
+  <!-- <button mat-icon-button (click)="onThemeChange($event)">
+    <mat-icon>palette</mat-icon>
+  </button> -->
+
+  @if (!isMobile) {
+    <mat-slide-toggle
+      (change)="onThemeChange($event)"
+      [checked]="_themeSwitchService.isDarkThemeActive.value"
+    >
+      <mat-icon>palette</mat-icon>
+      <span>Цвет</span>
+    </mat-slide-toggle>
+  }
+  @if (isMobile) {
+    <mat-slide-toggle
+      (change)="onThemeChange($event)"
+      [checked]="_themeSwitchService.isDarkThemeActive.value"
+    >
+      <mat-icon>palette</mat-icon>
+    </mat-slide-toggle>
+  }
 </mat-toolbar>
 
 <mat-sidenav-container autosize>
-  <mat-sidenav [ngClass]="!isCollapsed ? 'expanded' : ''" [mode]="isMobile ? 'over' : 'side'" [opened]="isMobile ? 'false' : 'true'">
+  <mat-sidenav
+    [ngClass]="!isCollapsed ? 'expanded' : ''"
+    [mode]="isMobile ? 'over' : 'side'"
+    [opened]="isMobile ? 'false' : 'true'"
+  >
     <mat-nav-list>
       <a mat-list-item>
         <span class="entry">
-           <mat-icon>house</mat-icon>
-           @if (!isCollapsed) {<span>Dashboard</span>}
+          <mat-icon>house</mat-icon>
+          @if (!isCollapsed) {
+            <span>Dashboard</span>
+          }
         </span>
-     </a>
-     <a mat-list-item>
-      <span class="entry">
-         <mat-icon>person</mat-icon>
-         @if (!isCollapsed) {<span>Person</span>}
-      </span>
-   </a>
+      </a>
+      <a mat-list-item>
+        <span class="entry">
+          <mat-icon>person</mat-icon>
+          @if (!isCollapsed) {
+            <span>Person</span>
+          }
+        </span>
+      </a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
     <h2>Content</h2>
     <div class="container">
-      <router-outlet></router-outlet>
+      <ng-content></ng-content>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

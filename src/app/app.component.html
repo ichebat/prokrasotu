@@ -25,6 +25,8 @@
         <hr/>
     }
 </ul> -->
-<app-main-nav></app-main-nav>
+<app-main-nav [class.solution-dark-theme]="_themeswitchService.isDarkThemeActive.getValue()">
+  <router-outlet></router-outlet>
+</app-main-nav>
 
 

@@ -1,5 +1,7 @@
+@use "@angular/material" as mat;
+@use "./custom-theme" as custom-theme;
+
 @import url("https://fonts.googleapis.com/css2?family=Inter&family=Titillium+Web&display=swap");
-@import "./custom-theme";
 
 :root {
   --main-padding: 8px;
@@ -11,26 +13,26 @@
   box-sizing: border-box;
 }
 
-a {
-  color: var(--tg-theme-link-color);
-}
+// a {
+//   //////////////////////////////////color: var(--tg-theme-link-color);
+// }
 
-button {
-  background: var(--tg-theme-button-color);
-  color: var(--tg-theme-button-text-color);
-}
+// button {
+//   //////////////////////////////////background: var(--tg-theme-button-color);
+//   //////////////////////////////////color: var(--tg-theme-button-text-color);
+// }
 
 .mb {
   margin-bottom: var(--main-padding);
 }
 
 .hint {
-  color: var(--tg-theme-hint-color);
+  //////////////////////////////////color: var(--tg-theme-hint-color);
   font-size: 0.8rem;
 }
 
 hr {
-  color: var(--tg-theme-hint-color);
+  //////////////////////////////////color: var(--tg-theme-hint-color);
   margin-bottom: var(--main-padding);
 }
 
@@ -48,8 +50,8 @@ hr {
 .form-control {
   width: 100%;
   height: 60px;
-  background: var(--tg-theme-secondary-bg-color);
-  color: var(--tg-theme-text-color);
+  //////////////////////////////////background: var(--tg-theme-secondary-bg-color);
+  //////////////////////////////////color: var(--tg-theme-text-color);
   resize: none;
   font-family: inherit;
   padding: 8px;
@@ -73,9 +75,11 @@ hr {
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 }
 
-.example-spacer {
+.spacer {
   flex: 1 1 auto;
 }
+
+
 
 .logo {
   max-width: 156px;
@@ -100,6 +104,23 @@ hr {
   // margin: 16px;
 }
 
+.product-image  {
+    grid-area: image;
+    object-fit: cover;
+    max-width: 100%;
+    max-height: 100%;
+    justify-self: center;
+    align-self: center;
+    object-fit: cover;
+  }
+
+  .product-image-host {
+    display: grid;
+    grid-template-areas: "image";
+    grid-template-rows: 20em;
+    margin: 0.25em 0.25em;
+  }
+
 .product-item mat-card {
   width: 100%;
 }
@@ -112,8 +133,8 @@ body {
 body {
   margin: 0;
   //padding-bottom: var(--main-padding);
-  background: var(--tg-theme-bg-color);
-  color: var(--tg-theme-text-color);
+  //////////////////////////////////background: var(--tg-theme-bg-color);
+  //////////////////////////////////color: var(--tg-theme-text-color);
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 

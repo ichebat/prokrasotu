@@ -16,7 +16,6 @@ import { MaterialModule } from './material.module'
 import { CustomHttpInterceptor } from './http-interceptor';
 import { ProductItemComponent } from './components/product-item/product-item.component';
 import { ProductIconComponent } from './components/product-icon/product-icon.component';
-import { ImgxComponent } from './components/imgx/imgx.component';
 import { MainNavComponent } from './components/main-nav/main-nav.component';
 
 
@@ -30,7 +29,6 @@ import { MainNavComponent } from './components/main-nav/main-nav.component';
     ProductListComponent,
     ProductItemComponent,
     ProductIconComponent,
-    ImgxComponent,
     MainNavComponent
   ],
   imports: [

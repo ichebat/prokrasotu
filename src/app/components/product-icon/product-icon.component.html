@@ -1,33 +1,37 @@
-<a
+<!-- <a
   matripple
   [routerLink]="'/product/' + product.id"
   class="product-item"
->
-  <mat-card appearance="outlined" class="mat-elevation-z5">
-    <!-- <mat-card-header>
+  color="accent"
+></a> -->
+<mat-card appearance="outlined" class="product-item mat-elevation-z5">
+  <!-- <mat-card-header>
       <mat-card-title class="line-clamp">{{
         product.name 
       }}</mat-card-title>
       <mat-card-subtitle>{{ product.brand }}</mat-card-subtitle>
     </mat-card-header> -->
-    @if (product.imageUrl != ''){
-        <!-- <img mat-card-image [src]="product.imageUrl" [alt]="product.name"> -->
-        
-        <app-imgx [title]="product.brand">
-            <img mat-card-image [src]="product.imageUrl" [alt]="product.name">
-        </app-imgx>
-    
-    
-}
-    <mat-card-content>
-        @if (product.name != ''){<p>{{product.name}}</p>
+  @if (product.imageUrl != "") {
+    <!-- <img mat-card-image [src]="product.imageUrl" [alt]="product.name"> -->
+
+    <!-- <app-imgx [title]="product.brand"> -->
+    <div class="product-image-host">
+      <button mat-button disabled>{{ product.brand }}</button>
+      <img mat-card-image [src]="product.imageUrl" [alt]="product.description" [title]="product.name" class="product-image"/>
+    </div>
+    <!-- </app-imgx> -->
+  }
+  <mat-card-content>
+    @if (product.name != "") {
+      <!-- <button mat-button [routerLink]="'/product/' + product.id">{{ product.name }}</button> -->
+      <!-- <a [routerLink]="'/product/' + product.id">{{ product.name }}</a> -->
+      <p>{{ product.name }}</p>
     }
-      <!-- @if (product.description != ''){<p>{{product.description}}</p>}
+    <!-- @if (product.description != ''){<p>{{product.description}}</p>}
         @if (product.dopolnitelno != ''){<p>{{product.dopolnitelno}}</p>} -->
-    </mat-card-content>
-    <!-- <mat-card-actions> -->
-      <!-- <button mat-button>LIKE</button>
+  </mat-card-content>
+  <!-- <mat-card-actions> -->
+  <!-- <button mat-button>LIKE</button>
       <button mat-button>SHARE</button> -->
-    <!-- </mat-card-actions> -->
-  </mat-card>
-</a>
+  <!-- </mat-card-actions> -->
+</mat-card>
