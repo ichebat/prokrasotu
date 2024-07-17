@@ -1,9 +1,19 @@
-<div class="centered">
-  <h2 class="mb">{{ product.title }}</h2>
-  <br />
-  <img [src]="product.image" [alt]="product.title" />
-  <p>{{ product.text }}</p>
-  <p>{{ product.time }}</p>
-  <a [href]="product.link" target="_blank">Посмотреть курс</a>
-  <!-- <button (click)="goBack()"></button> -->
-</div>
+@if (productsService.$product()) {
+  <app-product-item [product]="productsService.$product()!" />
+}
+<!-- <mat-grid-list cols="9" rowHeight="52px">
+  <mat-grid-tile colspan="3">
+    <button mat-raised-button>Вернуться назад</button>
+  </mat-grid-tile>
+  <mat-grid-tile>
+    <button mat-icon-button color="accent">
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-grid-tile>
+  <mat-grid-tile>2</mat-grid-tile>
+  <mat-grid-tile>
+    <button mat-icon-button color="accent">
+      <mat-icon>remove</mat-icon>
+    </button></mat-grid-tile>
+  <mat-grid-tile colspan="3"><button mat-raised-button color="accent"><mat-icon>add_shopping_cart</mat-icon> В корзину</button></mat-grid-tile>
+</mat-grid-list> -->

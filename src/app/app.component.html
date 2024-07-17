@@ -1,32 +1,13 @@
-<div class="loading-indicator">
+@if (spinnerService.isVisible()){
+  <div class="loading-indicator">
   <mat-progress-spinner
     mode="indeterminate"
     value="50"
-    *ngIf="spinnerService.visibility | async"
   >
   </mat-progress-spinner>
-</div>
+</div>}
 
-<!-- <h1>{{title | uppercase }}</h1>
-<button routerLink="/">
-    <span class="lead">{{title | uppercase }}</span>
-  </button> -->
-<!-- <button (click)="title = 'new '+title">Change Title</button>
-<button routerLink="/shop">
-   <span>Home</span>
-</button>
-
-<ul>
-    @for (item of items; track $index) {
-        <li>{{item}}</li>
-    }
-
-    @if (title === 'new Angular'){
-        <hr/>
-    }
-</ul> -->
-<app-main-nav [class.solution-dark-theme]="_themeswitchService.isDarkThemeActive.getValue()">
+<app-main-nav
+  [class.solution-dark-theme]="_themeswitchService.isDarkThemeActive.getValue()">
   <router-outlet></router-outlet>
 </app-main-nav>
-
-

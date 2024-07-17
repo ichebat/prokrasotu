@@ -37,7 +37,10 @@ export class MainNavComponent  implements OnInit{
   onThemeChange(event){
     // alert (event.checked)
      //this._themeSwitchService.OnThemeSwitch.next(event.checked);
-     this._themeSwitchService.OnThemeSwitch.next(event.checked);
-     window.localStorage.setItem("isDarkThemeActive", event.checked);
+     //this._themeSwitchService.OnThemeSwitch.next(event.checked);
+     let isDark = !this._themeSwitchService.isDarkThemeActive.value;
+     this._themeSwitchService.OnThemeSwitch.next(isDark);
+     //window.localStorage.setItem("isDarkThemeActive", event.checked);
+     window.localStorage.setItem("isDarkThemeActive", isDark.toString());
    }
 }

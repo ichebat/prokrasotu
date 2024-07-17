@@ -6,8 +6,8 @@ import { IProduct } from '../../services/products.service';
   templateUrl: './product-list.component.html',
 })
 export class ProductListComponent {
-  @Input() title = 'Angular';
-  @Input() subtitle = 'Angular';
+  @Input() titleList = 'Angular';
+  @Input() subtitleList = 'Angular';
   @Input() products: IProduct[] = [];
 
   /**

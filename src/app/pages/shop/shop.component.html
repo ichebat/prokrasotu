@@ -1,9 +1,11 @@
 <!-- <p>{{telegram.UserName}}</p> -->
 <!-- <button (click)="productsService.fetchProducts()">Get Products</button> -->
+<input type="text" #filter (input)="productsService.updateFilter(filter.value)">    
+
     <app-product-list 
-    title="Уход" 
-    subtitle="Описание категории ухода" 
-    [products]="productsService.cards()"/>
+    titleList="Уход" 
+    subtitleList="Описание категории ухода" 
+    [products]="productsService.$products()!"/>
 
     <!-- <app-product-list 
     title="Уход" 

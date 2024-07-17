@@ -68,13 +68,23 @@ hr {
 //     object-fit: cover;
 //   }
 
+//используется для размещения списка продуктов
 .responsive-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 }
 
+//используется для размещения карточек внутри продукта
+.responsive-grid-product-item {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  }
+
+//разделитель для навигации navbar
 .spacer {
   flex: 1 1 auto;
 }
@@ -83,8 +93,8 @@ hr {
 
 .logo {
   max-width: 156px;
-  line-height: 60px;
-  height: 60px;
+  line-height: 56px;
+  height: 56px;
   display: flex;
 }
 
@@ -140,16 +150,38 @@ body {
 
 /* Absolute Center Spinner */
 .loading-indicator {
-  position: fixed;
+//   position: fixed;
+//   z-index: 999;
+//   height: 2em;
+//   width: 2em;
+//   overflow: show;
+//   margin: auto;
+//   top: 0;
+//   left: 0;
+//   bottom: 0;
+//   right: 0;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 999;
-  height: 2em;
-  width: 2em;
-  overflow: show;
-  margin: auto;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
+
+
+
+// position: absolute;
+//   left: 50%;
+//   top: 50%;
+//   z-index: 1;
+//   width: 150px;
+//   height: 150px;
+//   margin: -75px 0 0 -75px;
+//   border: 16px solid #f3f3f3;
+//   border-radius: 50%;
+//   border-top: 16px solid #3498db;
+//   width: 120px;
+//   height: 120px;
+//   animation: spin 2s linear infinite;
 }
 
 //   .line-clamp {

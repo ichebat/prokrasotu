@@ -68,11 +68,12 @@
   </h1>
 
   <span class="spacer"></span>
-  <!-- <button mat-icon-button (click)="onThemeChange($event)">
-    <mat-icon>palette</mat-icon>
-  </button> -->
+  <button mat-icon-button (click)="onThemeChange($event)">
+    <mat-icon>format_color_fill</mat-icon>
+  </button>
 
-  @if (!isMobile) {
+  <!-- @if (!isMobile) {
+    
     <mat-slide-toggle
       (change)="onThemeChange($event)"
       [checked]="_themeSwitchService.isDarkThemeActive.value"
@@ -82,13 +83,16 @@
     </mat-slide-toggle>
   }
   @if (isMobile) {
+    <button mat-icon-button (click)="onThemeChange($event)">
+      <mat-icon>palette</mat-icon>
+    </button>
     <mat-slide-toggle
       (change)="onThemeChange($event)"
       [checked]="_themeSwitchService.isDarkThemeActive.value"
     >
       <mat-icon>palette</mat-icon>
     </mat-slide-toggle>
-  }
+  } -->
 </mat-toolbar>
 
 <mat-sidenav-container autosize>
@@ -117,7 +121,7 @@
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
-    <h2>Content</h2>
+    <!-- <h2>Content</h2> -->
     <div class="container">
       <ng-content></ng-content>
     </div>

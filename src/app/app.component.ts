@@ -36,7 +36,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    let showSpinner = this.spinnerService.visibility.getValue();
+    //let showSpinner = this.spinnerService.visibility.getValue();
+    let showSpinner = this.spinnerService.isVisible();
     if (showSpinner != this.showSpinner) {
       // check if it change, tell CD update view
       this.showSpinner = showSpinner;

@@ -1,30 +1,37 @@
-import { Injectable } from '@angular/core';
+import { Injectable, WritableSignal, signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SpinnerService {
-  public visibility: BehaviorSubject<boolean> = new BehaviorSubject(false);
+  isVisible: WritableSignal<boolean> = signal(false);
+
+  // public visibility: BehaviorSubject<boolean> = new BehaviorSubject(false);
   count = 0;
 
   constructor() {
-    this.visibility = new BehaviorSubject(false);
+    // this.visibility = new BehaviorSubject(false);
+    this.isVisible.set(false);
   }
 
   show() {
     //this.visibility.next(true);
     setTimeout(() => {
-      this.visibility.next(true);
-      // this.count++;
+      // this.visibility.next(true);
+
+      this.isVisible.set(true);
+      this.count++;
     }, 1);
   }
 
   hide() {
     setTimeout(() => {
-      // this.count--;
-      // if (this.count ===0) 
-      this.visibility.next(false);
+      this.count--;
+      if (this.count <= 0) {
+        // this.visibility.next(false);
+        this.isVisible.set(false);
+      }
     }, 1);
     //this.visibility.next(false);
   }

@@ -1,30 +1,74 @@
-<!-- <mat-card class="product-icon" appearance="outlined">
-    <mat-card-header>
-      <mat-card-title>{{product.name}}</mat-card-title>
-      <mat-card-subtitle>{{product.brand}}</mat-card-subtitle>
-    </mat-card-header>
-    @if (product.imageUrl != ''){<img mat-card-image [src]="product.imageUrl" [alt]="product.name">}
+@if (product.category != "" || product.type != "" || product.brand != ""){
+<mat-chip-listbox>
+  @if (product.category != ""){<mat-chip highlighted color="primary">{{ product.category }}</mat-chip>}
+  @if (product.type != ""){<mat-chip highlighted  color="accent">{{ product.type }}</mat-chip>}
+  @if (product.brand != ""){<mat-chip highlighted color="warn">{{ product.brand }}</mat-chip>}
+</mat-chip-listbox>
+}
+
+
+<div class="responsive-grid-product-item">
+  <mat-card appearance="outlined" class="product-item mat-elevation-z5">
+    @if (product.imageUrl != "") {
+      <div class="product-image-host">
+        <button mat-button disabled>{{ product.brand }}</button>
+        <img
+          mat-card-image
+          [src]="product.imageUrl"
+          [alt]="product.description"
+          [title]="product.name"
+          class="product-image"
+        />
+      </div>
+    }
     <mat-card-content>
-        @if (product.description != ''){<p>{{product.description}}</p>}
-        @if (product.dopolnitelno != ''){<p>{{product.dopolnitelno}}</p>}
+      @if (product.name != "") {
+        <p>{{ product.name }}</p>
+      }
     </mat-card-content>
-    <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
-    </mat-card-actions>
-  </mat-card> -->
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>{{ product.name }} </mat-card-title>
-    </mat-card-header>
-    <br />
-    <img mat-card-image [src]="product.imageUrl" [alt]="product.name">
-    <mat-card-content>
-      <br />
-      @if (product.description != ''){<p>{{product.description}}</p>}
-    </mat-card-content>
-    <mat-card-actions>
-      <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
-    </mat-card-actions>
   </mat-card>
+
+  <mat-card appearance="outlined" class="product-item mat-elevation-z5">
+    <mat-card-content>
+      @if (product.description != "") {
+        <p>{{ product.description }}</p>
+      }
+      @if (product.dopolnitelno != "") {
+        <p>{{ product.dopolnitelno }}</p>
+      }
+      @if (product.description != "" || product.dopolnitelno != "") {
+        <mat-divider></mat-divider>
+      }
+
+      <mat-grid-list cols="11" rowHeight="52px">
+        <mat-grid-tile colspan="11">
+          <h3>
+            {{ product.price | currency:'RUB':'symbol-narrow' }}
+          </h3>
+        </mat-grid-tile>
+
+        <mat-grid-tile colspan="4">
+          <button mat-raised-button (click)="goBack()">
+            <mat-icon>keyboard_backspace</mat-icon> Назад
+          </button>
+        </mat-grid-tile>
+        <mat-grid-tile>
+          <button mat-icon-button color="accent">
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-grid-tile>
+        <mat-grid-tile>2</mat-grid-tile>
+        <mat-grid-tile>
+          <button mat-icon-button color="accent">
+            <mat-icon>remove</mat-icon>
+          </button></mat-grid-tile
+        >
+        <mat-grid-tile colspan="4"
+          ><button mat-raised-button color="accent">
+            <mat-icon>shopping_basket</mat-icon> В корзину
+          </button></mat-grid-tile
+        >
+      </mat-grid-list>
+    </mat-card-content>
+  </mat-card>
+</div>

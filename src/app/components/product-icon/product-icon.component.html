@@ -1,10 +1,11 @@
+
 <!-- <a
   matripple
   [routerLink]="'/product/' + product.id"
   class="product-item"
   color="accent"
 ></a> -->
-<mat-card appearance="outlined" class="product-item mat-elevation-z5">
+<mat-card appearance="outlined" class="product-item mat-elevation-z5" [routerLink]="'/product/' + product.id">
   <!-- <mat-card-header>
       <mat-card-title class="line-clamp">{{
         product.name 
@@ -22,6 +23,7 @@
     <!-- </app-imgx> -->
   }
   <mat-card-content>
+    
     @if (product.name != "") {
       <!-- <button mat-button [routerLink]="'/product/' + product.id">{{ product.name }}</button> -->
       <!-- <a [routerLink]="'/product/' + product.id">{{ product.name }}</a> -->
