@@ -1,0 +1,8 @@
+<h4>brand-list works!</h4>
+
+
+@for (brand of brands; track brand) {        
+    @if(checkBrand(brand)){<app-brand-icon [brand]="brand"/>}
+}
+
+

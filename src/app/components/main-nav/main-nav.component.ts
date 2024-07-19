@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, signal } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ThemeSwitchService } from '../../services/theme-switch.service';
+import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'app-main-nav',
@@ -13,7 +14,14 @@ export class MainNavComponent  implements OnInit{
   isMobile = true;
   isCollapsed = true;
 
-  constructor(private observer: BreakpointObserver,public readonly _themeSwitchService: ThemeSwitchService) {}
+  
+  expandHeight = '42px';
+  collapseHeight = '42px';
+
+  step = signal(-1);
+  
+
+  constructor(private observer: BreakpointObserver,public readonly _themeSwitchService: ThemeSwitchService, public productsService: ProductsService) {}
   ngOnInit(): void {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
       if(screenSize.matches){
@@ -24,7 +32,8 @@ export class MainNavComponent  implements OnInit{
     });
   }
 
-  toggleMenu() {
+  toggleMenu() {    
+
     if(this.isMobile){
       this.sidenav.toggle();
       this.isCollapsed = false; // On mobile, the menu can never be collapsed
@@ -32,6 +41,8 @@ export class MainNavComponent  implements OnInit{
       this.sidenav.open(); // On desktop/tablet, the menu can never be fully closed
       this.isCollapsed = !this.isCollapsed;
     }
+
+    this.setStep(-1);
   }
 
   onThemeChange(event){
@@ -43,4 +54,16 @@ export class MainNavComponent  implements OnInit{
      //window.localStorage.setItem("isDarkThemeActive", event.checked);
      window.localStorage.setItem("isDarkThemeActive", isDark.toString());
    }
+
+   setStep(index: number) {
+    this.step.set(index);
+  }
+
+  nextStep() {
+    this.step.update(i => i + 1);
+  }
+
+  prevStep() {
+    this.step.update(i => i - 1);
+  }
 }

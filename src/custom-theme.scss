@@ -40,18 +40,26 @@ $prokrasotu: (
 // mandatory stuff for theming
 $prokrasotu-palette-primary: mat.define-palette($prokrasotu);
 //$prokrasotu-palette-accent: mat.define-palette($prokrasotu);
-$prokrasotu-palette-accent:  mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$prokrasotu-palette-accent: mat.define-palette(
+  mat.$pink-palette,
+  A200,
+  A100,
+  A400
+);
 $prokrasotu-palette-warn: mat.define-palette($prokrasotu);
 
 // include the custom theme components into a theme object
-$prokrasotu-theme: mat.define-light-theme((
-  color: (
-    primary: $prokrasotu-palette-primary,
-    accent: $prokrasotu-palette-accent,
-    warn: $prokrasotu-palette-warn,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0,));
+$prokrasotu-theme: mat.define-light-theme(
+  (
+    color: (
+      primary: $prokrasotu-palette-primary,
+      accent: $prokrasotu-palette-accent,
+      warn: $prokrasotu-palette-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
 
 $prokrasotu-palette-dark-primary: mat.define-palette($prokrasotu);
 $prokrasotu-palette-dark-accent: mat.define-palette($prokrasotu);
@@ -63,18 +71,20 @@ $prokrasotu-palette-dark-warn: mat.define-palette($prokrasotu);
 //   $prokrasotu-palette-dark-warn
 // );
 
-$prokrasotu-dark-theme: mat.define-dark-theme((
-  color: (
-    primary: $prokrasotu-palette-dark-primary,
-    accent: $prokrasotu-palette-dark-accent,
-    warn: $prokrasotu-palette-dark-warn,
-  ),
-  typography: mat.define-typography-config(),
-  density: 0,));
+$prokrasotu-dark-theme: mat.define-dark-theme(
+  (
+    color: (
+      primary: $prokrasotu-palette-dark-primary,
+      accent: $prokrasotu-palette-dark-accent,
+      warn: $prokrasotu-palette-dark-warn,
+    ),
+    typography: mat.define-typography-config(),
+    density: 0,
+  )
+);
 
-  // include the custom theme object into the angular material theme
+// include the custom theme object into the angular material theme
 @include mat.all-component-themes($prokrasotu-theme);
-
 
 .solution-dark-theme {
   //@include mat.core-theme($piweboms-dark-theme);
@@ -88,10 +98,21 @@ $prokrasotu-dark-theme: mat.define-dark-theme((
 
   mat-progress-spinner {
     color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
-  
+  }
+
+  .product-icon:hover {
+    //background-color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
+    box-shadow: 0px 0px 10px mat.get-color-from-palette($prokrasotu-palette-dark-primary);
   }
 
   @include mat.all-component-colors($prokrasotu-dark-theme);
-
 }
+
+.product-icon:hover {
+  //background-color: mat.get-color-from-palette($prokrasotu-palette-accent);
+  box-shadow: 0px 0px 10px mat.get-color-from-palette($prokrasotu-palette-primary);
+}
+
+
+
 

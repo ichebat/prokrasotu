@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, computed, inject } from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
 import { IProduct, ProductsService } from '../../services/products.service';
 import { Subscription } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-shop',
@@ -10,6 +11,34 @@ import { Subscription } from 'rxjs';
 export class ShopComponent implements OnInit, OnDestroy {
   telegram = inject(TelegramService);
 
+
+
+  //@Input('category') categoryFromRoute = '';
+  @Input() set category(category: string) { this.productsService.updateSelectedCategoryName(category); }
+  @Input() set type(type: string) { this.productsService.updateSelectedTypeName(type); }
+  @Input() set brand(brand: string) { this.productsService.updateSelectedBrandName(brand); }
+  // @Input('type') typeFromRoute = '';
+  // @Input('brand') brandFromRoute = '';
+
+  // category;
+  // type;
+  // brand;
+
+  // categorySignal = computed(()=>{
+  //   const category = this.productsService.$productCategory();
+  //   return !category? "" : category.name;
+  // });
+
+  // typeSignal = computed(()=>{
+  //   const type = this.productsService.$productType();
+  //   return !type? "" : type.name;
+  // });
+
+  // brandSignal = computed(()=>{
+  //   const brand = this.productsService.$productBrand();
+  //   return !brand? "" : brand.name;
+  // });
+
   //subscription: Subscription;
 
   //products: IProduct[] = [];
@@ -17,10 +46,42 @@ export class ShopComponent implements OnInit, OnDestroy {
   /**
    *
    */
-  constructor(public productsService: ProductsService) {
+  constructor(
+    public productsService: ProductsService,
+    private route: ActivatedRoute,
+  ) {
+    console.log("Constructor Shop");
+
+
+
+    // this.category = this.route.snapshot.paramMap.get('category');
+    // this.type = this.route.snapshot.paramMap.get('type');
+    // this.brand = this.route.snapshot.paramMap.get('brand');
+
+    // console.log(this.category);
+    // console.log(this.type);
+    // console.log(this.brand);
+    // console.log(this.productsService.$selectedCategoryName());
+    // console.log(this.productsService.$selectedTypeName());
+    // console.log(this.productsService.$selectedBrandName());
+
+    // this.productsService.updateSelectedCategoryName(this.category);    
+    // this.productsService.updateSelectedTypeName(this.type);    
+    // this.productsService.updateSelectedBrandName(this.brand);
+
     //this.telegram.MainButton.show();
     this.telegram.BackButton.hide();
 
+    // let category = '';
+    // let type = '';
+
+    // if (this.route.snapshot.queryParamMap.get('category')) category = this.route.snapshot.queryParamMap.get('category')!;
+    // if (this.route.snapshot.queryParamMap.get('type')) type = this.route.snapshot.queryParamMap.get('type')!;
+
+    // console.log("cat = "+category+" && type = "+type);
+    
+    // this.productsService.updateSelectedCategory(category);
+    // this.productsService.updateSelectedType(type);
     // this.subscription = this.productsService.productList$.subscribe((value) => {
     //   this.products = value;
     // });
@@ -36,6 +97,34 @@ export class ShopComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // console.log("Init Shop, routes: "+this.category+','+this.typeFromRoute+','+this.brandFromRoute);
+    // if (this.category) this.productsService.updateSelectedCategoryName(this.category);
+    // else this.productsService.updateSelectedCategoryName('');
+    // if (this.typeFromRoute) this.productsService.updateSelectedTypeName(this.typeFromRoute);
+    // else this.productsService.updateSelectedTypeName('');
+    // if (this.brandFromRoute) this.productsService.updateSelectedBrandName(this.brandFromRoute);
+    // else this.productsService.updateSelectedBrandName('');
+  //   this.route.paramMap.subscribe(paramMap => { 
+  //     console.log("subscribe param");
+  //     this.category = paramMap.get('category'); 
+  //     this.type = paramMap.get('type'); 
+  //     this.brand = paramMap.get('brand'); 
+      
+  //     this.productsService.updateSelectedCategoryName(this.category); 
+  //     //console.log("signal category is set to "+this.productsService.$selectedCategoryName());   
+  //     this.productsService.updateSelectedTypeName(this.type);    
+  //     this.productsService.updateSelectedBrandName(this.brand);
+  // });
+
+    
+
+    // this.route.queryParams.subscribe( 
+    //   params => { 
+    //     this.productsService.updateSelectedCategory(params['category']!); 
+    //     this.productsService.updateSelectedType(['language']!); 
+    //   } 
+    // ) 
+
     // this.productsService.getProducts(false).subscribe(res => {
     //     //this.products =  res;
     //     console.log(res);
@@ -45,6 +134,10 @@ export class ShopComponent implements OnInit, OnDestroy {
     // this.subscription = this.productsService.productList$.subscribe((value) => {
     //   this.products = value;
     // });
+
+    console.log(this.productsService.$productCategories());
+    console.log(this.productsService.$productTypes());
+    console.log(this.productsService.$productBrands());
   }
 
   // stringToEnum(value: string, enumType: { [key: string]: string }): string | undefined {

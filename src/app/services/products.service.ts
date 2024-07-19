@@ -35,12 +35,27 @@ export interface IProduct {
   isNew: boolean;
 }
 
+export interface IProductCategory {
+  name: string;
+  translit: string;
+}
+
+export interface IProductType {
+  name: string;
+  translit: string;
+  category: IProductCategory;
+}
+
+export interface IProductBrand {
+  name: string;
+  translit: string;
+  types: IProductType[];
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductsService {
-
   sheetId = '1JPSzoAEUktlPgShanrrdZs3Vb5YwQVzlTeog8JmzWrI';
   sheetGid = '1383014775';
   url =
@@ -50,12 +65,15 @@ export class ProductsService {
     this.sheetGid;
   // url = "http://cors.io/spreadsheets.google.com/feeds/list/"+this.sheetId+"/od6/public/values?alt=json";
 
-  private $searchFilter = signal<string>('');
+  public $searchFilter = signal<string>('');
   private $productId = signal<string>('');
-  private $productsAPI = toSignal<IProduct[]>(
-    this.getProducts(),
-  );
+  private $selectedCategoryName = signal<string>('');
+  private $selectedTypeName = signal<string>('');
+  private $selectedBrandName = signal<string>('');
 
+  private $productsAPI = toSignal<IProduct[]>(this.getProducts());
+
+  //получаем список продуктов с фильтром
   $products = computed(() => {
     const productsAPIValue = this.$productsAPI();
     const searchFilterValue = this.$searchFilter();
@@ -63,11 +81,106 @@ export class ProductsService {
       return [] as IProduct[];
     } else {
       return productsAPIValue.filter((p) => {
-        return p.name.toLowerCase().indexOf(searchFilterValue) >= 0;
+        return (
+          p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
+        );
       });
     }
   });
 
+  //получаем список категорий из списка продуктов
+  $productCategories = computed(() => {
+    const productsAPIValue = this.$productsAPI();
+    if (productsAPIValue == undefined) {
+      return [] as IProductCategory[];
+    } else {
+      return productsAPIValue.reduce((group, prod) => {
+        if (!group) group = [] as IProductCategory[];
+        if (!group.find((item) => item.name == prod.category)) {
+          group.push({
+            name: prod.category,
+            translit: this.translit(prod.category),
+          });
+        }
+        return group.sort((a, b) => a.name.localeCompare(b.name));
+      }, [] as IProductCategory[]);
+    }
+  });
+
+  //получаем список подкатегорий из списка продуктов
+  $productTypes = computed(() => {
+    const productsAPIValue = this.$productsAPI();
+    if (productsAPIValue == undefined) {
+      return [] as IProductType[];
+    } else {
+      return productsAPIValue.reduce((group, prod) => {
+        if (!group) group = [] as IProductType[];
+        if (
+          !group.find(
+            (item) =>
+              item.name == prod.type && item.category.name == prod.category,
+          )
+        ) {
+          group.push({
+            category: {
+              name: prod.category,
+              translit: this.translit(prod.category),
+            },
+            name: prod.type,
+            translit: this.translit(prod.type),
+          });
+        }
+        return group.sort((a, b) => a.name.localeCompare(b.name));
+      }, [] as IProductType[]);
+    }
+  });
+
+  //получаем список брендов из списка продуктов
+  $productBrands = computed(() => {
+    const productsAPIValue = this.$productsAPI();
+    if (productsAPIValue == undefined) {
+      return [] as IProductBrand[];
+    } else {
+      return productsAPIValue.reduce((group, prod) => {
+        if (!group) group = [] as IProductBrand[];
+        if (!group.find((item) => item.name == prod.brand)) {
+          const newBrandItem = {
+            name: prod.brand,
+            translit: this.translit(prod.brand),
+            types: [] as IProductType[],
+          };
+
+          
+          newBrandItem.types = productsAPIValue.filter(p => p.brand == prod.brand).reduce((group2, prod2) => {
+            if (
+              !group2.find(
+                (item) => item.name == prod2.type && item.category.name == prod2.category,
+              )
+            ) {
+              group2.push({
+                name: prod2.type,
+                translit: this.translit(prod2.type),
+                category: {
+                  name: prod2.category,
+                  translit: this.translit(prod2.category),
+                },
+              });
+            }
+            return group2;
+          }, [] as IProductType[]);
+
+          group.push({
+            name: prod.brand,
+            translit: this.translit(prod.brand),
+            types: newBrandItem.types,
+          });
+        }
+        return group.sort((a, b) => a.name.localeCompare(b.name));
+      }, [] as IProductBrand[]);
+    }
+  });
+
+  //выбранный продукт при переходе по маршруту /product/:id
   $product = computed(() => {
     const productsAPIValue = this.$productsAPI();
     const productIdValue = this.$productId();
@@ -75,7 +188,58 @@ export class ProductsService {
       return null;
     } else {
       return productsAPIValue.find((p) => {
-        return p.id.toString().toLowerCase() === productIdValue.toString().toLowerCase();
+        return (
+          p.id.toString().toLowerCase() ===
+          productIdValue.toString().toLowerCase()
+        );
+      });
+    }
+  });
+
+  //выбранная категория при переходе по маршруту /shop/:category
+  $productCategory = computed(() => {
+    const categoriesValue = this.$productCategories();
+    const selectedCategoryNameValue = this.$selectedCategoryName();
+    if (categoriesValue == undefined) {
+      return null;
+    } else {
+      return categoriesValue.find((p) => {
+        return (
+          p.translit.toString().toLowerCase() ===
+          selectedCategoryNameValue.toString().toLowerCase()
+        );
+      });
+    }
+  });
+
+  //выбранный тип при переходе по маршруту /shop/:category/:type
+  $productType = computed(() => {
+    const typesValue = this.$productTypes();
+    const selectedTypeNameValue = this.$selectedTypeName();
+    if (typesValue == undefined) {
+      return null;
+    } else {
+      return typesValue.find((p) => {
+        return (
+          p.translit.toString().toLowerCase() ===
+          selectedTypeNameValue.toString().toLowerCase()
+        );
+      });
+    }
+  });
+
+  //выбранный бренд при переходе по маршруту /shop/:category/:type/:brand
+  $productBrand = computed(() => {
+    const brandsValue = this.$productBrands();
+    const selectedBrandNameValue = this.$selectedBrandName();
+    if (brandsValue == undefined) {
+      return null;
+    } else {
+      return brandsValue.find((p) => {
+        return (
+          p.translit.toString().toLowerCase() ===
+          selectedBrandNameValue.toString().toLowerCase()
+        );
       });
     }
   });
@@ -89,19 +253,45 @@ export class ProductsService {
     this.$productId.set(id);
   }
 
-  constructor(private _http: HttpClient) {
-    
+  updateSelectedCategoryName(categoryNameTranslit) {
+    //console.log('try set category by '+categoryNameTranslit);
+    const categoryNameTranslitValue = categoryNameTranslit ? categoryNameTranslit : '';
+    this.$selectedCategoryName.set(categoryNameTranslitValue);
+     
+    // console.log(this.$productCategories());
+    // if (!categoryNameTranslit || this.$productCategories().length ==0) this.$selectedCategoryName.set('');
+    // else
+    // this.$selectedCategoryName.set(this.$productCategories()!.find(p => p.translit == categoryNameTranslit)!.name);
+    // console.log("signal category is set to "+this.$selectedCategoryName());
   }
 
+  updateSelectedTypeName(typeNameTranslit) {
+    const typeNameTranslitValue = typeNameTranslit ? typeNameTranslit : '';
+    this.$selectedTypeName.set(typeNameTranslitValue);
+    // console.log('try set type by '+typeNameTranslit);
+    // if (!typeNameTranslit || this.$productTypes().length ==0) this.$selectedTypeName.set('');
+    // else
+    // this.$selectedTypeName.set(this.$productTypes().find(p => p.translit == typeNameTranslit)!.name);
+  }
+
+  updateSelectedBrandName(brandNameTranslit) {
+    const brandNameTranslitValue = brandNameTranslit ? brandNameTranslit : '';
+    this.$selectedBrandName.set(brandNameTranslitValue);
+    // console.log('try set brand by '+brandNameTranslit);
+    // if (!brandNameTranslit || this.$productBrands().length ==0) this.$selectedBrandName.set('');
+    // else
+    // this.$selectedBrandName.set(this.$productBrands().find(p => p.translit == brandNameTranslit)!.name);
+  }
+
+  constructor(private _http: HttpClient) {}
+
   getProducts(): Observable<IProduct[]> {
-    
     console.log('Start get products');
     return this._http.get(this.url, { responseType: 'text' }).pipe(
       map((res: any) => {
         let gsDataJSON = JSON.parse(res.substring(47, res.length - 2));
         //console.log(gsDataJSON);
         return gsDataJSON.table.rows.map(function (row: any): IProduct {
-         
           return {
             id: row.c[ProductColumns.colId]
               ? row.c[ProductColumns.colId].v
@@ -144,7 +334,6 @@ export class ProductsService {
               : false,
           };
         });
-       
       }),
     );
   }
@@ -167,5 +356,59 @@ export class ProductsService {
       group[prod.category].push(prod);
       return group;
     }, {});
+  }
+
+  translit(word) {
+    var converter = {
+      а: 'a',
+      б: 'b',
+      в: 'v',
+      г: 'g',
+      д: 'd',
+      е: 'e',
+      ё: 'e',
+      ж: 'zh',
+      з: 'z',
+      и: 'i',
+      й: 'y',
+      к: 'k',
+      л: 'l',
+      м: 'm',
+      н: 'n',
+      о: 'o',
+      п: 'p',
+      р: 'r',
+      с: 's',
+      т: 't',
+      у: 'u',
+      ф: 'f',
+      х: 'h',
+      ц: 'c',
+      ч: 'ch',
+      ш: 'sh',
+      щ: 'sch',
+      ь: '',
+      ы: 'y',
+      ъ: '',
+      э: 'e',
+      ю: 'yu',
+      я: 'ya',
+    };
+
+    word = word.toLowerCase();
+
+    var answer = '';
+    for (var i = 0; i < word.length; ++i) {
+      if (converter[word[i]] == undefined) {
+        answer += word[i];
+      } else {
+        answer += converter[word[i]];
+      }
+    }
+
+    answer = answer.replace(/[^-0-9a-z]/g, '-');
+    answer = answer.replace(/[-]+/g, '-');
+    answer = answer.replace(/^\-|-$/g, '');
+    return answer;
   }
 }

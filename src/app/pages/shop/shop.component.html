@@ -1,13 +1,65 @@
 <!-- <p>{{telegram.UserName}}</p> -->
 <!-- <button (click)="productsService.fetchProducts()">Get Products</button> -->
-<input type="text" #filter (input)="productsService.updateFilter(filter.value)">    
+<!-- <p>{{category}}</p>
+<p>{{typeFromRoute}}</p>
+<p>{{brandFromRoute}}</p>
+<hr>
 
-    <app-product-list 
-    titleList="Уход" 
-    subtitleList="Описание категории ухода" 
-    [products]="productsService.$products()!"/>
+<p>{{typeSignal()}}</p>
+<p>{{brandSignal()}}</p> -->
 
-    <!-- <app-product-list 
+@if(!productsService.$productCategory()){
+  <app-category-list
+    [categories]="productsService.$productCategories()!"
+  />
+}
+
+@if(!productsService.$productType()){
+  @if (productsService.$productCategory()){
+  <app-type-list
+    [types]="productsService.$productTypes()!"
+    [categoryName]="productsService.$productCategory()!.name"
+  />}
+}
+
+@if(!productsService.$productBrand()){
+  @if (productsService.$productCategory() && productsService.$productType()){
+  <app-brand-list
+    [brands]="productsService.$productBrands()!"
+    [categoryName]="productsService.$productCategory()!.name"
+    [typeName]="productsService.$productType()!.name"
+  />}
+
+}
+
+<!-- @if(!productsService.$productType()){
+  <app-type-list
+    [types]="productsService.$productTypes()!"
+  />
+}
+
+@if(!productsService.$productBrand()!){
+  <app-brand-list
+    [brands]="productsService.$productBrands()!"
+  />
+}
+ -->
+
+
+  <input
+    type="text"
+    #filter
+    (input)="productsService.updateFilter(filter.value)"
+    [value]="productsService.$searchFilter()"
+  />
+
+  <app-product-list
+    titleList="Уход"
+    subtitleList="Описание категории ухода"
+    [products]="productsService.$products()!"
+  />
+
+  <!-- <app-product-list 
     title="Уход" 
     subtitle="Описание категории ухода" 
     [products]="productsService.byCategory['уход']"/>
@@ -21,3 +73,4 @@
     title="Аксессуары" 
     subtitle="Описание категории аксессуары" 
     [products]="productsService.byCategory['аксессуары']"/> -->
+

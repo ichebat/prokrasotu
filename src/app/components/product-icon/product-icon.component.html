@@ -5,7 +5,7 @@
   class="product-item"
   color="accent"
 ></a> -->
-<mat-card appearance="outlined" class="product-item mat-elevation-z5" [routerLink]="'/product/' + product.id">
+<mat-card  class="product-icon mat-elevation-z5" [routerLink]="'/product/' + product.id">
   <!-- <mat-card-header>
       <mat-card-title class="line-clamp">{{
         product.name 
@@ -27,13 +27,14 @@
     @if (product.name != "") {
       <!-- <button mat-button [routerLink]="'/product/' + product.id">{{ product.name }}</button> -->
       <!-- <a [routerLink]="'/product/' + product.id">{{ product.name }}</a> -->
-      <p>{{ product.name }}</p>
+      <p>{{ (product.name | slice: 0:60)+(product.name.length > 60 ? '...' : '') }}</p>
     }
     <!-- @if (product.description != ''){<p>{{product.description}}</p>}
         @if (product.dopolnitelno != ''){<p>{{product.dopolnitelno}}</p>} -->
   </mat-card-content>
-  <!-- <mat-card-actions> -->
-  <!-- <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button> -->
-  <!-- </mat-card-actions> -->
+  <div class="flex-fill"></div>
+  <mat-card-actions>
+  <button mat-button>LIKE</button>
+      <button mat-button>SHARE</button>
+  </mat-card-actions>
 </mat-card>

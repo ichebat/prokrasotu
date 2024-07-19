@@ -1,0 +1,7 @@
+<h3>type-list works!</h3>
+<p>selected category is: {{categoryName}}</p>
+
+@for (type of types; track type) {        
+    @if(checkType(type)){ <app-type-icon [type]="type"/>}
+}
+

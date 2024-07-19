@@ -8,6 +8,10 @@ import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.compone
 const routes: Routes = [
   {path:'', component: ShopComponent},
   {path:'feedback', component: FeedbackComponent},
+  
+  {path:'shop/:category/:type/:brand', component: ShopComponent},  
+  {path:'shop/:category/:type', component: ShopComponent},  
+  {path:'shop/:category', component: ShopComponent},
   {path:'shop', component: ShopComponent},
   {path:'product/:id', component: ProductComponent},
 
@@ -16,7 +20,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {scrollPositionRestoration: 'enabled'})],
+  imports: [RouterModule.forRoot(routes, {scrollPositionRestoration: 'enabled', bindToComponentInputs: true})],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

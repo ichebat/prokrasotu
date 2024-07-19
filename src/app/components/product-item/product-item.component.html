@@ -1,11 +1,16 @@
-@if (product.category != "" || product.type != "" || product.brand != ""){
-<mat-chip-listbox>
-  @if (product.category != ""){<mat-chip highlighted color="primary">{{ product.category }}</mat-chip>}
-  @if (product.type != ""){<mat-chip highlighted  color="accent">{{ product.type }}</mat-chip>}
-  @if (product.brand != ""){<mat-chip highlighted color="warn">{{ product.brand }}</mat-chip>}
-</mat-chip-listbox>
+@if (product.category != "" || product.type != "" || product.brand != "") {
+  <mat-chip-listbox>
+    @if (product.category != "") {
+      <mat-chip highlighted color="primary">{{ product.category }}</mat-chip>
+    }
+    @if (product.type != "") {
+      <mat-chip highlighted color="accent">{{ product.type }}</mat-chip>
+    }
+    @if (product.brand != "") {
+      <mat-chip highlighted color="warn">{{ product.brand }}</mat-chip>
+    }
+  </mat-chip-listbox>
 }
-
 
 <div class="responsive-grid-product-item">
   <mat-card appearance="outlined" class="product-item mat-elevation-z5">
@@ -17,7 +22,7 @@
           [src]="product.imageUrl"
           [alt]="product.description"
           [title]="product.name"
-          class="product-image"
+          class="product-item-image"
         />
       </div>
     }
@@ -40,16 +45,10 @@
         <mat-divider></mat-divider>
       }
 
-      <mat-grid-list cols="11" rowHeight="52px">
-        <mat-grid-tile colspan="11">
-          <h3>
-            {{ product.price | currency:'RUB':'symbol-narrow' }}
-          </h3>
-        </mat-grid-tile>
-
-        <mat-grid-tile colspan="4">
-          <button mat-raised-button (click)="goBack()">
-            <mat-icon>keyboard_backspace</mat-icon> Назад
+      <mat-grid-list cols="6" rowHeight="52px">
+        <mat-grid-tile colspan="3">
+          <button mat-button color="accent">
+            {{ product.price | currency: "RUB" : "symbol-narrow" }}
           </button>
         </mat-grid-tile>
         <mat-grid-tile>
@@ -63,11 +62,17 @@
             <mat-icon>remove</mat-icon>
           </button></mat-grid-tile
         >
-        <mat-grid-tile colspan="4"
+
+        <mat-grid-tile colspan="3">
+          <button mat-raised-button (click)="goBack()">
+            <mat-icon>keyboard_backspace</mat-icon> Назад
+          </button>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="3"
           ><button mat-raised-button color="accent">
             <mat-icon>shopping_basket</mat-icon> В корзину
-          </button></mat-grid-tile
-        >
+          </button>
+        </mat-grid-tile>
       </mat-grid-list>
     </mat-card-content>
   </mat-card>
