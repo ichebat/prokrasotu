@@ -14,6 +14,7 @@ const routes: Routes = [
   {path:'shop/:category', component: ShopComponent},
   {path:'shop', component: ShopComponent},
   {path:'product/:id', component: ProductComponent},
+  {path:'product/:id/:product-name', component: ProductComponent},
 
   //Wild Card Route for 404 request 
   { path: '**', pathMatch: 'full',  component: PagenotfoundComponent }, 

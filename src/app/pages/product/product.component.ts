@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './product.component.html',
 })
 export class ProductComponent implements OnInit, OnDestroy {
+
   // subscription: Subscription;
   
   // product!: IProduct;

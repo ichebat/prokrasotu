@@ -8,6 +8,8 @@ import { IProductBrand } from '../../services/products.service';
 })
 export class BrandIconComponent {
   @Input() brand!: IProductBrand;
+  @Input() categoryName: string = '';  
+  @Input() typeName: string = '';
 
 
 }

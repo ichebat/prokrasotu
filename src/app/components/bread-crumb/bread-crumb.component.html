@@ -1,0 +1,59 @@
+<mat-chip-listbox>
+    <mat-chip highlighted routerLink="/shop/">КАТАЛОГ</mat-chip>
+    
+@if (
+  productsService.$productCategory()?.name ||
+  productsService.$productType()?.name ||
+  productsService.$productBrand()?.name
+) {
+  <!-- <mat-nav-list class="list-horizontal">
+    <a mat-list-item routerLink="/">Главная</a>
+    @if (productsService.$productCategory()?.name) {
+      <a
+        mat-list-item
+        [routerLink]="'/shop/' + productsService.$productCategory()?.translit"
+        >{{ productsService.$productCategory()?.name }}</a
+      >
+    }
+  </mat-nav-list> -->
+
+  <!-- <ul>
+        <li><a mat-button routerLink="/">Главная</a></li>
+    </ul>
+  
+  @if (productsService.$productCategory()?.name) {
+    <a mat-button [routerLink]="'/shop/'+productsService.$productCategory()?.translit">{{productsService.$productCategory()?.name}}</a>
+  } -->
+
+
+
+    @if (productsService.$productCategory()?.name) {
+      <mat-chip highlighted color="primary" routerLink="/shop">{{
+        productsService.$productCategory()?.name | uppercase
+      }}
+      <button matChipRemove routerLink="/shop">
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip>
+    }
+    @if (productsService.$productType()?.name) {
+      <mat-chip highlighted color="accent" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit">{{
+        productsService.$productType()?.name | uppercase
+      }}
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit">
+        <mat-icon>cancel</mat-icon>
+      </button>
+    </mat-chip>
+    }
+    @if (productsService.$productBrand()?.name) {
+      <mat-chip highlighted color="warn" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit">{{
+        productsService.$productBrand()?.name | uppercase
+      }}
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit">
+        <mat-icon>cancel</mat-icon>
+      </button>
+      </mat-chip>
+    }
+ 
+}
+</mat-chip-listbox>

@@ -7,6 +7,8 @@ import { IProductCategory } from '../../services/products.service';
   styleUrl: './category-list.component.scss'
 })
 export class CategoryListComponent {
+  @Input() titleList = 'Angular';
+  @Input() subtitleList = 'Angular';
   
   @Input() categories: IProductCategory[] = [];
 

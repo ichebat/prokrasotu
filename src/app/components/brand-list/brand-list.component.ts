@@ -7,6 +7,9 @@ import { IProductBrand } from '../../services/products.service';
   styleUrl: './brand-list.component.scss'
 })
 export class BrandListComponent {
+  @Input() titleList = 'Angular';
+  @Input() subtitleList = 'Angular';
+  
   @Input() brands: IProductBrand[] = [];
   @Input() categoryName: string = '';  
   @Input() typeName: string = '';

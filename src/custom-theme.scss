@@ -38,15 +38,15 @@ $prokrasotu: (
 );
 
 // mandatory stuff for theming
-$prokrasotu-palette-primary: mat.define-palette($prokrasotu);
-//$prokrasotu-palette-accent: mat.define-palette($prokrasotu);
-$prokrasotu-palette-accent: mat.define-palette(
-  mat.$pink-palette,
-  A200,
-  A100,
-  A400
-);
-$prokrasotu-palette-warn: mat.define-palette($prokrasotu);
+$prokrasotu-palette-primary: mat.define-palette($prokrasotu, 500, 300, 700);
+$prokrasotu-palette-accent: mat.define-palette($prokrasotu, A400, A200, A700);
+// $prokrasotu-palette-accent: mat.define-palette(
+//   mat.$pink-palette,
+//   A200,
+//   A100,
+//   A400
+// );
+$prokrasotu-palette-warn: mat.define-palette(mat.$pink-palette);
 
 // include the custom theme components into a theme object
 $prokrasotu-theme: mat.define-light-theme(
@@ -61,9 +61,19 @@ $prokrasotu-theme: mat.define-light-theme(
   )
 );
 
-$prokrasotu-palette-dark-primary: mat.define-palette($prokrasotu);
-$prokrasotu-palette-dark-accent: mat.define-palette($prokrasotu);
-$prokrasotu-palette-dark-warn: mat.define-palette($prokrasotu);
+$prokrasotu-palette-dark-primary: mat.define-palette(
+  $prokrasotu,
+  500,
+  300,
+  700
+);
+$prokrasotu-palette-dark-accent: mat.define-palette(
+  $prokrasotu,
+  A200,
+  A100,
+  A400
+);
+$prokrasotu-palette-dark-warn: mat.define-palette(mat.$red-palette);
 
 // $prokrasotu-dark-theme: mat.define-dark-theme(
 //   $prokrasotu-palette-dark-primary,
@@ -100,19 +110,23 @@ $prokrasotu-dark-theme: mat.define-dark-theme(
     color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
   }
 
-  .product-icon:hover {
+  .product-icon:hover,
+  .category-icon:hover,
+  .type-icon:hover,
+  .brand-icon:hover {
     //background-color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
-    box-shadow: 0px 0px 10px mat.get-color-from-palette($prokrasotu-palette-dark-primary);
+    box-shadow: 0px 0px 10px
+      mat.get-color-from-palette($prokrasotu-palette-dark-primary);
   }
 
   @include mat.all-component-colors($prokrasotu-dark-theme);
 }
 
-.product-icon:hover {
+.product-icon:hover,
+.category-icon:hover,
+.type-icon:hover,
+.brand-icon:hover {
   //background-color: mat.get-color-from-palette($prokrasotu-palette-accent);
-  box-shadow: 0px 0px 10px mat.get-color-from-palette($prokrasotu-palette-primary);
+  box-shadow: 0px 0px 10px
+    mat.get-color-from-palette($prokrasotu-palette-primary);
 }
-
-
-
-

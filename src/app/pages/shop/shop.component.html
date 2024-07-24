@@ -7,9 +7,12 @@
 
 <p>{{typeSignal()}}</p>
 <p>{{brandSignal()}}</p> -->
+<app-bread-crumb/>
 
 @if(!productsService.$productCategory()){
   <app-category-list
+    titleList="Выберите категорию товара"
+    subtitleList=""
     [categories]="productsService.$productCategories()!"
   />
 }
@@ -17,17 +20,21 @@
 @if(!productsService.$productType()){
   @if (productsService.$productCategory()){
   <app-type-list
+    titleList="Выберите тип товара"
+    subtitleList=""
     [types]="productsService.$productTypes()!"
-    [categoryName]="productsService.$productCategory()!.name"
+    [categoryName]="productsService.$productCategory()!.translit"
   />}
 }
 
 @if(!productsService.$productBrand()){
   @if (productsService.$productCategory() && productsService.$productType()){
   <app-brand-list
+    titleList="Выберите бренд (если необходимо)"
+    subtitleList=""
     [brands]="productsService.$productBrands()!"
-    [categoryName]="productsService.$productCategory()!.name"
-    [typeName]="productsService.$productType()!.name"
+    [categoryName]="productsService.$productCategory()!.translit"
+    [typeName]="productsService.$productType()!.translit"
   />}
 
 }
@@ -44,18 +51,33 @@
   />
 }
  -->
+ @if (productsService.$productCategory() && productsService.$productType()){
 
+  <mat-form-field appearance="outline">
+    <mat-label>Введите строку для поиска</mat-label>
+    <input matNativeControl
+      #filter
+      maxlength="50"
+      placeholder="Поиск"
+      (input)="productsService.updateFilter(filter.value)"
+      autocomplete="off"
+      [value]="productsService.$searchFilter()">
+      @if(filter.value){<button matSuffix mat-icon-button type="button" (click)="onSearchClear()">
+          <mat-icon>close</mat-icon>
+      </button>}
+    <mat-hint>Введите строку для поиска{{filter.value.length}}/50</mat-hint>                                    
+</mat-form-field>
 
-  <input
+  <!-- <input
     type="text"
     #filter
     (input)="productsService.updateFilter(filter.value)"
     [value]="productsService.$searchFilter()"
-  />
+  /> -->
 
   <app-product-list
-    titleList="Уход"
-    subtitleList="Описание категории ухода"
+    titleList=""
+    subtitleList=""
     [products]="productsService.$products()!"
   />
 
@@ -74,3 +96,4 @@
     subtitle="Описание категории аксессуары" 
     [products]="productsService.byCategory['аксессуары']"/> -->
 
+  }

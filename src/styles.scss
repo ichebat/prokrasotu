@@ -5,6 +5,8 @@
 
 :root {
   --main-padding: 8px;
+  --main-grid-width: 160px;
+  --main-grid-width-x2: 320px;
 }
 
 * {
@@ -68,21 +70,6 @@ hr {
 //     object-fit: cover;
 //   }
 
-//используется для размещения списка продуктов
-.responsive-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-}
-
-//используется для размещения карточек внутри продукта
-.responsive-grid-product-item {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-}
 
 //разделитель для навигации navbar
 .spacer {
@@ -123,6 +110,11 @@ body {
   //////////////////////////////////background: var(--tg-theme-bg-color);
   //////////////////////////////////color: var(--tg-theme-text-color);
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+mat-form-field {
+  width: 100%;
+  padding-top: var(--main-padding);
 }
 
 /* Absolute Center Spinner */

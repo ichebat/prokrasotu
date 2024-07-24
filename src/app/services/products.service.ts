@@ -33,6 +33,7 @@ export interface IProduct {
   price: number;
   discount: number;
   isNew: boolean;
+  translit: string;
 }
 
 export interface IProductCategory {
@@ -52,6 +53,60 @@ export interface IProductBrand {
   types: IProductType[];
 }
 
+export function transliterate(word):string {
+  var converter = {
+    а: 'a',
+    б: 'b',
+    в: 'v',
+    г: 'g',
+    д: 'd',
+    е: 'e',
+    ё: 'e',
+    ж: 'zh',
+    з: 'z',
+    и: 'i',
+    й: 'y',
+    к: 'k',
+    л: 'l',
+    м: 'm',
+    н: 'n',
+    о: 'o',
+    п: 'p',
+    р: 'r',
+    с: 's',
+    т: 't',
+    у: 'u',
+    ф: 'f',
+    х: 'h',
+    ц: 'c',
+    ч: 'ch',
+    ш: 'sh',
+    щ: 'sch',
+    ь: '',
+    ы: 'y',
+    ъ: '',
+    э: 'e',
+    ю: 'yu',
+    я: 'ya',
+  };
+
+  word = word.toLowerCase();
+
+  var answer = '';
+  for (var i = 0; i < word.length; ++i) {
+    if (converter[word[i]] == undefined) {
+      answer += word[i];
+    } else {
+      answer += converter[word[i]];
+    }
+  }
+
+  answer = answer.replace(/[^-0-9a-z]/g, '-');
+  answer = answer.replace(/[-]+/g, '-');
+  answer = answer.replace(/^\-|-$/g, '');
+  return answer;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -67,9 +122,9 @@ export class ProductsService {
 
   public $searchFilter = signal<string>('');
   private $productId = signal<string>('');
-  private $selectedCategoryName = signal<string>('');
-  private $selectedTypeName = signal<string>('');
-  private $selectedBrandName = signal<string>('');
+  private $selectedCategoryTranslit = signal<string>('');
+  private $selectedTypeTranslit = signal<string>('');
+  private $selectedBrandTranslit = signal<string>('');
 
   private $productsAPI = toSignal<IProduct[]>(this.getProducts());
 
@@ -77,12 +132,19 @@ export class ProductsService {
   $products = computed(() => {
     const productsAPIValue = this.$productsAPI();
     const searchFilterValue = this.$searchFilter();
+    const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
+    const selectedTypeTranslitValue = this.$selectedTypeTranslit();
+    const selectedBrandTranslitValue = this.$selectedBrandTranslit();
+
     if (productsAPIValue == undefined) {
       return [] as IProduct[];
     } else {
       return productsAPIValue.filter((p) => {
         return (
           p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
+          && (transliterate(p.category).toString().toLowerCase() === selectedCategoryTranslitValue.toString().toLowerCase() || !selectedCategoryTranslitValue)
+          && (transliterate(p.type).toString().toLowerCase() === selectedTypeTranslitValue.toString().toLowerCase() || !selectedTypeTranslitValue)
+          && (transliterate(p.brand).toString().toLowerCase() === selectedBrandTranslitValue.toString().toLowerCase() || !selectedBrandTranslitValue)
         );
       });
     }
@@ -99,7 +161,7 @@ export class ProductsService {
         if (!group.find((item) => item.name == prod.category)) {
           group.push({
             name: prod.category,
-            translit: this.translit(prod.category),
+            translit: transliterate(prod.category),
           });
         }
         return group.sort((a, b) => a.name.localeCompare(b.name));
@@ -124,10 +186,10 @@ export class ProductsService {
           group.push({
             category: {
               name: prod.category,
-              translit: this.translit(prod.category),
+              translit: transliterate(prod.category),
             },
             name: prod.type,
-            translit: this.translit(prod.type),
+            translit: transliterate(prod.type),
           });
         }
         return group.sort((a, b) => a.name.localeCompare(b.name));
@@ -146,7 +208,7 @@ export class ProductsService {
         if (!group.find((item) => item.name == prod.brand)) {
           const newBrandItem = {
             name: prod.brand,
-            translit: this.translit(prod.brand),
+            translit: transliterate(prod.brand),
             types: [] as IProductType[],
           };
 
@@ -159,10 +221,10 @@ export class ProductsService {
             ) {
               group2.push({
                 name: prod2.type,
-                translit: this.translit(prod2.type),
+                translit: transliterate(prod2.type),
                 category: {
                   name: prod2.category,
-                  translit: this.translit(prod2.category),
+                  translit: transliterate(prod2.category),
                 },
               });
             }
@@ -171,7 +233,7 @@ export class ProductsService {
 
           group.push({
             name: prod.brand,
-            translit: this.translit(prod.brand),
+            translit: transliterate(prod.brand),
             types: newBrandItem.types,
           });
         }
@@ -199,14 +261,14 @@ export class ProductsService {
   //выбранная категория при переходе по маршруту /shop/:category
   $productCategory = computed(() => {
     const categoriesValue = this.$productCategories();
-    const selectedCategoryNameValue = this.$selectedCategoryName();
+    const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
     if (categoriesValue == undefined) {
       return null;
     } else {
       return categoriesValue.find((p) => {
         return (
           p.translit.toString().toLowerCase() ===
-          selectedCategoryNameValue.toString().toLowerCase()
+          selectedCategoryTranslitValue.toString().toLowerCase()
         );
       });
     }
@@ -215,14 +277,18 @@ export class ProductsService {
   //выбранный тип при переходе по маршруту /shop/:category/:type
   $productType = computed(() => {
     const typesValue = this.$productTypes();
-    const selectedTypeNameValue = this.$selectedTypeName();
+    const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
+    const selectedTypeTranslitValue = this.$selectedTypeTranslit();
     if (typesValue == undefined) {
       return null;
     } else {
       return typesValue.find((p) => {
         return (
           p.translit.toString().toLowerCase() ===
-          selectedTypeNameValue.toString().toLowerCase()
+          selectedTypeTranslitValue.toString().toLowerCase()
+          && 
+          p.category.translit.toString().toLowerCase() ===
+          selectedCategoryTranslitValue.toString().toLowerCase()
         );
       });
     }
@@ -231,14 +297,20 @@ export class ProductsService {
   //выбранный бренд при переходе по маршруту /shop/:category/:type/:brand
   $productBrand = computed(() => {
     const brandsValue = this.$productBrands();
-    const selectedBrandNameValue = this.$selectedBrandName();
+    const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
+    const selectedTypeTranslitValue = this.$selectedTypeTranslit();
+    const selectedBrandTranslitValue = this.$selectedBrandTranslit();    
+
     if (brandsValue == undefined) {
       return null;
     } else {
       return brandsValue.find((p) => {
         return (
           p.translit.toString().toLowerCase() ===
-          selectedBrandNameValue.toString().toLowerCase()
+          selectedBrandTranslitValue.toString().toLowerCase()
+          &&
+          p.types.findIndex(t => t.translit.toString().toLowerCase() === selectedTypeTranslitValue.toString().toLowerCase() &&
+          t.category.translit.toString().toLowerCase() === selectedCategoryTranslitValue.toString().toLowerCase())>=0
         );
       });
     }
@@ -253,10 +325,10 @@ export class ProductsService {
     this.$productId.set(id);
   }
 
-  updateSelectedCategoryName(categoryNameTranslit) {
+  updateSelectedCategoryTranslit(categoryNameTranslit) {
     //console.log('try set category by '+categoryNameTranslit);
     const categoryNameTranslitValue = categoryNameTranslit ? categoryNameTranslit : '';
-    this.$selectedCategoryName.set(categoryNameTranslitValue);
+    this.$selectedCategoryTranslit.set(categoryNameTranslitValue);
      
     // console.log(this.$productCategories());
     // if (!categoryNameTranslit || this.$productCategories().length ==0) this.$selectedCategoryName.set('');
@@ -265,18 +337,18 @@ export class ProductsService {
     // console.log("signal category is set to "+this.$selectedCategoryName());
   }
 
-  updateSelectedTypeName(typeNameTranslit) {
+  updateSelectedTypeTranslit(typeNameTranslit) {
     const typeNameTranslitValue = typeNameTranslit ? typeNameTranslit : '';
-    this.$selectedTypeName.set(typeNameTranslitValue);
+    this.$selectedTypeTranslit.set(typeNameTranslitValue);
     // console.log('try set type by '+typeNameTranslit);
     // if (!typeNameTranslit || this.$productTypes().length ==0) this.$selectedTypeName.set('');
     // else
     // this.$selectedTypeName.set(this.$productTypes().find(p => p.translit == typeNameTranslit)!.name);
   }
 
-  updateSelectedBrandName(brandNameTranslit) {
+  updateSelectedBrandTranslit(brandNameTranslit) {
     const brandNameTranslitValue = brandNameTranslit ? brandNameTranslit : '';
-    this.$selectedBrandName.set(brandNameTranslitValue);
+    this.$selectedBrandTranslit.set(brandNameTranslitValue);
     // console.log('try set brand by '+brandNameTranslit);
     // if (!brandNameTranslit || this.$productBrands().length ==0) this.$selectedBrandName.set('');
     // else
@@ -332,6 +404,9 @@ export class ProductsService {
             isNew: row.c[ProductColumns.colIsNew]
               ? row.c[ProductColumns.colIsNew].v
               : false,
+            translit: transliterate(row.c[ProductColumns.colName]
+              ? row.c[ProductColumns.colName].v
+              : ''),
           };
         });
       }),
@@ -358,57 +433,57 @@ export class ProductsService {
     }, {});
   }
 
-  translit(word) {
-    var converter = {
-      а: 'a',
-      б: 'b',
-      в: 'v',
-      г: 'g',
-      д: 'd',
-      е: 'e',
-      ё: 'e',
-      ж: 'zh',
-      з: 'z',
-      и: 'i',
-      й: 'y',
-      к: 'k',
-      л: 'l',
-      м: 'm',
-      н: 'n',
-      о: 'o',
-      п: 'p',
-      р: 'r',
-      с: 's',
-      т: 't',
-      у: 'u',
-      ф: 'f',
-      х: 'h',
-      ц: 'c',
-      ч: 'ch',
-      ш: 'sh',
-      щ: 'sch',
-      ь: '',
-      ы: 'y',
-      ъ: '',
-      э: 'e',
-      ю: 'yu',
-      я: 'ya',
-    };
+  // transliterate(word):string {
+  //   var converter = {
+  //     а: 'a',
+  //     б: 'b',
+  //     в: 'v',
+  //     г: 'g',
+  //     д: 'd',
+  //     е: 'e',
+  //     ё: 'e',
+  //     ж: 'zh',
+  //     з: 'z',
+  //     и: 'i',
+  //     й: 'y',
+  //     к: 'k',
+  //     л: 'l',
+  //     м: 'm',
+  //     н: 'n',
+  //     о: 'o',
+  //     п: 'p',
+  //     р: 'r',
+  //     с: 's',
+  //     т: 't',
+  //     у: 'u',
+  //     ф: 'f',
+  //     х: 'h',
+  //     ц: 'c',
+  //     ч: 'ch',
+  //     ш: 'sh',
+  //     щ: 'sch',
+  //     ь: '',
+  //     ы: 'y',
+  //     ъ: '',
+  //     э: 'e',
+  //     ю: 'yu',
+  //     я: 'ya',
+  //   };
 
-    word = word.toLowerCase();
+  //   word = word.toLowerCase();
 
-    var answer = '';
-    for (var i = 0; i < word.length; ++i) {
-      if (converter[word[i]] == undefined) {
-        answer += word[i];
-      } else {
-        answer += converter[word[i]];
-      }
-    }
+  //   var answer = '';
+  //   for (var i = 0; i < word.length; ++i) {
+  //     if (converter[word[i]] == undefined) {
+  //       answer += word[i];
+  //     } else {
+  //       answer += converter[word[i]];
+  //     }
+  //   }
 
-    answer = answer.replace(/[^-0-9a-z]/g, '-');
-    answer = answer.replace(/[-]+/g, '-');
-    answer = answer.replace(/^\-|-$/g, '');
-    return answer;
-  }
+  //   answer = answer.replace(/[^-0-9a-z]/g, '-');
+  //   answer = answer.replace(/[-]+/g, '-');
+  //   answer = answer.replace(/^\-|-$/g, '');
+  //   return answer;
+  // }
 }

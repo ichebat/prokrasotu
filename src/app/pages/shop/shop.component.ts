@@ -14,9 +14,9 @@ export class ShopComponent implements OnInit, OnDestroy {
 
 
   //@Input('category') categoryFromRoute = '';
-  @Input() set category(category: string) { this.productsService.updateSelectedCategoryName(category); }
-  @Input() set type(type: string) { this.productsService.updateSelectedTypeName(type); }
-  @Input() set brand(brand: string) { this.productsService.updateSelectedBrandName(brand); }
+  @Input() set category(category: string) { this.productsService.updateSelectedCategoryTranslit(category); }
+  @Input() set type(type: string) { this.productsService.updateSelectedTypeTranslit(type); }
+  @Input() set brand(brand: string) { this.productsService.updateSelectedBrandTranslit(brand); }
   // @Input('type') typeFromRoute = '';
   // @Input('brand') brandFromRoute = '';
 
@@ -50,7 +50,7 @@ export class ShopComponent implements OnInit, OnDestroy {
     public productsService: ProductsService,
     private route: ActivatedRoute,
   ) {
-    console.log("Constructor Shop");
+    //console.log("Constructor Shop");
 
 
 
@@ -135,9 +135,9 @@ export class ShopComponent implements OnInit, OnDestroy {
     //   this.products = value;
     // });
 
-    console.log(this.productsService.$productCategories());
-    console.log(this.productsService.$productTypes());
-    console.log(this.productsService.$productBrands());
+    // console.log(this.productsService.$productCategories());
+    // console.log(this.productsService.$productTypes());
+    // console.log(this.productsService.$productBrands());
   }
 
   // stringToEnum(value: string, enumType: { [key: string]: string }): string | undefined {
@@ -174,4 +174,9 @@ export class ShopComponent implements OnInit, OnDestroy {
   //   //return prodList.map(this.productsService.AddDomainToLinkAndImage);
 
   // }
+
+  onSearchClear() {
+    
+    this.productsService.updateFilter('');
+  };
 }

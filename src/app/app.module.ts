@@ -23,6 +23,7 @@ import { BrandIconComponent } from './components/brand-icon/brand-icon.component
 import { CategoryListComponent } from './components/category-list/category-list.component';
 import { BrandListComponent } from './components/brand-list/brand-list.component';
 import { TypeListComponent } from './components/type-list/type-list.component';
+import { BreadCrumbComponent } from './components/bread-crumb/bread-crumb.component';
 
 
 @NgModule({
@@ -41,7 +42,8 @@ import { TypeListComponent } from './components/type-list/type-list.component';
     BrandIconComponent,
     CategoryListComponent,
     BrandListComponent,
-    TypeListComponent
+    TypeListComponent,
+    BreadCrumbComponent
   ],
   imports: [
     MaterialModule,

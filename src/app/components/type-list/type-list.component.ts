@@ -7,11 +7,14 @@ import { IProductType } from '../../services/products.service';
   styleUrl: './type-list.component.scss'
 })
 export class TypeListComponent {
+  @Input() titleList = 'Angular';
+  @Input() subtitleList = 'Angular';
   
   @Input() types: IProductType[] = [];
   @Input() categoryName: string = '';
   
   checkType(type: IProductType){
-    return type.category.translit == this.categoryName || type.category.name == this.categoryName || !this.categoryName;
+    //console.log(type.category.translit +' - '+this.categoryName+ ' = '+(type.category.translit == this.categoryName || type.category.name == this.categoryName).toString());
+    return type.category.translit == this.categoryName || type.category.name == this.categoryName ;
   }
 }
