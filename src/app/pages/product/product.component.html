@@ -1,19 +1,11 @@
+<mat-chip-listbox>
+  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+</mat-chip-listbox>
+
 @if (productsService.$product()) {
   <app-product-item [product]="productsService.$product()!" />
 }
-<!-- <mat-grid-list cols="9" rowHeight="52px">
-  <mat-grid-tile colspan="3">
-    <button mat-raised-button>Вернуться назад</button>
-  </mat-grid-tile>
-  <mat-grid-tile>
-    <button mat-icon-button color="accent">
-      <mat-icon>add</mat-icon>
-    </button>
-  </mat-grid-tile>
-  <mat-grid-tile>2</mat-grid-tile>
-  <mat-grid-tile>
-    <button mat-icon-button color="accent">
-      <mat-icon>remove</mat-icon>
-    </button></mat-grid-tile>
-  <mat-grid-tile colspan="3"><button mat-raised-button color="accent"><mat-icon>add_shopping_cart</mat-icon> В корзину</button></mat-grid-tile>
-</mat-grid-list> -->
+
+<mat-chip-listbox>
+  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+</mat-chip-listbox>

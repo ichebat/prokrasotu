@@ -3,6 +3,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ThemeSwitchService } from '../../services/theme-switch.service';
 import { ProductsService } from '../../services/products.service';
+import { Router } from '@angular/router';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-main-nav',
@@ -21,7 +23,11 @@ export class MainNavComponent  implements OnInit{
   step = signal(-1);
   
 
-  constructor(private observer: BreakpointObserver,public readonly _themeSwitchService: ThemeSwitchService, public productsService: ProductsService) {}
+  constructor(private observer: BreakpointObserver,
+    public readonly _themeSwitchService: ThemeSwitchService, 
+    public productsService: ProductsService,     
+    public cartService: CartService,
+    private router: Router) {}
   ngOnInit(): void {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
       if(screenSize.matches){
@@ -65,5 +71,11 @@ export class MainNavComponent  implements OnInit{
 
   prevStep() {
     this.step.update(i => i - 1);
+  }
+
+  isProductView() {
+    // return true if the current page is login
+    console.log(this.router.url.match('^/product'));
+    return this.router.url.match('^/product');
   }
 }

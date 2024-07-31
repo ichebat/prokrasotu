@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { environment } from '../../environments/environment.development';
 
 export enum ProductColumns {
   colId = 0,
@@ -111,13 +112,13 @@ export function transliterate(word):string {
   providedIn: 'root',
 })
 export class ProductsService {
-  sheetId = '1JPSzoAEUktlPgShanrrdZs3Vb5YwQVzlTeog8JmzWrI';
-  sheetGid = '1383014775';
-  url =
-    'https://docs.google.com/spreadsheets/d/' +
-    this.sheetId +
-    '/gviz/tq?tqx=out:json&tq&gid=' +
-    this.sheetGid;
+  sheetId = environment.sheetId;//'1JPSzoAEUktlPgShanrrdZs3Vb5YwQVzlTeog8JmzWrI';
+  sheetGid = environment.sheetGid;//'1383014775';
+  url = environment.getProductsFromGoogleAsJSONUrl;
+    // 'https://docs.google.com/spreadsheets/d/' +
+    // this.sheetId +
+    // '/gviz/tq?tqx=out:json&tq&gid=' +
+    // this.sheetGid;
   // url = "http://cors.io/spreadsheets.google.com/feeds/list/"+this.sheetId+"/od6/public/values?alt=json";
 
   public $searchFilter = signal<string>('');

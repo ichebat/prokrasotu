@@ -7,6 +7,7 @@
   --main-padding: 8px;
   --main-grid-width: 160px;
   --main-grid-width-x2: 320px;
+  --main-grid-width-x4: 640px;
 }
 
 * {
@@ -26,6 +27,10 @@
 
 .mb {
   margin-bottom: var(--main-padding);
+}
+
+.pb {
+  padding-bottom: var(--main-padding);
 }
 
 .hint {
@@ -60,16 +65,15 @@ hr {
   border-radius: 10px;
 }
 
-.container {
-  padding: 8px;
-}
+// .container {
+//   padding: 8px;
+// }
 
 // img {
 //     width: 100%;
 //     height: 200px;
 //     object-fit: cover;
 //   }
-
 
 //разделитель для навигации navbar
 .spacer {
@@ -87,15 +91,12 @@ hr {
   display: flex;
 }
 
-
-
-
-
-
-
-
-
-.product-item mat-card {
+.buy-button {
+  padding-left: var(--main-padding);
+  padding-right: var(--main-padding);
+  button {
+    width: 100%;
+  }
   width: 100%;
 }
 
@@ -106,10 +107,11 @@ body {
 
 body {
   margin: 0;
-  //padding-bottom: var(--main-padding);
-  //////////////////////////////////background: var(--tg-theme-bg-color);
-  //////////////////////////////////color: var(--tg-theme-text-color);
+  padding-bottom: var(--main-padding);
+  background: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  
 }
 
 mat-form-field {

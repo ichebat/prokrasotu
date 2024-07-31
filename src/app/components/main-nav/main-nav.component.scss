@@ -14,6 +14,7 @@ mat-toolbar {
 
 mat-sidenav-container {
   height: 100%;
+  //flex-grow: 1;
 }
 
 // Move the content down so that it won't be hidden by the toolbar
@@ -49,7 +50,8 @@ mat-sidenav {
 }
 
 mat-sidenav-container {
-  // height: calc(100vh - 65px);
+  //height: calc(100vh - 65px);
+  // min-height: 100vh;
   padding-top: 3.5rem;
   @media screen and (min-width: 600px) {
     padding-top: 4rem;
@@ -70,4 +72,25 @@ mat-sidenav-container {
 //   // overflow: hide;
 //   // width: 100%;
 //   // height: 50px;
+// }
+.container {
+  padding: 8px;
+  height: 100%;
+}
+
+// .sticky-footer {
+//   position: sticky;
+//   //height: 64px;
+//   bottom: 0;
+//   //z-index: 1000; /* Ensure it's above other content */
+//   // //flex: 1;
+
+//   //position: relative;
+//   // width: 100%;
+//   // height: 20vh;
+//   // margin-top: 20vh;
+//   // margin-left: auto;
+//   // margin-right: auto;
+//   // bottom: 0;
+//   // overflow: hidden;
 // }

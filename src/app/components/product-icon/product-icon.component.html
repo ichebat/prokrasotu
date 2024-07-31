@@ -1,11 +1,10 @@
-
 <!-- <a
   matripple
   [routerLink]="'/product/' + product.id"
   class="product-item"
   color="accent"
 ></a> -->
-<mat-card  class="product-icon mat-elevation-z5" [routerLink]="'/product/' + product.id+'/'+product.translit">
+<mat-card class="product-icon mat-elevation-z5">
   <!-- <mat-card-header>
       <mat-card-title class="line-clamp">{{
         product.name 
@@ -16,25 +15,62 @@
     <!-- <img mat-card-image [src]="product.imageUrl" [alt]="product.name"> -->
 
     <!-- <app-imgx [title]="product.brand"> -->
-    <div class="product-image-host">
+    <div class="product-image-host" [routerLink]="'/product/' + product.id + '/' + product.translit">
       <button mat-button disabled>{{ product.brand }}</button>
-      <img mat-card-image [src]="product.imageUrl" [alt]="product.description" [title]="product.name" class="product-image"/>
+      <img
+        mat-card-image
+        [src]="product.imageUrl"
+        [alt]="product.description"
+        [title]="product.name"
+        class="product-image"
+      />
     </div>
     <!-- </app-imgx> -->
   }
   <mat-card-content>
-    
     @if (product.name != "") {
-      <!-- <button mat-button [routerLink]="'/product/' + product.id">{{ product.name }}</button> -->
-      <!-- <a [routerLink]="'/product/' + product.id">{{ product.name }}</a> -->
-      <p>{{ (product.name | slice: 0:60)+(product.name.length > 60 ? '...' : '') }}</p>
+      <div
+        class="mat-typography"
+        [routerLink]="'/product/' + product.id + '/' + product.translit"
+      >
+        <!-- <button mat-button [routerLink]="'/product/' + product.id">{{ product.name }}</button> -->
+        <!-- <p><a [routerLink]="'/product/' + product.id+'/'+product.translit">{{ (product.name | slice: 0:60)+(product.name.length > 60 ? '...' : '') }}</a></p> -->
+        <p>
+          {{
+            (product.name | slice: 0 : 60) +
+              (product.name.length > 60 ? "..." : "")
+          }}
+        </p>
+      </div>
     }
     <!-- @if (product.description != ''){<p>{{product.description}}</p>}
         @if (product.dopolnitelno != ''){<p>{{product.dopolnitelno}}</p>} -->
+        <mat-divider></mat-divider>
   </mat-card-content>
   <div class="flex-fill"></div>
   <mat-card-actions>
-  <button mat-button>LIKE</button>
-      <button mat-button>SHARE</button>
+    <!-- @if (isInCart(product)){
+      <p>В корзине {{quantityInCart(product)}}</p>
+    } -->
+    @if (product.price>0){
+    <div class="buy-button">
+      @if (product.discount ==0){
+        <button mat-flat-button color="accent">
+          {{ product.price | currency: "RUB" : "symbol-narrow" }}
+        </button>
+      }
+      
+      @if (product.discount >0){
+        <button mat-flat-button color="accent" matBadge="%" matBadgeSize="large" matBadgePosition="after">
+          <s>{{ product.price | currency: "RUB" : "symbol-narrow" }}</s> {{ product.price/100*(100-product.discount)| currency: "RUB" : "symbol-narrow" }}
+        </button>
+      }
+
+  </div>}
+
+    <!-- <button mat-fab extended color="accent">
+      <mat-icon>shopping_basket</mat-icon
+      >{{ product.price | currency: "RUB" : "symbol-narrow" }}
+    </button> -->
   </mat-card-actions>
 </mat-card>

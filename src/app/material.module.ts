@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 // import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 // import { MatIconRegistry } from '@angular/material/icon';
 // import { MatAutocompleteModule } from '@angular/material/autocomplete';
-// import { MatBadgeModule } from '@angular/material/badge';
+ import { MatBadgeModule } from '@angular/material/badge';
  import { MatButtonModule } from '@angular/material/button';
 // import { MatButtonToggleModule } from '@angular/material/button-toggle';
  import { MatCardModule } from '@angular/material/card';
@@ -52,7 +52,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   imports: [
     CommonModule,
     // MatAutocompleteModule,
-    // MatBadgeModule,
+     MatBadgeModule,
      MatButtonModule, 
     // MatButtonToggleModule,
      MatCardModule,
@@ -92,7 +92,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     // CdkTreeModule,
     // DragDropModule,
     // MatAutocompleteModule,
-    // MatBadgeModule,
+     MatBadgeModule,
      MatButtonModule, 
     // MatButtonToggleModule,
      MatCardModule,

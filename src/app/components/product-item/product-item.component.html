@@ -1,4 +1,6 @@
-@if (product.category != "" || product.type != "" || product.brand != "") {
+
+
+<!-- @if (product.category != "" || product.type != "" || product.brand != "") {
   <mat-chip-listbox>
     @if (product.category != "") {
       <mat-chip highlighted color="primary">{{ product.category }}</mat-chip>
@@ -10,13 +12,22 @@
       <mat-chip highlighted color="warn">{{ product.brand }}</mat-chip>
     }
   </mat-chip-listbox>
-}
+} -->
 
 <div class="responsive-grid-product-item">
   <mat-card appearance="outlined" class="product-item mat-elevation-z5">
+    <mat-card-header>
+      <mat-card-title>{{ product.name }}</mat-card-title>
+      <mat-card-subtitle
+        >{{ product.brand }}
+        @if (product.artikul) {
+          арт.:{{ product.artikul }}
+        }
+      </mat-card-subtitle>
+    </mat-card-header>
+
     @if (product.imageUrl != "") {
       <div class="product-image-host">
-        <button mat-button disabled>{{ product.brand }}</button>
         <img
           mat-card-image
           [src]="product.imageUrl"
@@ -26,16 +37,106 @@
         />
       </div>
     }
+
     <mat-card-content>
-      @if (product.name != "") {
-        <p>{{ product.name }}</p>
+      @if (product.price! > 0) {
+        <div class="buy-button pb">
+          @if (product.discount == 0) {
+            <button mat-flat-button color="accent"
+            
+            (click)="addItem()">
+              В корзину за {{ product.price | currency: "RUB" : "symbol-narrow" }}
+            </button>
+          }
+          @if (product.discount > 0) {
+            <button
+              mat-flat-button
+              color="accent"
+              matBadge="%"
+              matBadgeSize="large"
+              matBadgePosition="after"
+              (click)="addItem()"
+            >
+            В корзину
+              <s>{{ product.price | currency: "RUB" : "symbol-narrow" }}</s>
+              {{
+                (product.price / 100) * (100 - product.discount)
+                  | currency: "RUB" : "symbol-narrow"
+              }}
+            </button>
+          }
+        </div>
       }
+      <!-- @if (product.name != "") {
+        <p>{{ product.name }}</p>
+      } -->
+      @if (product.description != "") {
+        <p>{{ product.description }}</p>
+      }
+      @if (product.dopolnitelno != "") {
+        <p>{{ product.dopolnitelno }}</p>
+      }
+
+      @if (product.url) {
+        <a [href]="product.url" target="_blank">Ссылка на сайт производителя</a>
+      }
+
+      <mat-divider></mat-divider>
+      <!-- <mat-grid-list cols="6" rowHeight="52px">
+        <mat-grid-tile colspan="6">
+          <button mat-button color="accent">
+            {{ product.price | currency: "RUB" : "symbol-narrow" }}
+          </button>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="2">
+          <button mat-icon-button color="accent">
+            <mat-icon>add</mat-icon>
+          </button>
+        </mat-grid-tile>
+        <mat-grid-tile colspan="2">2</mat-grid-tile>
+        <mat-grid-tile colspan="2">
+          <button mat-icon-button color="accent">
+            <mat-icon>remove</mat-icon>
+          </button></mat-grid-tile
+        >
+
+        
+        <mat-grid-tile colspan="6"
+          ><button mat-raised-button color="accent">
+            <mat-icon>shopping_basket</mat-icon> В корзину
+          </button>
+        </mat-grid-tile>
+      </mat-grid-list> -->
     </mat-card-content>
+    <mat-card-actions>
+
+      <span class="spacer"></span>
+      @if(!$isInCart()){
+      <button mat-flat-button color="accent" (click)="addItem()">
+        <mat-icon>add_shopping_cart</mat-icon> В корзину
+      </button>
+    }
+      
+      @if($isInCart()){
+        
+      <button mat-icon-button color="accent" (click)="addItem()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button mat-button>{{$quantity()}}</button>
+      <button mat-icon-button color="accent" (click)="removeItem()">
+        <mat-icon>remove</mat-icon>
+      </button>
+      <span class="spacer"></span>
+        <button mat-flat-button color="accent" routerLink="/cart">
+          <mat-icon>arrow_forward_ios</mat-icon> Корзина
+        </button>
+      }
+    </mat-card-actions>
   </mat-card>
 
-  <mat-card appearance="outlined" class="product-item mat-elevation-z5">
-    <mat-card-content>
-      @if (product.description != "") {
+  <!-- <mat-card appearance="outlined" class="product-item mat-elevation-z5">
+    <mat-card-content> -->
+  <!-- @if (product.description != "") {
         <p>{{ product.description }}</p>
       }
       @if (product.dopolnitelno != "") {
@@ -43,10 +144,10 @@
       }
       @if (product.description != "" || product.dopolnitelno != "") {
         <mat-divider></mat-divider>
-      }
+      } -->
 
-      <mat-grid-list cols="6" rowHeight="52px">
-        <mat-grid-tile colspan="3">
+  <!-- <mat-grid-list cols="6" rowHeight="52px">
+        <mat-grid-tile colspan="2">
           <button mat-button color="accent">
             {{ product.price | currency: "RUB" : "symbol-narrow" }}
           </button>
@@ -56,24 +157,24 @@
             <mat-icon>add</mat-icon>
           </button>
         </mat-grid-tile>
-        <mat-grid-tile>2</mat-grid-tile>
+        <mat-grid-tile colspan="2">2</mat-grid-tile>
         <mat-grid-tile>
           <button mat-icon-button color="accent">
             <mat-icon>remove</mat-icon>
           </button></mat-grid-tile
         >
 
-        <mat-grid-tile colspan="3">
-          <button mat-raised-button (click)="goBack()">
-            <mat-icon>keyboard_backspace</mat-icon> Назад
-          </button>
+        <mat-grid-tile colspan="2">
+          
         </mat-grid-tile>
-        <mat-grid-tile colspan="3"
+        <mat-grid-tile colspan="4"
           ><button mat-raised-button color="accent">
             <mat-icon>shopping_basket</mat-icon> В корзину
           </button>
         </mat-grid-tile>
-      </mat-grid-list>
-    </mat-card-content>
-  </mat-card>
+      </mat-grid-list> -->
+  <!-- </mat-card-content>
+  </mat-card> -->
 </div>
+
+

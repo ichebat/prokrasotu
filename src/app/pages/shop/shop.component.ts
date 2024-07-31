@@ -3,20 +3,33 @@ import { TelegramService } from '../../services/telegram.service';
 import { IProduct, ProductsService } from '../../services/products.service';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-shop',
   templateUrl: './shop.component.html',
 })
 export class ShopComponent implements OnInit, OnDestroy {
-  telegram = inject(TelegramService);
+ telegram = inject(TelegramService);
 
 
 
   //@Input('category') categoryFromRoute = '';
-  @Input() set category(category: string) { this.productsService.updateSelectedCategoryTranslit(category); }
-  @Input() set type(type: string) { this.productsService.updateSelectedTypeTranslit(type); }
-  @Input() set brand(brand: string) { this.productsService.updateSelectedBrandTranslit(brand); }
+  @Input() set category(category: string) { 
+    this.productsService.updateSelectedCategoryTranslit(category); 
+    if (category) this.telegramService.BackButton.show();
+    else
+    this.telegramService.BackButton.hide();
+  }
+  @Input() set type(type: string) { 
+    this.productsService.updateSelectedTypeTranslit(type); 
+    if (type) this.telegramService.BackButton.show();
+  }
+  @Input() set brand(brand: string) { 
+    this.productsService.updateSelectedBrandTranslit(brand); 
+    if (brand) this.telegramService.BackButton.show();
+  }
   // @Input('type') typeFromRoute = '';
   // @Input('brand') brandFromRoute = '';
 
@@ -46,10 +59,17 @@ export class ShopComponent implements OnInit, OnDestroy {
   /**
    *
    */
+
+  tgString = JSON.stringify(this.telegram.tg);
+
   constructor(
     public productsService: ProductsService,
-    private route: ActivatedRoute,
+    private cartService: CartService,
+    private telegramService: TelegramService,    
+    private location: Location,
+    private route:ActivatedRoute,
   ) {
+    
     //console.log("Constructor Shop");
 
 
@@ -70,7 +90,7 @@ export class ShopComponent implements OnInit, OnDestroy {
     // this.productsService.updateSelectedBrandName(this.brand);
 
     //this.telegram.MainButton.show();
-    this.telegram.BackButton.hide();
+    //this.telegram.BackButton.hide();
 
     // let category = '';
     // let type = '';
@@ -90,13 +110,21 @@ export class ShopComponent implements OnInit, OnDestroy {
     //   //this.products =  res;
     //   this.productsService.setProductList(res);
     // });
+
+    this.goBack = this.goBack.bind(this);
+
+    
   }
 
   ngOnDestroy(): void {
+    this.telegramService.BackButton.offClick(this.goBack);
     //this.subscription.unsubscribe();
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void {    
+    this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+
+
     // console.log("Init Shop, routes: "+this.category+','+this.typeFromRoute+','+this.brandFromRoute);
     // if (this.category) this.productsService.updateSelectedCategoryName(this.category);
     // else this.productsService.updateSelectedCategoryName('');
@@ -179,4 +207,9 @@ export class ShopComponent implements OnInit, OnDestroy {
     
     this.productsService.updateFilter('');
   };
+
+  goBack() {
+    //this.router.navigate(['']);
+    this.location.back();
+  }
 }

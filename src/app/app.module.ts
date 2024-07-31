@@ -24,6 +24,8 @@ import { CategoryListComponent } from './components/category-list/category-list.
 import { BrandListComponent } from './components/brand-list/brand-list.component';
 import { TypeListComponent } from './components/type-list/type-list.component';
 import { BreadCrumbComponent } from './components/bread-crumb/bread-crumb.component';
+import { CartComponent } from './pages/cart/cart.component';
+import { CartItemComponent } from './components/cart-item/cart-item.component';
 
 
 @NgModule({
@@ -43,7 +45,9 @@ import { BreadCrumbComponent } from './components/bread-crumb/bread-crumb.compon
     CategoryListComponent,
     BrandListComponent,
     TypeListComponent,
-    BreadCrumbComponent
+    BreadCrumbComponent,
+    CartComponent,
+    CartItemComponent
   ],
   imports: [
     MaterialModule,

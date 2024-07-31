@@ -12,6 +12,11 @@
   </h1>
 
   <span class="spacer"></span>
+  
+    <button mat-icon-button routerLink="/cart">        
+          <mat-icon matBadgeColor="accent" [matBadgeHidden] = "cartService.$cart()!.totalCount == 0" [matBadge]="cartService.$cart()!.totalCount">shopping_cart</mat-icon>        
+      </button>
+  
   <button mat-icon-button (click)="onThemeChange($event)">
     <mat-icon>format_color_fill</mat-icon>
   </button>
@@ -96,7 +101,7 @@
   </mat-sidenav-content>
 </mat-sidenav-container> -->
 
-<mat-sidenav-container autosize>
+<mat-sidenav-container fullscreen>
   <mat-sidenav
     [ngClass]="!isCollapsed ? 'expanded' : ''"
     [mode]="isMobile ? 'over' : 'side'"
@@ -137,7 +142,12 @@
                   <a
                     mat-list-item
                     matListItemLine
-                    [routerLink]="'/shop/'+typeProduct.category.translit+'/'+typeProduct.translit"
+                    [routerLink]="
+                      '/shop/' +
+                      typeProduct.category.translit +
+                      '/' +
+                      typeProduct.translit
+                    "
                     (click)="toggleMenu()"
                   >
                     {{ typeProduct.name | lowercase }}
@@ -150,23 +160,58 @@
       </mat-accordion>
     }
 
-    <mat-nav-list>
-      <a mat-list-item (click)="toggleMenu()">
-        <span class="entry">
-          <mat-icon>person</mat-icon>
-          @if (!isCollapsed) {
-            <span>Person</span>
-          }
-        </span>
-      </a>
-    </mat-nav-list>
+    @if (cartService.$cart()!.totalAmount > 0 && cartService.$cart()!.totalCount > 0) {
+      <mat-nav-list>
+        <a mat-list-item (click)="toggleMenu()" routerLink="/cart">
+          <span class="entry">
+            <mat-icon>shopping_cart</mat-icon>
+            @if (!isCollapsed) {
+              <span>{{cartService.$cart()!.totalCount}} ед. на {{ cartService.$cart()!.totalAmount | currency: "RUB" : "symbol-narrow" }}</span>
+            }
+          </span>
+        </a>
+      </mat-nav-list>
+    }
+    @if (cartService.$cart()!.totalAmount == 0 || cartService.$cart()!.totalCount == 0) {
+      <mat-nav-list>
+        <a mat-list-item (click)="toggleMenu()" routerLink="/cart">
+          <span class="entry">
+            <mat-icon>shopping_cart</mat-icon>
+            @if (!isCollapsed) {
+              <span>В корзине пусто</span>
+            }
+          </span>
+        </a>
+      </mat-nav-list>
+    }
   </mat-sidenav>
   <mat-sidenav-content>
     <!-- <h2>Content</h2> -->
     <div class="container">
-      
-
       <router-outlet></router-outlet>
+
+      <!-- @if (isProductView()){
+          <mat-toolbar color="primary" class="sticky-footer">
+            <mat-toolbar-row>
+              <button mat-icon-button aria-label="Menu icon">
+                <mat-icon>arrow_back_ios</mat-icon>
+              </button>
+        
+              <span class="spacer"></span>
+              <button mat-button>
+                <mat-icon>add</mat-icon>
+              </button>
+              <button mat-button>1</button>
+              <button mat-button>
+                <mat-icon>remove</mat-icon>
+              </button>
+              <button mat-button>
+                <mat-icon>shopping_basket</mat-icon> В корзину
+              </button>
+            </mat-toolbar-row>
+          </mat-toolbar>
+        
+          } -->
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

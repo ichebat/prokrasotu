@@ -102,6 +102,8 @@ $prokrasotu-dark-theme: mat.define-dark-theme(
     color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
   }
 
+  
+
   mat-card-title {
     color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
   }
@@ -119,6 +121,11 @@ $prokrasotu-dark-theme: mat.define-dark-theme(
       mat.get-color-from-palette($prokrasotu-palette-dark-primary);
   }
 
+  // a {
+  //   text-decoration: none;
+  //   color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
+  // }
+
   @include mat.all-component-colors($prokrasotu-dark-theme);
 }
 
@@ -130,3 +137,7 @@ $prokrasotu-dark-theme: mat.define-dark-theme(
   box-shadow: 0px 0px 10px
     mat.get-color-from-palette($prokrasotu-palette-primary);
 }
+// a {
+//   text-decoration: none;
+//   color: mat.get-color-from-palette($prokrasotu-palette-accent);
+// }

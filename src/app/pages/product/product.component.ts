@@ -4,10 +4,12 @@ import { TelegramService } from '../../services/telegram.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
+  styleUrl: './product.component.scss'
 })
 export class ProductComponent implements OnInit, OnDestroy {
 
@@ -19,6 +21,7 @@ export class ProductComponent implements OnInit, OnDestroy {
    */
   constructor(
     public productsService: ProductsService,
+    private cartService: CartService,
     private telegramService: TelegramService,
     private route: ActivatedRoute,
     private router: Router,
@@ -28,28 +31,14 @@ export class ProductComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.paramMap.get('id');
     this.productsService.updateId(id);
 
-    // this.subscription = this.productsService.productList$.subscribe((value) => {
-    //   this.product = value.find((p) => p.id == id);
-    // });
-    
-    // this.product = this.productsService.getById(id!);
-    // console.log(this.product);
-
-    // this.productsService.getById(id!).subscribe((res) => {
-    //   console.log(res);
-    //   this.product = res;
-    //   this.productsService.setProduct(res);
-    // });
-    //this.productsService.setProduct(this.product);
     this.goBack = this.goBack.bind(this);
   }
   ngOnDestroy(): void {
+    this.telegramService.BackButton.hide();
     this.telegramService.BackButton.offClick(this.goBack);
-    // this.subscription.unsubscribe();
   }
 
   goBack() {
-    //this.router.navigate(['']);
     this.location.back();
   }
 
@@ -57,8 +46,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     this.telegramService.BackButton.show();
     this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
 
-    // this.productsService.product$.subscribe((value) => {
-    //   this.product = value;
-    // });
+    
   }
 }

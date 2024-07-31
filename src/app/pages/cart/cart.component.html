@@ -1,0 +1,17 @@
+<mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+  </mat-chip-listbox>
+
+  
+
+<h2 class="mb">Корзина</h2>
+
+
+  
+    <app-cart-item [cart]="cartService.$cart()!" />
+
+
+
+<mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+</mat-chip-listbox>
