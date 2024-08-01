@@ -40,13 +40,13 @@ export class MainNavComponent  implements OnInit{
 
   toggleMenu() {    
 
-    if(this.isMobile){
+    // if(this.isMobile){
       this.sidenav.toggle();
       this.isCollapsed = false; // On mobile, the menu can never be collapsed
-    } else {
-      this.sidenav.open(); // On desktop/tablet, the menu can never be fully closed
-      this.isCollapsed = !this.isCollapsed;
-    }
+    // } else {
+    //   this.sidenav.open(); // On desktop/tablet, the menu can never be fully closed
+    //   this.isCollapsed = !this.isCollapsed;
+    // }
 
     this.setStep(-1);
   }

@@ -1,0 +1,13 @@
+<mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+  </mat-chip-listbox>
+  
+  @if (orderService.$delivery()) {
+    @for (item of orderService.$delivery(); track item) {
+        <p>{{item.name}}</p>
+      }
+  }
+  
+  <mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+  </mat-chip-listbox>

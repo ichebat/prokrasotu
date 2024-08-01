@@ -1,13 +1,17 @@
-@if (spinnerService.isVisible()){
+@if (spinnerService.isVisible()) {
   <div class="loading-indicator">
-  <mat-progress-spinner
-    mode="indeterminate"
-    value="50"
-  >
-  </mat-progress-spinner>
-</div>}
+    <!-- <mat-progress-spinner mode="indeterminate" value="50" color="accent">
+    </mat-progress-spinner> -->
+    <mat-progress-bar
+      mode="indeterminate"
+      value="50"
+      color="accent"
+    ></mat-progress-bar>
+  </div>
+}
 
 <app-main-nav
-  [class.solution-dark-theme]="_themeswitchService.isDarkThemeActive.getValue()">
+  [class.solution-dark-theme]="_themeswitchService.isDarkThemeActive.getValue()"
+>
   <router-outlet></router-outlet>
 </app-main-nav>

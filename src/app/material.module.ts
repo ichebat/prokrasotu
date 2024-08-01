@@ -23,7 +23,7 @@ import {MatDividerModule} from '@angular/material/divider';
  import { MatListModule } from '@angular/material/list';
 // import { MatMenuModule } from '@angular/material/menu';
 // import { MatPaginatorModule } from '@angular/material/paginator';
-// import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 // import { MatRadioModule } from '@angular/material/radio';
 // import { MatRippleModule } from '@angular/material/core';
@@ -70,7 +70,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     // MatMenuModule,
     // MatNativeDateModule,
     // MatPaginatorModule,
-    // MatProgressBarModule,
+    MatProgressBarModule,
     MatProgressSpinnerModule,
     // MatRadioModule,
     // MatRippleModule,
@@ -110,7 +110,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     // MatMenuModule,
     // MatNativeDateModule,
     // MatPaginatorModule,
-    // MatProgressBarModule,
+    MatProgressBarModule,
     MatProgressSpinnerModule,
     // MatRadioModule,
     // MatRippleModule,

@@ -26,6 +26,11 @@ import { TypeListComponent } from './components/type-list/type-list.component';
 import { BreadCrumbComponent } from './components/bread-crumb/bread-crumb.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { CartItemComponent } from './components/cart-item/cart-item.component';
+import { OrderComponent } from './pages/order/order.component';
+import { OrdersComponent } from './pages/orders/orders.component';
+import { OrderListComponent } from './components/order-list/order-list.component';
+import { OrderIconComponent } from './components/order-icon/order-icon.component';
+import { OrderItemComponent } from './components/order-item/order-item.component';
 
 
 @NgModule({
@@ -47,7 +52,12 @@ import { CartItemComponent } from './components/cart-item/cart-item.component';
     TypeListComponent,
     BreadCrumbComponent,
     CartComponent,
-    CartItemComponent
+    CartItemComponent,
+    OrderComponent,
+    OrdersComponent,
+    OrderListComponent,
+    OrderIconComponent,
+    OrderItemComponent
   ],
   imports: [
     MaterialModule,

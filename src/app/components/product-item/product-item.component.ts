@@ -98,60 +98,60 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
   
 
-  incQuantity() {
-    // this.$quantitySignal.set(this.$quantitySignal()+1);
-    if (!this.$quantitySignal()) this.$quantitySignal.set(1);
-    else
-    this.$quantitySignal.set(this.$quantitySignal()+1);
+  // incQuantity() {
+  //   // this.$quantitySignal.set(this.$quantitySignal()+1);
+  //   if (!this.$quantitySignal()) this.$quantitySignal.set(1);
+  //   else
+  //   this.$quantitySignal.set(this.$quantitySignal()+1);
 
-    //this.$isInCartSignal.set(true);
-  }
+  //   //this.$isInCartSignal.set(true);
+  // }
 
-  decQuantity() {
-    if (!this.$quantitySignal()) this.$quantitySignal.set(1);
-    //if (this.$quantitySignal() == 1) this.$isInCartSignal.set(false);
-    if (this.$quantitySignal() > 0) this.$quantitySignal.set(this.$quantitySignal()-1);  
+  // decQuantity() {
+  //   if (!this.$quantitySignal()) this.$quantitySignal.set(1);
+  //   //if (this.$quantitySignal() == 1) this.$isInCartSignal.set(false);
+  //   if (this.$quantitySignal() > 0) this.$quantitySignal.set(this.$quantitySignal()-1);  
     
-  }
+  // }
 
-  addItem() {
-    console.log('Add to cart');
-    // console.log(this.$quantitySignal());
-    this.incQuantity();
-    // console.log(this.$quantitySignal());
-    // fixed added product
-    const newItem: ICartItem = {
-      product: this.product,
-      quantity: 1,
-    };
-    this.cartService.addItem(newItem);
-    this.udpateCart();
+  // addItem() {
+  //   console.log('Add to cart');
+  //   // console.log(this.$quantitySignal());
+  //   this.incQuantity();
+  //   // console.log(this.$quantitySignal());
+  //   // fixed added product
+  //   const newItem: ICartItem = {
+  //     product: this.product,
+  //     quantity: 1,
+  //   };
+  //   this.cartService.addItem(newItem);
+  //   this.udpateCart();
     
-  }
+  // }
 
-  removeItem() {
-    console.log('Remove from cart');
-    this.decQuantity();
-    const newItem: ICartItem = {
-      product: this.product,
-      quantity: 1,
-    };
+  // removeItem() {
+  //   console.log('Remove from cart');
+  //   this.decQuantity();
+  //   const newItem: ICartItem = {
+  //     product: this.product,
+  //     quantity: 1,
+  //   };
 
-    this.cartService.removeItem(newItem);
-    this.udpateCart();
-  }
+  //   this.cartService.removeItem(newItem);
+  //   this.udpateCart();
+  // }
 
-  udpateCart() {
+  // udpateCart() {
     
-    // Update cartItems and totalAmount after removing an item
-    // this.cartItems = this.cartService.$cart().items;
-    // this.totalAmount = this.cartService.$cart().totalAmount;
-     //this.$isInCartSignal.set(this.cartService.$cart().items.findIndex(p=>p.product.id === this.product.id)>=0); // = this.cartItems.findIndex(p=>p.product.id === this.product.id)>=0;
+  //   // Update cartItems and totalAmount after removing an item
+  //   // this.cartItems = this.cartService.$cart().items;
+  //   // this.totalAmount = this.cartService.$cart().totalAmount;
+  //    //this.$isInCartSignal.set(this.cartService.$cart().items.findIndex(p=>p.product.id === this.product.id)>=0); // = this.cartItems.findIndex(p=>p.product.id === this.product.id)>=0;
     
-    // if (this.$isInCartSignal()) this.$quantitySignal.set(this.cartItems.find(p=>p.product.id === this.product.id)?.quantity!);
-    // else
-    // this.$quantitySignal.set(0);
-  }
+  //   // if (this.$isInCartSignal()) this.$quantitySignal.set(this.cartItems.find(p=>p.product.id === this.product.id)?.quantity!);
+  //   // else
+  //   // this.$quantitySignal.set(0);
+  // }
 
   
 
@@ -205,6 +205,40 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     
     
   // }
+
+  isInCart(product:IProduct)
+  {
+    return this.cartService.$cart().items.findIndex(p=>p.product.id === product.id)>=0;
+  }
+
+  quantityInCart(product:IProduct)
+  {
+    return this.cartService.$cart().items.find(p=>p.product.id === product.id)!.quantity;
+  }
+
+  addItem() {
+    console.log('Add to cart');
+    
+    const newItem: ICartItem = {
+      product: this.product,
+      quantity: 1,
+    };
+    this.cartService.addItem(newItem);
+    
+    
+  }
+
+  removeItem() {
+    console.log('Remove from cart');
+    
+    const newItem: ICartItem = {
+      product: this.product,
+      quantity: 1,
+    };
+
+    this.cartService.removeItem(newItem);
+    
+  }
 
   //https://api.telegram.org/bot[TOKEN]/sendMessage?chat_id=[CHAT_ID]&text=[TEXT]&reply_markup={"inline_keyboard": [[{"text": "hi", "callback_data": "hi"}]]}
   //https://stackoverflow.com/questions/70997956/how-to-send-a-message-via-url-with-inline-buttons

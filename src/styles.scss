@@ -92,10 +92,26 @@ hr {
 }
 
 .buy-button {
+  // display: grid;
+  // grid-template-columns: repeat(3, 1fr);
   padding-left: var(--main-padding);
   padding-right: var(--main-padding);
+
   button {
     width: 100%;
+    height: 54px;
+  }
+  width: 100%;
+}
+
+.buy-button-x3 {
+  // display: grid;
+  // grid-template-columns: repeat(3, 1fr);
+  text-align: center;
+  vertical-align: middle;
+
+  button {
+    width: 1fr;
   }
   width: 100%;
 }
@@ -111,7 +127,6 @@ body {
   background: var(--tg-theme-bg-color);
   color: var(--tg-theme-text-color);
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  
 }
 
 mat-form-field {
@@ -133,9 +148,10 @@ mat-form-field {
   //   right: 0;
 
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  // top: 50%;
+  // left: 50%;
+  // transform: translate(-50%, -50%);
+  width: 100%;
   z-index: 999;
 
   // position: absolute;

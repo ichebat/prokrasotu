@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { CartService } from '../../services/cart.service';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-shop',
@@ -12,6 +13,7 @@ import { CartService } from '../../services/cart.service';
 })
 export class ShopComponent implements OnInit, OnDestroy {
  telegram = inject(TelegramService);
+ navigation = inject(NavigationService);
 
 
 
@@ -210,6 +212,7 @@ export class ShopComponent implements OnInit, OnDestroy {
 
   goBack() {
     //this.router.navigate(['']);
-    this.location.back();
+    //this.location.back();
+    this.navigation.back();
   }
 }

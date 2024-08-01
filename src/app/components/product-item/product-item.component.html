@@ -1,5 +1,3 @@
-
-
 <!-- @if (product.category != "" || product.type != "" || product.brand != "") {
   <mat-chip-listbox>
     @if (product.category != "") {
@@ -42,22 +40,21 @@
       @if (product.price! > 0) {
         <div class="buy-button pb">
           @if (product.discount == 0) {
-            <button mat-flat-button color="accent"
-            
-            (click)="addItem()">
-              В корзину за {{ product.price | currency: "RUB" : "symbol-narrow" }}
+            <button mat-flat-button (click)="addItem()">
+              В корзину за
+              {{ product.price | currency: "RUB" : "symbol-narrow" }}
             </button>
           }
           @if (product.discount > 0) {
             <button
               mat-flat-button
-              color="accent"
               matBadge="%"
               matBadgeSize="large"
               matBadgePosition="after"
+              matBadgeColor="accent"
               (click)="addItem()"
             >
-            В корзину
+              В корзину за
               <s>{{ product.price | currency: "RUB" : "symbol-narrow" }}</s>
               {{
                 (product.price / 100) * (100 - product.discount)
@@ -82,6 +79,49 @@
       }
 
       <mat-divider></mat-divider>
+
+      <!-- @if (isInCart(product)){
+
+        <mat-grid-list cols="8" >
+          <mat-grid-tile>
+            <button mat-icon-button color="accent" (click)="addItem()">
+              <mat-icon>add</mat-icon>
+            </button>
+          </mat-grid-tile>
+          <mat-grid-tile  >
+            <button mat-button color="primary">
+              {{quantityInCart(product)}}
+            </button>
+          </mat-grid-tile>
+          <mat-grid-tile>
+            <button mat-icon-button (click)="removeItem()">
+              <mat-icon>remove</mat-icon>
+            </button>
+          </mat-grid-tile> 
+          <mat-grid-tile></mat-grid-tile>
+          <mat-grid-tile  colspan="4">
+            <div class="buy-button">
+              <button mat-flat-button color="primary" routerLink="/cart">
+                <mat-icon>arrow_forward_ios</mat-icon> Корзина
+              </button>
+            </div>  
+          </mat-grid-tile>       
+        </mat-grid-list>
+        
+        
+      } 
+      @if (!isInCart(product)){
+        <mat-grid-list cols="6" >
+          <mat-grid-tile colspan="6">
+            <div class="buy-button">
+              <button mat-flat-button color="primary" (click)="addItem()">
+                В корзину
+              </button>
+            </div>          
+          </mat-grid-tile>    
+        </mat-grid-list>    
+      } -->
+
       <!-- <mat-grid-list cols="6" rowHeight="52px">
         <mat-grid-tile colspan="6">
           <button mat-button color="accent">
@@ -109,27 +149,25 @@
       </mat-grid-list> -->
     </mat-card-content>
     <mat-card-actions>
-
-      <span class="spacer"></span>
-      @if(!$isInCart()){
-      <button mat-flat-button color="accent" (click)="addItem()">
-        <mat-icon>add_shopping_cart</mat-icon> В корзину
-      </button>
-    }
-      
-      @if($isInCart()){
-        
-      <button mat-icon-button color="accent" (click)="addItem()">
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-button>{{$quantity()}}</button>
-      <button mat-icon-button color="accent" (click)="removeItem()">
-        <mat-icon>remove</mat-icon>
-      </button>
-      <span class="spacer"></span>
-        <button mat-flat-button color="accent" routerLink="/cart">
-          <mat-icon>arrow_forward_ios</mat-icon> Корзина
-        </button>
+      @if (isInCart(product)) {
+        <div class="buy-button-x3">
+          <button mat-icon-button color="accent" (click)="addItem()">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button mat-icon-button routerLink="/cart">
+            <mat-icon matBadgeColor="accent" [matBadgeHidden] = "quantityInCart(product) == 0" [matBadge]="quantityInCart(product)">shopping_cart</mat-icon>           
+          </button>
+          <button mat-icon-button (click)="removeItem()">
+            <mat-icon>remove</mat-icon>
+          </button>
+        </div>
+      }
+      @if (!isInCart(product)) {
+        <div class="buy-button">
+          <button mat-flat-button color="primary" (click)="addItem()">
+            В корзину
+          </button>
+        </div>
       }
     </mat-card-actions>
   </mat-card>
@@ -176,5 +214,3 @@
   <!-- </mat-card-content>
   </mat-card> -->
 </div>
-
-

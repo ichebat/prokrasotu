@@ -16,8 +16,13 @@
 .product-image-host {
   display: grid;
   grid-template-areas: "image";
-  grid-template-rows: 20em;
+  grid-template-rows: 10em;
   margin: 0.25em 0.25em;
+  button {
+    position: absolute;
+    top: 10px; /*your button position*/
+    right: 10px; /*your button position*/
+}
 }
 
 // mat-card {
@@ -37,6 +42,9 @@
 .flex-fill {
   flex: 1 1 auto !important;
 }
+
+
+
 
 //Hiding
 // button {

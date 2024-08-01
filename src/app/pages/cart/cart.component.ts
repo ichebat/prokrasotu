@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit, effect } from '@angular/core';
+import { Component, OnDestroy, OnInit, effect, inject } from '@angular/core';
 import { CartService } from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
 import { Location } from '@angular/common';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-cart',
@@ -9,15 +10,18 @@ import { Location } from '@angular/common';
   styleUrl: './cart.component.scss'
 })
 export class CartComponent implements OnInit, OnDestroy{
+ 
+
   
   /**
    *
    */
   constructor(private location: Location,
     public cartService: CartService,
-    private telegramService: TelegramService,) {
+    private telegramService: TelegramService,
+    private navigation: NavigationService,) {
 
-    
+      this.goBack = this.goBack.bind(this);
   }
 
   ngOnInit(): void {
@@ -34,7 +38,8 @@ export class CartComponent implements OnInit, OnDestroy{
   }
 
   goBack() {
-    this.location.back();
+    //this.location.back();
+    this.navigation.back();
   }
 
   sendData() {

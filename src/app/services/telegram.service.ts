@@ -50,7 +50,8 @@ export class TelegramService {
   }
 
   get Id(): string {
-    //if (!this.tg.initDataUnsafe?.user?.id) return '1376405450';
+    
+    if (!this.tg.initDataUnsafe?.user?.id && !environment.production) return '1376405450';
     return this.tg.initDataUnsafe?.user?.id;
   }
 
@@ -70,6 +71,13 @@ export class TelegramService {
   getCartFromGoogleAppsScript(chat_id: string): Observable<any> {
     console.log('Try GET Cart from GAS by chat_id: ' + chat_id);
     return this._http.get(this.url + '?action=getCart&chat_id=' + chat_id, {
+      responseType: 'text',
+    });
+  }
+
+  getDeliveryFromGoogleAppsScript(): Observable<any> {
+    console.log('Try GET Delivery from GAS');
+    return this._http.get(this.url + '?action=getDelivery', {
       responseType: 'text',
     });
   }

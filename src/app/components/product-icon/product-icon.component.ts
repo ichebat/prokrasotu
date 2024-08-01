@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { IProduct } from '../../services/products.service';
-import { CartService } from '../../services/cart.service';
+import { CartService, ICartItem } from '../../services/cart.service';
 
 
 @Component({
@@ -24,6 +24,30 @@ export class ProductIconComponent {
   quantityInCart(product:IProduct)
   {
     return this.cartService.$cart().items.find(p=>p.product.id === product.id)!.quantity;
+  }
+
+  addItem() {
+    console.log('Add to cart');
+    
+    const newItem: ICartItem = {
+      product: this.product,
+      quantity: 1,
+    };
+    this.cartService.addItem(newItem);
+    
+    
+  }
+
+  removeItem() {
+    console.log('Remove from cart');
+    
+    const newItem: ICartItem = {
+      product: this.product,
+      quantity: 1,
+    };
+
+    this.cartService.removeItem(newItem);
+    
   }
 
 }

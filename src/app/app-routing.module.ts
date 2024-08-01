@@ -5,6 +5,8 @@ import { FeedbackComponent } from './pages/feedback/feedback.component';
 import { ProductComponent } from './pages/product/product.component';
 import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.component';
 import { CartComponent } from './pages/cart/cart.component';
+import { OrdersComponent } from './pages/orders/orders.component';
+import { OrderComponent } from './pages/order/order.component';
 
 const routes: Routes = [
   { path: '', component: ShopComponent },
@@ -17,6 +19,9 @@ const routes: Routes = [
   { path: 'shop/:category/:type/:brand', component: ShopComponent },
   { path: 'product/:id', component: ProductComponent },
   { path: 'product/:id/:product-name', component: ProductComponent },
+  { path: 'orders', component: OrdersComponent },
+  { path: 'order', component: OrderComponent },
+  { path: 'order/:id', component: OrderComponent },
 
   //Wild Card Route for 404 request
   { path: '**', pathMatch: 'full', component: PagenotfoundComponent },

@@ -1,10 +1,11 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { IProduct, ProductsService } from '../../services/products.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CartService } from '../../services/cart.service';
+import { NavigationService } from '../../services/navigation.service';
 
 @Component({
   selector: 'app-product',
@@ -12,6 +13,8 @@ import { CartService } from '../../services/cart.service';
   styleUrl: './product.component.scss'
 })
 export class ProductComponent implements OnInit, OnDestroy {
+
+  
 
   // subscription: Subscription;
   
@@ -23,6 +26,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     public productsService: ProductsService,
     private cartService: CartService,
     private telegramService: TelegramService,
+    private navigation: NavigationService,
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
@@ -39,7 +43,8 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.location.back();
+    //this.location.back();
+    this.navigation.back();
   }
 
   ngOnInit(): void {

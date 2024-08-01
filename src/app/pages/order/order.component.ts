@@ -1,24 +1,28 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { NavigationService } from '../../services/navigation.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
+import { NavigationService } from '../../services/navigation.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
-  selector: 'app-pagenotfound',
-  templateUrl: './pagenotfound.component.html',
-  styleUrl: './pagenotfound.component.scss'
+  selector: 'app-order',
+  templateUrl: './order.component.html',
+  styleUrl: './order.component.scss'
 })
-export class PagenotfoundComponent implements OnInit, OnDestroy{
- 
+export class OrderComponent implements OnInit, OnDestroy {
+
+  /**
+   *
+   */
   constructor(private telegramService: TelegramService,
-    private navigation: NavigationService,) {
-    
-    this.goBack = this.goBack.bind(this);
-    
+    private navigation: NavigationService,
+    public orderService: OrderService,) 
+    {
+
+      this.goBack = this.goBack.bind(this);
   }
   ngOnInit(): void {
     this.telegramService.BackButton.show();
     this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
-
   }
   ngOnDestroy(): void {
     this.telegramService.BackButton.hide();
