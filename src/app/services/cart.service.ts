@@ -7,6 +7,7 @@ import { BehaviorSubject, Observable, Subject, map, switchMap } from 'rxjs';
 export interface ICartItem {
   product: IProduct;
   quantity: number;
+  checked: boolean;
 }
 
 export interface IShoppingCart {

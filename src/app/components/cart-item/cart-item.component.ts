@@ -1,7 +1,8 @@
 import { Component, Input, OnDestroy, OnInit, effect } from '@angular/core';
-import { CartService, IShoppingCart } from '../../services/cart.service';
+import { CartService, ICartItem } from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
 import { Location } from '@angular/common';
+import { IProduct } from '../../services/products.service';
 
 @Component({
   selector: 'app-cart-item',
@@ -10,7 +11,8 @@ import { Location } from '@angular/common';
 })
 export class CartItemComponent implements OnInit, OnDestroy {
 
-  @Input() cart!: IShoppingCart;
+
+  @Input() cartItem!: ICartItem;
 
   constructor(private location: Location,
     private cartService: CartService,
@@ -18,18 +20,18 @@ export class CartItemComponent implements OnInit, OnDestroy {
 
     this.goBack = this.goBack.bind(this);
 
-    this.sendData = this.sendData.bind(this);
+    // this.sendData = this.sendData.bind(this);
 
-    const sendDataToTelegram = () => {      
-      this.sendData();
-    }
+    // const sendDataToTelegram = () => {      
+    //   this.sendData();
+    // }
   
-    effect(()=>{
-      this.telegramService.tg.onEvent('mainButtonClicked', sendDataToTelegram);
-      return () =>{
-        this.telegramService.tg.offEvent('mainButtonClicked', sendDataToTelegram);
-      }
-    });
+    // effect(()=>{
+    //   this.telegramService.tg.onEvent('mainButtonClicked', sendDataToTelegram);
+    //   return () =>{
+    //     this.telegramService.tg.offEvent('mainButtonClicked', sendDataToTelegram);
+    //   }
+    // });
 
     
   }
@@ -39,10 +41,10 @@ export class CartItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.telegramService.MainButton.setText('Отправить заказ в PROКРАСОТУ');
+    //this.telegramService.MainButton.setText('Отправить заказ в PROКРАСОТУ');
     // this.telegramService.MainButton.show();
     // this.telegramService.MainButton.disable();
-    this.telegramService.MainButton.show();
+    //this.telegramService.MainButton.show();
     // let f = () => this.sendData;
     // this.telegramService.MainButton.onClick(f);
 
@@ -53,7 +55,7 @@ export class CartItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.telegramService.MainButton.hide();
+    //this.telegramService.MainButton.hide();
     // let f = () => this.sendData;
     // this.telegramService.MainButton.offClick(f);
     //this.telegramService.MainButton.offClick(this.sendData); //при передаче параметра this теряется, поэтому забандить его в конструкторе
@@ -74,20 +76,55 @@ export class CartItemComponent implements OnInit, OnDestroy {
 
     //this.telegramService.showAlert('123');
 
-    this.telegramService.MainButton.setText('Отправляем заказ в ProKrasotu');
+    //this.telegramService.MainButton.setText('Отправляем заказ в ProKrasotu');
     //this.telegramService.MainButton.disable();
     
-    this.telegramService.sendToGoogleAppsScript({"newOrder":this.cart}).subscribe(response => {
-      console.log("SUCCESS");
-      this.telegramService.MainButton.setText('Ваш заказ отправлен в ProKrasotu');
-      //this.telegramService.MainButton.enable();
-      // setTimeout(() => {
-      //   this.telegramService.tg.close();
-      // }, 5000);
-    });
+    // this.telegramService.sendToGoogleAppsScript({"newOrder":this.cart}).subscribe(response => {
+    //   console.log("SUCCESS");
+    //   this.telegramService.MainButton.setText('Ваш заказ отправлен в ProKrasotu');
+    //   //this.telegramService.MainButton.enable();
+    //   // setTimeout(() => {
+    //   //   this.telegramService.tg.close();
+    //   // }, 5000);
+    // });
 
     
     
+  }
+
+  quantityInCart(product:IProduct)
+  {
+    return this.cartService.$cart().items.find(p=>p.product.id === product.id)!.quantity;
+  }
+
+  addItem() {
+    console.log('Add to cart');
+    
+    const newItem: ICartItem = {
+      product: this.cartItem.product,
+      quantity: 1,
+      checked: this.cartItem.checked,
+    };
+    this.cartService.addItem(newItem);
+    
+    
+  }
+
+  removeItem() {
+    console.log('Remove from cart');
+    
+    const newItem: ICartItem = {
+      product: this.cartItem.product,
+      quantity: 1,
+      checked: this.cartItem.checked,
+    };
+
+    this.cartService.removeItem(newItem);
+    
+  }
+
+  checkedChange(){
+    this.cartItem.checked = !this.cartItem.checked;
   }
 
 

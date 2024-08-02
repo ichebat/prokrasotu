@@ -1,17 +1,27 @@
 <mat-chip-listbox>
-    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
-  </mat-chip-listbox>
-
-  
+  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+</mat-chip-listbox>
 
 <h2 class="mb">Корзина</h2>
 
+@if (cartService.$cart()!.totalCount > 0) {
+  <h3 class="mb">
+    В корзине {{ cartService.$cart()!.totalCount }} шт. на
+    {{ cartService.$cart()!.totalAmount | currency: "RUB" : "symbol-narrow" }}
+  </h3>
 
-  
-    <app-cart-item [cart]="cartService.$cart()!" />
+  <mat-checkbox checked="true" (change)="changeAllItems($event.checked)">Выделить все</mat-checkbox>
+  @for (cartItem of cartService.$cart()!.items; track cartItem) {
+    <app-cart-item [cartItem]="cartItem" />
+  }
+ 
 
+}
 
+@if (cartService.$cart()!.totalCount == 0) {
+  <h3 class="mb">Ваша корзина пуста</h3>
+}
 
 <mat-chip-listbox>
-    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
 </mat-chip-listbox>

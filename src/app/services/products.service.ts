@@ -113,7 +113,7 @@ export function transliterate(word):string {
 })
 export class ProductsService {
   sheetId = environment.sheetId;//'1JPSzoAEUktlPgShanrrdZs3Vb5YwQVzlTeog8JmzWrI';
-  sheetGid = environment.sheetGid;//'1383014775';
+  sheetGid = environment.sheetProductsGid;//'1383014775';
   url = environment.getProductsFromGoogleAsJSONUrl;
     // 'https://docs.google.com/spreadsheets/d/' +
     // this.sheetId +

@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { NavigationService } from '../../services/navigation.service';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-shop',
@@ -67,6 +68,7 @@ export class ShopComponent implements OnInit, OnDestroy {
   constructor(
     public productsService: ProductsService,
     private cartService: CartService,
+    private orderService: OrderService,
     private telegramService: TelegramService,    
     private location: Location,
     private route:ActivatedRoute,

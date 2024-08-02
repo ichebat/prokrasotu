@@ -32,6 +32,7 @@ export class ProductIconComponent {
     const newItem: ICartItem = {
       product: this.product,
       quantity: 1,
+      checked: true,
     };
     this.cartService.addItem(newItem);
     
@@ -44,6 +45,7 @@ export class ProductIconComponent {
     const newItem: ICartItem = {
       product: this.product,
       quantity: 1,
+      checked: true,
     };
 
     this.cartService.removeItem(newItem);

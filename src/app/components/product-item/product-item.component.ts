@@ -222,6 +222,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     const newItem: ICartItem = {
       product: this.product,
       quantity: 1,
+      checked: true,
     };
     this.cartService.addItem(newItem);
     
@@ -234,6 +235,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     const newItem: ICartItem = {
       product: this.product,
       quantity: 1,
+      checked: true,
     };
 
     this.cartService.removeItem(newItem);
