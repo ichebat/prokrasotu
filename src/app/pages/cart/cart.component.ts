@@ -11,6 +11,7 @@ import { TelegramService } from '../../services/telegram.service';
 import { Location } from '@angular/common';
 import { NavigationService } from '../../services/navigation.service';
 import { Router } from '@angular/router';
+import { OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-cart',
@@ -22,7 +23,8 @@ export class CartComponent implements OnInit, OnDestroy {
   constructor(
     private location: Location,
     public cartService: CartService,
-    private telegramService: TelegramService,
+    public telegramService: TelegramService,
+    private orderService: OrderService,
     private navigation: NavigationService,
     private router: Router,
   ) {
@@ -81,6 +83,7 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   sendData() {
+    //this.orderService.
     this.router.navigate(['/order/']);
     //this.telegramService.MainButton.setText('Отправляем заказ в ProKrasotu');
 

@@ -29,8 +29,8 @@ export interface IOrder {
   providedIn: 'root'
 })
 export class OrderService {
-  sheetId = environment.sheetId;//'1JPSzoAEUktlPgShanrrdZs3Vb5YwQVzlTeog8JmzWrI';
-  sheetGid = environment.sheetDeliveryGid;//'1383014775';
+  sheetId = environment.sheetId;
+  sheetGid = environment.sheetDeliveryGid;
   urlDelivery = environment.getDeliveryFromGoogleAsJSONUrl;
 
   telegram = inject(TelegramService);
@@ -39,8 +39,7 @@ export class OrderService {
 
   private $deliveryAPI = toSignal<IDelivery[]>(this.getDelivery());
 
-  //$delivery = signal<IDelivery[]>([]);
-  //получаем список доставки
+  
   $delivery = computed(() => {
     const deliveryAPIValue = this.$deliveryAPI();
 
@@ -50,6 +49,88 @@ export class OrderService {
       return deliveryAPIValue;
     }
   });
+
+  $order = signal<IOrder>({
+    items: [] as ICartItem[],
+    clientName: "",
+    clientTgName: "",
+    clientPhone: "",
+    clientAddress: "",
+    delivery: {id: 0, name: "", description: "", amount: 0, freeAmount: 0},
+    totalAmount: this.calculateTotalAmount([] as ICartItem[]),
+    totalCount: this.calculateTotalCount([] as ICartItem[]),
+  });
+
+  private calculateTotalAmount(items: ICartItem[]): number {
+    return items.reduce(
+      (total, item) =>
+        total +
+        ((item.product.price * (100 - item.product.discount)) / 100) *
+          item.quantity,
+      0,
+    );
+  }
+
+  private calculateTotalCount(items: ICartItem[]): number {
+    return items.reduce((count, item) => count + item.quantity, 0, );
+  }
+
+  addItem(item: ICartItem) {
+    this.$order.update((currentCart) => {
+      const existingItem = currentCart.items.find(
+        (i) => i.product.id === item.product.id,
+      );
+      if (existingItem) {
+        existingItem.quantity += item.quantity;
+      } else {
+        currentCart.items.push(item);
+      }
+      currentCart.totalAmount +=
+        ((item.product.price * (100 - item.product.discount)) / 100) *
+        item.quantity;
+
+      currentCart.totalCount += item.quantity;
+
+      // if (this.telegram.Id) {
+      //   this.sendCartToGoogleAppsScript(
+      //     this.telegram.Id,
+      //     this.telegram.UserName,
+      //     'addCart',
+      //     currentCart,
+      //   );
+      // }
+      return currentCart;
+    });
+  }
+
+  removeItem(item: ICartItem) {
+    this.$order.update((currentCart) => {
+      const existingItem = currentCart.items.find(
+        (i) => i.product.id === item.product.id,
+      );
+      if (existingItem) {
+        if (existingItem.quantity - item.quantity < 0) {item.quantity = existingItem.quantity;}
+        existingItem.quantity -= item.quantity;
+      } 
+      currentCart.totalAmount -=
+        ((item.product.price * (100 - item.product.discount)) / 100) *
+        item.quantity;
+
+      currentCart.totalCount -= item.quantity;
+
+      currentCart.items = currentCart.items.filter(p => p.quantity>0);
+
+      // if (this.telegram.Id) {
+      //   this.sendCartToGoogleAppsScript(
+      //     this.telegram.Id,
+      //     this.telegram.UserName,
+      //     'removeCart',
+      //     currentCart,
+      //   );
+      // }
+      return currentCart;
+    });
+  }
   
 
   constructor(private _http: HttpClient) { }
@@ -90,6 +171,24 @@ export class OrderService {
     );
     
   }
+
+  // private sendOrderToGoogleAppsScript(
+  //   chat_id: string,
+  //   userName: string,
+  //   actionName: string,
+  //   shoppingCart: IShoppingCart,
+  // ) {
+  //   this.telegram
+  //     .sendToGoogleAppsScript({
+  //       chat_id: chat_id,
+  //       userName: userName,
+  //       action: actionName,
+  //       cart: shoppingCart,
+  //     })
+  //     .subscribe((response) => {
+  //       console.log('SUCCESS');
+  //     });
+  // }
 
   
 }

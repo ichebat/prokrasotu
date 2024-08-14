@@ -14,6 +14,14 @@
   @for (cartItem of cartService.$cart()!.items; track cartItem) {
     <app-cart-item [cartItem]="cartItem" />
   }
+
+  @if (!telegramService.UserName){
+  <div class="buy-button pb">    
+      <button mat-flat-button  color="accent" (click)="sendData()">
+        Оформить заказ в PROКРАСОТУ
+      </button>
+  </div>
+}
  
 
 }
