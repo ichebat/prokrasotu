@@ -75,6 +75,13 @@ export class TelegramService {
     });
   }
 
+  getOrdersFromGoogleAppsScript(chat_id: string): Observable<any> {
+    console.log('Try GET Orders from GAS by chat_id: ' + chat_id);
+    return this._http.get(this.url + '?action=getOrders&chat_id=' + chat_id, {
+      responseType: 'text',
+    });
+  }
+
   getDeliveryFromGoogleAppsScript(): Observable<any> {
     console.log('Try GET Delivery from GAS');
     return this._http.get(this.url + '?action=getDelivery', {

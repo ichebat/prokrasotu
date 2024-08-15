@@ -68,7 +68,7 @@ export class ShopComponent implements OnInit, OnDestroy {
   constructor(
     public productsService: ProductsService,
     private cartService: CartService,
-    private orderService: OrderService,
+    //private orderService: OrderService,
     private telegramService: TelegramService,    
     private location: Location,
     private route:ActivatedRoute,

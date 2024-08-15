@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { IOrder } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-list',
@@ -6,6 +7,9 @@ import { Component } from '@angular/core';
   styleUrl: './order-list.component.scss'
 })
 export class OrderListComponent {
+  @Input() titleList = 'Angular';
+  @Input() subtitleList = 'Angular';
+  @Input() orders: IOrder[] = [];
   
 
 }

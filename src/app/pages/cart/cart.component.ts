@@ -24,7 +24,7 @@ export class CartComponent implements OnInit, OnDestroy {
     private location: Location,
     public cartService: CartService,
     public telegramService: TelegramService,
-    private orderService: OrderService,
+    //private orderService: OrderService,
     private navigation: NavigationService,
     private router: Router,
   ) {

@@ -14,15 +14,28 @@ export interface IDelivery {
   freeAmount: number;
 }
 
-export interface IOrder {
+export interface IOrder {  
+  id: number;
   items: ICartItem[];
+  totalAmount: number;
+  totalCount: number;
   clientName: string;
   clientTgName: string;
   clientPhone: string;
   clientAddress: string;
   delivery: IDelivery;
-  totalAmount: number;
-  totalCount: number;
+  orderDate: Date;
+  isAccepted: boolean;
+  acceptDate: Date;
+  isCompleted: boolean;
+  completeDate: Date;
+  isDeclined: boolean;
+  declineDate: Date;
+  declineReason: string;
+  isCorrected: boolean;
+  correctionDate: Date;
+  coorectionReason: string;
+  description: string;
 }
 
 @Injectable({
@@ -39,6 +52,33 @@ export class OrderService {
 
   private $deliveryAPI = toSignal<IDelivery[]>(this.getDelivery());
 
+  private $ordersAPI = toSignal<IOrder[]>(
+    this.getOrders(this.telegram.Id),
+    {
+      initialValue: null,
+    },
+  );
+
+  
+  private $orderId = signal<string>('');
+
+  //выбранный заказ при переходе по маршруту /order/:id
+  $order = computed(() => {
+    const ordersAPIValue = this.$ordersAPI();
+    const orderIdValue = this.$orderId();
+    if (ordersAPIValue == undefined) {
+      return null;
+    } else {
+      return ordersAPIValue.find((p) => {
+        return (
+          p.id.toString().toLowerCase() ===
+          orderIdValue.toString().toLowerCase()
+        );
+      });
+    }
+  });
+
+
   
   $delivery = computed(() => {
     const deliveryAPIValue = this.$deliveryAPI();
@@ -50,15 +90,32 @@ export class OrderService {
     }
   });
 
-  $order = signal<IOrder>({
+  //Заказ при передаче в компонент
+  $orderSignal = signal<IOrder>({
+    id: 0,
     items: [] as ICartItem[],
+    totalAmount: this.calculateTotalAmount([] as ICartItem[]),
+    totalCount: this.calculateTotalCount([] as ICartItem[]),
     clientName: "",
     clientTgName: "",
     clientPhone: "",
     clientAddress: "",
     delivery: {id: 0, name: "", description: "", amount: 0, freeAmount: 0},
-    totalAmount: this.calculateTotalAmount([] as ICartItem[]),
-    totalCount: this.calculateTotalCount([] as ICartItem[]),
+    orderDate: new Date(),
+  });
+
+  $orders = computed(() => {
+    const ordersAPIValue = this.$ordersAPI();
+    
+    if (ordersAPIValue == undefined) {
+      return [] as IOrder[];
+    } else {
+      return ordersAPIValue.filter((p) => {
+        return (
+          true
+        );
+      });
+    }
   });
 
   private calculateTotalAmount(items: ICartItem[]): number {
@@ -76,60 +133,60 @@ export class OrderService {
   }
 
   addItem(item: ICartItem) {
-    this.$order.update((currentCart) => {
-      const existingItem = currentCart.items.find(
-        (i) => i.product.id === item.product.id,
-      );
-      if (existingItem) {
-        existingItem.quantity += item.quantity;
-      } else {
-        currentCart.items.push(item);
-      }
-      currentCart.totalAmount +=
-        ((item.product.price * (100 - item.product.discount)) / 100) *
-        item.quantity;
+    // this.$order.update((currentCart) => {
+    //   const existingItem = currentCart.items.find(
+    //     (i) => i.product.id === item.product.id,
+    //   );
+    //   if (existingItem) {
+    //     existingItem.quantity += item.quantity;
+    //   } else {
+    //     currentCart.items.push(item);
+    //   }
+    //   currentCart.totalAmount +=
+    //     ((item.product.price * (100 - item.product.discount)) / 100) *
+    //     item.quantity;
 
-      currentCart.totalCount += item.quantity;
+    //   currentCart.totalCount += item.quantity;
 
-      // if (this.telegram.Id) {
-      //   this.sendCartToGoogleAppsScript(
-      //     this.telegram.Id,
-      //     this.telegram.UserName,
-      //     'addCart',
-      //     currentCart,
-      //   );
-      // }
-      return currentCart;
-    });
+    //   // if (this.telegram.Id) {
+    //   //   this.sendCartToGoogleAppsScript(
+    //   //     this.telegram.Id,
+    //   //     this.telegram.UserName,
+    //   //     'addCart',
+    //   //     currentCart,
+    //   //   );
+    //   // }
+    //   return currentCart;
+    // });
   }
 
   removeItem(item: ICartItem) {
-    this.$order.update((currentCart) => {
-      const existingItem = currentCart.items.find(
-        (i) => i.product.id === item.product.id,
-      );
-      if (existingItem) {
-        if (existingItem.quantity - item.quantity < 0) {item.quantity = existingItem.quantity;}
-        existingItem.quantity -= item.quantity;
-      } 
-      currentCart.totalAmount -=
-        ((item.product.price * (100 - item.product.discount)) / 100) *
-        item.quantity;
+    // this.$order.update((currentCart) => {
+    //   const existingItem = currentCart.items.find(
+    //     (i) => i.product.id === item.product.id,
+    //   );
+    //   if (existingItem) {
+    //     if (existingItem.quantity - item.quantity < 0) {item.quantity = existingItem.quantity;}
+    //     existingItem.quantity -= item.quantity;
+    //   } 
+    //   currentCart.totalAmount -=
+    //     ((item.product.price * (100 - item.product.discount)) / 100) *
+    //     item.quantity;
 
-      currentCart.totalCount -= item.quantity;
+    //   currentCart.totalCount -= item.quantity;
 
-      currentCart.items = currentCart.items.filter(p => p.quantity>0);
+    //   currentCart.items = currentCart.items.filter(p => p.quantity>0);
 
-      // if (this.telegram.Id) {
-      //   this.sendCartToGoogleAppsScript(
-      //     this.telegram.Id,
-      //     this.telegram.UserName,
-      //     'removeCart',
-      //     currentCart,
-      //   );
-      // }
-      return currentCart;
-    });
+    //   // if (this.telegram.Id) {
+    //   //   this.sendCartToGoogleAppsScript(
+    //   //     this.telegram.Id,
+    //   //     this.telegram.UserName,
+    //   //     'removeCart',
+    //   //     currentCart,
+    //   //   );
+    //   // }
+    //   return currentCart;
+    // });
   }
   
 
@@ -172,6 +229,24 @@ export class OrderService {
     
   }
 
+
+  getOrders(chat_id:string): Observable<IOrder[]> {
+    
+    return this.telegram.getOrdersFromGoogleAppsScript(chat_id).pipe(
+      map((res: any) => {
+        let gsDataJSON = JSON.parse(res);
+        // console.log('chat_id: ' + chat_id);
+        // console.log(res);
+        // console.log(gsDataJSON);
+        gsDataJSON = JSON.parse(gsDataJSON);
+        // console.log(gsDataJSON);
+
+        //this.$orders.set(gsDataJSON);  
+        return gsDataJSON;
+      }),
+    );
+    
+  }
   // private sendOrderToGoogleAppsScript(
   //   chat_id: string,
   //   userName: string,
@@ -189,6 +264,10 @@ export class OrderService {
   //       console.log('SUCCESS');
   //     });
   // }
+
+  updateId(id) {
+    this.$orderId.set(id);
+  }
 
   
 }

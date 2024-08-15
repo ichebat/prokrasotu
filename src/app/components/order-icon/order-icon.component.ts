@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { IOrder } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-icon',
@@ -6,5 +7,6 @@ import { Component } from '@angular/core';
   styleUrl: './order-icon.component.scss'
 })
 export class OrderIconComponent {
+  @Input() order!: IOrder;
 
 }
