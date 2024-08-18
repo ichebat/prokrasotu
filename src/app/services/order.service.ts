@@ -102,6 +102,17 @@ export class OrderService {
     clientAddress: "",
     delivery: {id: 0, name: "", description: "", amount: 0, freeAmount: 0},
     orderDate: new Date(),
+    isAccepted:false,
+    acceptDate: new Date(),
+    isCompleted: false,
+    completeDate: new Date(),
+    isDeclined: false,
+    declineDate: new Date(),
+    declineReason: "",
+    isCorrected: false,
+    correctionDate: new Date(),
+    coorectionReason:"",
+    description:"",
   });
 
   $orders = computed(() => {
@@ -246,6 +257,25 @@ export class OrderService {
       }),
     );
     
+  }
+
+  private sendOrderToGoogleAppsScript(
+    chat_id: string,
+    userName: string,
+    actionName: string,
+    order: IOrder,
+  ) {
+    this.telegram
+      .sendToGoogleAppsScript({
+        chat_id: chat_id,
+        userName: userName,
+        action: actionName,
+        order: order,
+      })
+      .subscribe((response) => {
+        console.log(response);
+        console.log('SUCCESS');
+      });
   }
   // private sendOrderToGoogleAppsScript(
   //   chat_id: string,
