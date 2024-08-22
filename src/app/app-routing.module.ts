@@ -7,6 +7,7 @@ import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.compone
 import { CartComponent } from './pages/cart/cart.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { OrderComponent } from './pages/order/order.component';
+import { PrivacyComponent } from './pages/company/privacy/privacy.component';
 
 const routes: Routes = [
   { path: '', component: ShopComponent },
@@ -22,6 +23,8 @@ const routes: Routes = [
   { path: 'orders', component: OrdersComponent },
   { path: 'order', component: OrderComponent },
   { path: 'order/:id', component: OrderComponent },
+
+  { path: 'company/privacy', component: PrivacyComponent },
 
   //Wild Card Route for 404 request
   { path: '**', pathMatch: 'full', component: PagenotfoundComponent },

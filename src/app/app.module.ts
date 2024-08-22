@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -12,7 +13,7 @@ import { PagenotfoundComponent } from './pages/pagenotfound/pagenotfound.compone
 import { TelegramService } from './services/telegram.service';
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { MaterialModule } from './material.module'
+import { MaterialModule } from './material.module';
 import { CustomHttpInterceptor } from './http-interceptor';
 import { ProductItemComponent } from './components/product-item/product-item.component';
 import { ProductIconComponent } from './components/product-icon/product-icon.component';
@@ -31,7 +32,9 @@ import { OrdersComponent } from './pages/orders/orders.component';
 import { OrderListComponent } from './components/order-list/order-list.component';
 import { OrderIconComponent } from './components/order-icon/order-icon.component';
 import { OrderItemComponent } from './components/order-item/order-item.component';
-
+import { ConfirmDialogDemoComponent } from './components/confirm-dialog-demo/confirm-dialog-demo.component';
+import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
+import { PrivacyComponent } from './pages/company/privacy/privacy.component';
 
 @NgModule({
   declarations: [
@@ -57,24 +60,33 @@ import { OrderItemComponent } from './components/order-item/order-item.component
     OrdersComponent,
     OrderListComponent,
     OrderIconComponent,
-    OrderItemComponent
+    OrderItemComponent,
+    ConfirmDialogDemoComponent,
+    PrivacyComponent,
   ],
   imports: [
     MaterialModule,
     BrowserModule,
     BrowserAnimationsModule,
+    FormsModule,
+    ReactiveFormsModule,
     AppRoutingModule,
     HttpClientModule,
+    NgxMaskDirective,
+    NgxMaskPipe,
   ],
   providers: [
-    TelegramService, 
+    TelegramService,
     provideAnimationsAsync(),
-    [{
-      provide: HTTP_INTERCEPTORS,
-      useClass: CustomHttpInterceptor,
-      multi: true
-    }]
+    [
+      {
+        provide: HTTP_INTERCEPTORS,
+        useClass: CustomHttpInterceptor,
+        multi: true,
+      },
+    ],
+    provideNgxMask(),
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

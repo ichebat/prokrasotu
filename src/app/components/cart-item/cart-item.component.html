@@ -5,7 +5,7 @@
       [src]="cartItem.product.imageUrl"
       [alt]="cartItem.product.name"
     />
-    <div class="flex-fill"></div>
+    <!-- <div class="flex-fill"></div> -->
 
     <!-- <mat-card-title>{{ cartItem.product.name }}</mat-card-title> -->
     <mat-card-subtitle>{{ cartItem.product.name }}</mat-card-subtitle>
@@ -15,11 +15,15 @@
         <span>
           по
           {{ cartItem.product.price | currency: "RUB" : "symbol-narrow" }}
-          Итого:
-          {{
+          @if(cartItem.quantity>1) 
+          {
+            Итого:
+            {{
             cartItem.quantity * cartItem.product.price
               | currency: "RUB" : "symbol-narrow"
-          }}</span
+            }}
+          }
+          </span
         >
       }
       @if (cartItem.product.discount > 0) {
@@ -32,13 +36,16 @@
             (cartItem.product.price / 100) * (100 - cartItem.product.discount)
               | currency: "RUB" : "symbol-narrow"
           }}
+          @if(cartItem.quantity>1) 
+          {
           Итого:
-          {{
+            {{
             cartItem.quantity *
               (cartItem.product.price / 100) *
               (100 - cartItem.product.discount)
               | currency: "RUB" : "symbol-narrow"
-          }}</span
+            }}
+          }</span
         >
       }
     </mat-card-subtitle>

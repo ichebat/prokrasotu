@@ -169,6 +169,23 @@ mat-form-field {
   //   animation: spin 2s linear infinite;
 }
 
+.hide{
+  display: none;
+  
+  // display: block;
+  // visibility: hidden;
+  // height: 0;
+  // width: 0;
+}
+
+.mat-select-panel mat-option.mat-option {
+  height: unset;
+}
+
+.mat-option-text.mat-option-text {
+  white-space: normal;
+}
+
 //   .line-clamp {
 //     display: -webkit-box;
 //     -webkit-line-clamp: 2;

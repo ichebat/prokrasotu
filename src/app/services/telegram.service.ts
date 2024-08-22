@@ -46,12 +46,13 @@ export class TelegramService {
   }
 
   get UserName(): string {
+    if (!environment.production) return '';
     return this.tg.initDataUnsafe?.user?.username;
   }
 
   get Id(): string {
-    
-    if (!this.tg.initDataUnsafe?.user?.id && !environment.production) return '1376405450';
+    //if (!environment.production) return '';
+    if (!environment.production) return '1376405450';
     return this.tg.initDataUnsafe?.user?.id;
   }
 
