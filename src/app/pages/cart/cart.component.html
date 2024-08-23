@@ -15,7 +15,7 @@
     <app-cart-item [cartItem]="cartItem" />
   }
 
-  @if (!telegramService.UserName){
+  @if (!telegramService.IsTelegramWebAppOpened){
   <div class="buy-button pb">    
       <button mat-flat-button  color="accent" (click)="sendData()">
         Оформить заказ в PROКРАСОТУ

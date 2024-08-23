@@ -46,14 +46,32 @@ export class TelegramService {
   }
 
   get UserName(): string {
-    if (!environment.production) return '';
-    return this.tg.initDataUnsafe?.user?.username;
+    //if (!environment.production) return '';
+    //if (!environment.production) return 'chebatz';
+    const username = this.tg.initDataUnsafe?.user?.username;
+    return (!username)?(""):(username);
+  }
+
+  get FIO(): string {
+    //if (!environment.production) return '';
+    //if (!environment.production) return 'Чеботарев Иван';
+    const lastName = this.tg.initDataUnsafe?.user?.last_name;
+    const firstName = this.tg.initDataUnsafe?.user?.firstName;
+    return ((!firstName)?(""):(firstName)+(!lastName )?(""):(" "+lastName)).trim();
   }
 
   get Id(): string {
     //if (!environment.production) return '';
     if (!environment.production) return '1376405450';
-    return this.tg.initDataUnsafe?.user?.id;
+    const id = this.tg.initDataUnsafe?.user?.id;
+    return (!id)?(""):(id);
+  }
+
+  get IsTelegramWebAppOpened(): boolean {
+    if (!environment.production) return false;
+    //if (!environment.production) return true;
+    if (!this.FIO && !this.Id && !this.UserName) return false;
+    return true;
   }
 
   //метод работает только если webapp приложение было запущено при помощи встроенной keyboard (кнопка "отправить сообщение" внизу)

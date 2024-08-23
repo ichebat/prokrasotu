@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { CartService, ICartItem } from './cart.service';
 import { TelegramService } from './telegram.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -300,6 +300,7 @@ export class OrderService {
   }
 
   getOrders(chat_id: string): Observable<IOrder[]> {
+    if (!chat_id) return of<IOrder[]>([]);
     return this.telegram.getOrdersFromGoogleAppsScript(chat_id).pipe(
       map((res: any) => {
         let gsDataJSON = JSON.parse(res);
@@ -315,22 +316,19 @@ export class OrderService {
     );
   }
 
-  private sendOrderToGoogleAppsScript(
+  public sendOrderToGoogleAppsScript(
     chat_id: string,
     userName: string,
     actionName: string,
     order: IOrder,
-  ) {
-    this.telegram
+  ) : Observable<any>
+  {
+    return this.telegram
       .sendToGoogleAppsScript({
         chat_id: chat_id,
         userName: userName,
         action: actionName,
         order: order,
-      })
-      .subscribe((response) => {
-        console.log(response);
-        console.log('SUCCESS');
       });
   }
   // private sendOrderToGoogleAppsScript(
