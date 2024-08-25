@@ -1,4 +1,13 @@
+@if(order && !order.id){
+  <h3 class="mb">Новый заказ</h3>
+}
+
+@if(order.id){
+  <h3 class="mb">Просмотра заказа №{{order.id}}</h3>
+}
+
 <form [formGroup]="form" (ngSubmit)="sendData()">
+
   <table
     mat-table
     [dataSource]="order.items"
@@ -140,13 +149,15 @@
     ></tr>
     <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
   </table>
-
+  
   <mat-form-field appearance="outline">
     <mat-label>Выберите доставку</mat-label>
     <mat-select
       formControlName="delivery"
-      (selectionChange)="deliveryChange($event.value)"
+      (selectionChange)="deliveryChange($event.value)"   
+      [compareWith]="compareFunction"      
     >
+    
       <mat-option
         *ngFor="let delivery of orderService.$delivery()"
         [value]="delivery"
@@ -262,7 +273,7 @@
     >
   </mat-form-field>
 
-  <mat-form-field appearance="outline" *ngIf="telegramService.IsTelegramWebAppOpened">
+  <mat-form-field appearance="outline" *ngIf="telegramService.IsTelegramWebAppOpened && telegramService.UserName">
     <mat-label>Введите Telegram</mat-label>
     <input
       matNativeControl

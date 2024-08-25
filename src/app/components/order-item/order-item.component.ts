@@ -27,7 +27,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   ClientAddressOptionsJSON; //для работы с dadata
 
-  destroy$;
+  
   
 
   constructor(
@@ -90,11 +90,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     // description:"",
 
     
-
+    // console.log(this.order);
+    // console.log(this.order?.delivery!);
     this.form = fb.group({
       id: [this.order?.id, []],
       items: [this.order?.items, []],
-      delivery: [this.order?.delivery, [Validators.required]],
+      delivery: [this.order?.delivery!, [Validators.required]],
       totalAmount: [this.order?.totalAmount, []],
       totalCount: [this.order?.totalCount, []],
       clientName: [
@@ -103,7 +104,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(50),
-          Validators.pattern('[A-Za-zА-Яа-я0-9-_]{2,50}'),
+          Validators.pattern('[A-Za-zА-Яа-я0-9-_ ]{2,50}'),
         ],
       ],
       clientTgName: [
@@ -111,7 +112,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         [
           Validators.minLength(2),
           Validators.maxLength(50),
-          Validators.pattern('[A-Za-zА-Яа-я0-9-_]{2,50}'),
+          Validators.pattern('[A-Za-zА-Яа-я0-9-_ ]{2,50}'),
         ],
       ],
       clientPhone: [
@@ -136,11 +137,26 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         ],
       ],
     });
-
     
   }
 
+  setInitialValue(){
+    this.form.controls['id'].setValue(this.order?.id);
+    this.form.controls['items'].setValue(this.order?.items);
+    this.form.controls['delivery'].setValue(this.order?.delivery);
+    this.form.controls['totalAmount'].setValue(this.order?.totalAmount);
+    this.form.controls['totalCount'].setValue(this.order?.totalCount);
+    this.form.controls['clientName'].setValue(this.order?.clientName);
+    this.form.controls['clientTgName'].setValue(this.order?.clientTgName);
+    this.form.controls['clientPhone'].setValue(this.order?.clientPhone);
+    this.form.controls['clientAddress'].setValue(this.order?.clientAddress);
+  }
+
   ngOnInit(): void {
+
+    this.setInitialValue();
+
+   
 
     // this.form.statusChanges
     // .pipe(
@@ -391,6 +407,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   }
 
   clientAddressChanged(){ 
+  }
+
+  compareFunction(o1: any, o2: any) {
+    
+    if (o1==null || o2==null) return false;
+    return (o1.id.toString() == o2.id.toString());
   }
 
   // onDeleteItem(cartItem: ICartItem) {

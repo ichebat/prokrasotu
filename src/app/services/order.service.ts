@@ -105,13 +105,15 @@ export class OrderService {
           coorectionReason: '',
           description: '',
         };
-      } else
+      } else{
+        //console.log(ordersAPIValue);
         return ordersAPIValue.find((p) => {
           return (
             p.id.toString().toLowerCase() ===
             orderIdValue.toString().toLowerCase()
           );
         });
+      }
     }
   });
 
@@ -137,32 +139,6 @@ export class OrderService {
       });
     }
   });
-
-  // public resetOrderSignal(){
-  //   this.$orderSignal.set({
-  //     id: 0,
-  //     items: [] as ICartItem[],
-  //     totalAmount: this.calculateTotalAmount([] as ICartItem[]),
-  //     totalCount: this.calculateTotalCount([] as ICartItem[]),
-  //     clientName: "",
-  //     clientTgName: "",
-  //     clientPhone: "",
-  //     clientAddress: "",
-  //     delivery: {id: 0, name: "", description: "", amount: 0, freeAmount: 0},
-  //     orderDate: new Date(),
-  //     isAccepted:false,
-  //     acceptDate: new Date(),
-  //     isCompleted: false,
-  //     completeDate: new Date(),
-  //     isDeclined: false,
-  //     declineDate: new Date(),
-  //     declineReason: "",
-  //     isCorrected: false,
-  //     correctionDate: new Date(),
-  //     coorectionReason:"",
-  //     description:"",
-  //   });
-  // }
 
   public calculateTotalAmount(items: ICartItem[]): number {
     const amount = items.reduce(
@@ -213,7 +189,7 @@ export class OrderService {
     const index = this.$order()?.items.findIndex(
       (p) => p.product.id == item.product.id,
     );
-    console.log(index);
+    //console.log(index);
     if (index! > -1) {
       // only splice array when item is found
       this.$order()!.items.splice(index!, 1); // 2nd parameter means remove one item only
@@ -222,7 +198,7 @@ export class OrderService {
         item.quantity;
 
       this.$order()!.totalCount -= item.quantity;
-      console.log(this.$order()?.items);
+      //console.log(this.$order()?.items);
     }
 
     // this.$order.update((currentCart) => {
@@ -300,15 +276,17 @@ export class OrderService {
   }
 
   getOrders(chat_id: string): Observable<IOrder[]> {
-    if (!chat_id) return of<IOrder[]>([]);
+    //if (!chat_id) return of<IOrder[]>([]);
     return this.telegram.getOrdersFromGoogleAppsScript(chat_id).pipe(
       map((res: any) => {
         let gsDataJSON = JSON.parse(res);
         // console.log('chat_id: ' + chat_id);
         // console.log(res);
         // console.log(gsDataJSON);
+        gsDataJSON = gsDataJSON.map(p => JSON.parse(p))
+        //gsDataJSON = gsDataJSON.map(p => p.delivery = JSON.parse(p.delivery))
         //gsDataJSON = JSON.parse(gsDataJSON);
-        // console.log(gsDataJSON);
+        //console.log(gsDataJSON);
 
         //this.$orders.set(gsDataJSON);
         return gsDataJSON;
