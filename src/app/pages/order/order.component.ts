@@ -61,7 +61,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     //   declineReason: string;
     //   isCorrected: boolean;
     //   correctionDate: Date;
-    //   coorectionReason: string;
+    //   correctionReason: string;
     //   description: string;
     // }
   //   if (this.id)
@@ -95,7 +95,7 @@ export class OrderComponent implements OnInit, OnDestroy {
   //     declineReason: "",
   //     isCorrected: false,
   //     correctionDate: new Date(),
-  //     coorectionReason:"",
+  //     correctionReason:"",
   //     description:"",
   //   });
 

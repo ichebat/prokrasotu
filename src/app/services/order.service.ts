@@ -2,9 +2,10 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { CartService, ICartItem } from './cart.service';
 import { TelegramService } from './telegram.service';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable, map, of } from 'rxjs';
+import { BehaviorSubject, Observable, asyncScheduler, map, of, scheduled, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import moment from 'moment';
 
 export interface IDelivery {
   id: number;
@@ -36,7 +37,7 @@ export interface IOrder {
   declineReason: string;
   isCorrected: boolean;
   correctionDate: Date;
-  coorectionReason: string;
+  correctionReason: string;
   description: string;
 }
 
@@ -54,22 +55,34 @@ export class OrderService {
 
   private $deliveryAPI = toSignal<IDelivery[]>(this.getDelivery());
 
-  private $ordersAPI = toSignal<IOrder[]>(this.getOrders(this.telegram.Id), {
-    initialValue: null,
-  });
-
+  ordersResponseChanged = new BehaviorSubject<void>(undefined);
+  // private $ordersAPI = toSignal<IOrder[]>(this.getOrders(this.telegram.Id), {
+  //   initialValue: null,
+  // });
   private $orderId = signal<string>('');
+
+  //обновляется по выполнении this.ordersResponseChanged.next(), при выполнении updateId()
+  //если $orderId не установлен, то заказы с таблицы не тянутся
+  private $ordersAPI = toSignal<IOrder[]>(
+    this.ordersResponseChanged.pipe(
+      switchMap(() => this.$orderId() ? this.getOrders(this.telegram.Id): scheduled<IOrder[]>([], asyncScheduler))
+    ),  
+    { initialValue: null }
+  );
+
+  
 
   //выбранный заказ при переходе по маршруту /order/:id
   $order = computed(() => {
     //console.log("computed "+new Date());
     const cartValue = this.cartService.$cart();
-    const ordersAPIValue = this.$ordersAPI();
+    //const ordersAPIValue = this.$ordersAPI();
+    const ordersAPIValue = this.$orders();
     const orderIdValue = this.$orderId();
     if (ordersAPIValue == undefined || cartValue == undefined) {
       return null;
     } else {
-      if (!orderIdValue  && cartValue) {
+      if (!orderIdValue && cartValue) {
         return {
           id: 0,
           items: cartValue.items.filter((p) => p.checked),
@@ -90,7 +103,7 @@ export class OrderService {
             amount: 0,
             freeAmount: 0,
             isActive: true,
-            dadataFilter: ''
+            dadataFilter: '',
           },
           orderDate: new Date(),
           isAccepted: false,
@@ -102,10 +115,10 @@ export class OrderService {
           declineReason: '',
           isCorrected: false,
           correctionDate: new Date(),
-          coorectionReason: '',
+          correctionReason: '',
           description: '',
         };
-      } else{
+      } else {
         //console.log(ordersAPIValue);
         return ordersAPIValue.find((p) => {
           return (
@@ -119,6 +132,7 @@ export class OrderService {
 
   $delivery = computed(() => {
     const deliveryAPIValue = this.$deliveryAPI();
+    const orderIdValue = this.$orderId();
     //console.log(deliveryAPIValue);
 
     if (deliveryAPIValue == undefined) {
@@ -130,6 +144,8 @@ export class OrderService {
 
   $orders = computed(() => {
     const ordersAPIValue = this.$ordersAPI();
+
+    //console.log(ordersAPIValue);
 
     if (ordersAPIValue == undefined) {
       return [] as IOrder[];
@@ -267,23 +283,34 @@ export class OrderService {
             description: row.c[2] ? row.c[2].v : '',
             amount: row.c[3] ? row.c[3].v : '',
             freeAmount: row.c[4] ? row.c[4].v : '',
-            dadataFilter: row.c[5] ? row.c[5].v : '',            
-            isActive: row.c[6] ? row.c[6].v.toString()=='1' : false,
+            dadataFilter: row.c[5] ? row.c[5].v : '',
+            isActive: row.c[6] ? row.c[6].v.toString() == '1' : false,
           };
         });
       }),
     );
   }
 
+  //проверка требуется ли указывать адрес для данного вида доставки
+  isDeliveryRequired(delivery: IDelivery){
+    let flag = true;
+    if (!delivery) flag = false;
+    if (delivery.id<=0) flag = false;
+    if (delivery.name.toLowerCase() == "самовывоз") flag = false;
+
+    return flag;
+  }
+
   getOrders(chat_id: string): Observable<IOrder[]> {
-    //if (!chat_id) return of<IOrder[]>([]);
+    
+    if (!chat_id) return scheduled<IOrder[]>([], asyncScheduler);
     return this.telegram.getOrdersFromGoogleAppsScript(chat_id).pipe(
       map((res: any) => {
         let gsDataJSON = JSON.parse(res);
         // console.log('chat_id: ' + chat_id);
         // console.log(res);
         // console.log(gsDataJSON);
-        gsDataJSON = gsDataJSON.map(p => JSON.parse(p))
+        gsDataJSON = gsDataJSON.map((p) => JSON.parse(p));
         //gsDataJSON = gsDataJSON.map(p => p.delivery = JSON.parse(p.delivery))
         //gsDataJSON = JSON.parse(gsDataJSON);
         //console.log(gsDataJSON);
@@ -294,20 +321,41 @@ export class OrderService {
     );
   }
 
+  getOrderStatus(order: IOrder){
+    
+    let result = "";
+    if (order.isCompleted) result = "Заказ выполнен. "+moment(order.completeDate).format('DD.MM.YYYY HH:mm');
+    else
+    if (order.isDeclined) result = "Заказ отклонен. "+moment(order.declineDate).format('DD.MM.YYYY HH:mm')+"\n"+order.declineReason ? " Причина: "+order.declineReason:"";
+    else    
+    if (order.isAccepted) 
+    {
+      if (this.isDeliveryRequired(order.delivery))
+        result = "Заказ готов к выдаче ("+order.delivery.description+"). "+moment(order.acceptDate).format('DD.MM.YYYY HH:mm');
+      else
+        result = "Заказ направлен в доставку ("+order.delivery.description+"). "+moment(order.acceptDate).format('DD.MM.YYYY HH:mm');
+    }
+    else
+    //result = "Заказ в обработке ["+moment(order.acceptDate).format('DD.MM.YYYY HH:mm:ss SSS')+"]";
+    result = "Заказ в обработке у продавца. "+moment(order.orderDate).format('DD.MM.YYYY HH:mm');
+
+    if (order.isCorrected) result += "\nЗаказ был скорректирован. "+moment(order.correctionDate).format('DD.MM.YYYY HH:mm')+"\n"+order.correctionDate ? " Причина: "+order.correctionReason:"";
+    return result;
+
+  }
+
   public sendOrderToGoogleAppsScript(
     chat_id: string,
     userName: string,
     actionName: string,
     order: IOrder,
-  ) : Observable<any>
-  {
-    return this.telegram
-      .sendToGoogleAppsScript({
-        chat_id: chat_id,
-        userName: userName,
-        action: actionName,
-        order: order,
-      });
+  ): Observable<any> {
+    return this.telegram.sendToGoogleAppsScript({
+      chat_id: chat_id,
+      userName: userName,
+      action: actionName,
+      order: order,
+    });
   }
   // private sendOrderToGoogleAppsScript(
   //   chat_id: string,
@@ -327,28 +375,33 @@ export class OrderService {
   //     });
   // }
 
+  //обновляет id для выбора текущего заказа и список последних 10 заказов с сервера
   updateId(id) {
     this.$orderId.set(id);
+    this.ordersResponseChanged.next();
   }
 
-  getDadataAddress(query:string, count: number)
-  {
-    
+  //поиск адреса с сервисом Дадата
+  getDadataAddress(query: string, count: number) {
     const headerDict = {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "Authorization": "Token "+environment.DADATA_API_KEY,
-      "Access-Control-Allow-Origin": "*"
-    }
-
-    const requestOptions = {                                                                                                                                                                                 
-      headers: new HttpHeaders(headerDict)
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: 'Token ' + environment.DADATA_API_KEY,
+      'Access-Control-Allow-Origin': '*',
     };
 
-    var body = {     
-        "query":query,
-        "count":count
+    const requestOptions = {
+      headers: new HttpHeaders(headerDict),
     };
-    return this._http.post('https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address', body, requestOptions);
+
+    var body = {
+      query: query,
+      count: count,
+    };
+    return this._http.post(
+      'https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address',
+      body,
+      requestOptions,
+    );
   }
 }

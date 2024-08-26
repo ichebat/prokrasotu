@@ -67,6 +67,10 @@ export class TelegramService {
     return (!id)?(""):(id);
   }
 
+  get isAdmin(): boolean{
+    return this.UserName == environment.masterUserName || this.Id == environment.masterChatId
+  }
+
   get IsTelegramWebAppOpened(): boolean {
     if (!environment.production) return false;
     //if (!environment.production) return true;

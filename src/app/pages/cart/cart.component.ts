@@ -105,7 +105,7 @@ export class CartComponent implements OnInit, OnDestroy {
     //   declineReason: "",
     //   isCorrected: false,
     //   correctionDate: new Date(),
-    //   coorectionReason:"",
+    //   correctionReason:"",
     //   description:"",
     // });
     this.router.navigate(['/order/']);

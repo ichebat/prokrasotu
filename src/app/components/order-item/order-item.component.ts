@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, Signal, effect } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Signal, booleanAttribute, effect } from '@angular/core';
 import { IDelivery, IOrder, OrderService } from '../../services/order.service';
 import { TelegramService } from '../../services/telegram.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -86,7 +86,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     // declineReason: "",
     // isCorrected: false,
     // correctionDate: new Date(),
-    // coorectionReason:"",
+    // correctionReason:"",
     // description:"",
 
     
@@ -95,7 +95,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.form = fb.group({
       id: [this.order?.id, []],
       items: [this.order?.items, []],
-      delivery: [this.order?.delivery!, [Validators.required]],
+      delivery: [this.order?.delivery!, []],
       totalAmount: [this.order?.totalAmount, []],
       totalCount: [this.order?.totalCount, []],
       clientName: [
@@ -133,7 +133,19 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       isAgeePersonalData: [
         this.isUserAgreePersonalData,
         [
-          Validators.requiredTrue,
+          //Validators.requiredTrue,
+        ],
+      ],
+      correctionReason: [
+        this.order?.correctionReason,
+        [
+          Validators.maxLength(500),
+        ],
+      ],
+      description: [
+        this.order?.description,
+        [
+          Validators.maxLength(500),
         ],
       ],
     });
@@ -150,6 +162,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.form.controls['clientTgName'].setValue(this.order?.clientTgName);
     this.form.controls['clientPhone'].setValue(this.order?.clientPhone);
     this.form.controls['clientAddress'].setValue(this.order?.clientAddress);
+    this.form.controls['correctionReason'].setValue(this.order?.correctionReason);
+    this.form.controls['description'].setValue(this.order?.description);
   }
 
   ngOnInit(): void {
@@ -202,39 +216,15 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   }
 
   sendData() {
+
+    
     
 
-    if (this.telegramService.Id && this.form.valid) 
+    //добавление нового заказа
+    if (this.telegramService.Id && this.form.valid && this.order.id ==0) 
     {
       this.disableButton = true;
-
-      // this.telegramService.sendToGoogleAppsScript({
-      //   chat_id: this.telegramService.Id, 
-      //   userName: this.telegramService.UserName, 
-      //   action: "addOrder", 
-      //   order: {
-      //   id:0,
-      //   items: this.order?.items,
-      //   totalAmount: this.orderService.calculateTotalAmount(this.order?.items),
-      //   totalCount: this.orderService.calculateTotalCount(this.order?.items),
-      //   clientName: this.form.controls['clientName'].value,
-      //   clientTgName: this.form.controls['clientTgName'].value,
-      //   clientPhone: this.form.controls['clientPhone'].value,
-      //   clientAddress: this.form.controls['clientAddress'].value,
-      //   delivery: this.form.controls['delivery'].value as IDelivery,
-      //   orderDate: new Date(),
-      //   isAccepted:false,
-      //   acceptDate: new Date(),
-      //   isCompleted: false,
-      //   completeDate: new Date(),
-      //   isDeclined: false,
-      //   declineDate: new Date(),
-      //   declineReason: "",
-      //   isCorrected: false,
-      //   correctionDate: new Date(),
-      //   coorectionReason:"",
-      //   description:""
-      // }
+      
       this.orderService.sendOrderToGoogleAppsScript(
         this.telegramService.Id, 
         this.telegramService.UserName, 
@@ -247,7 +237,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         clientName: this.form.controls['clientName'].value,
         clientTgName: this.form.controls['clientTgName'].value,
         clientPhone: this.form.controls['clientPhone'].value,
-        clientAddress: this.form.controls['clientAddress'].value,
+        clientAddress: this.isDeliveryRequired()? this.form.controls['clientAddress'].value:"",
         delivery: this.form.controls['delivery'].value as IDelivery,
         orderDate: new Date(),
         isAccepted:false,
@@ -259,7 +249,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         declineReason: "",
         isCorrected: false,
         correctionDate: new Date(),
-        coorectionReason:"",
+        correctionReason:"",
         description:""
       }
     ).subscribe(
@@ -301,6 +291,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
               return currentCart;
             });            
           });
+          
+          //обновляем корзину в таблице
           if (this.telegramService.Id) {
             this.cartService.sendCartToGoogleAppsScript(
               this.telegramService.Id,
@@ -317,36 +309,127 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 },
                 complete:()=>{
                   console.log('removeCart complete');
-                  console.log(this.cartService.$cart());
+                  //console.log(this.cartService.$cart());
                 }
               }
             );
           }
 
           this.onHandleUpdate();
-
           console.log('addOrder complete');
           this.router.navigate(['/']);
           if (this.telegramService.IsTelegramWebAppOpened)
             this.telegramService.tg.close();
-          
         }
       }
-    // (response) => 
-    // {
-    //   console.log('SUCCESS');
-    //   console.log(response);
-    //   this.onHandleUpdate();
-    // }
     );
     }
-    
 
-    // setTimeout(() => {
-    //   this.onHandleUpdate();
-    //   console.log(this.form.value);
-    // }, 1000);
-  //}
+    //редактирование существующего заказа может делать только админ
+    if (this.telegramService.Id && this.form.valid && this.order.id >0 && this.telegramService.isAdmin) 
+    {
+      this.disableButton = true;
+      
+      this.orderService.sendOrderToGoogleAppsScript(
+        this.telegramService.Id, 
+        this.telegramService.UserName, 
+        "updateOrder", 
+        {
+        id:0,
+        items: this.order?.items,
+        totalAmount: this.orderService.calculateTotalAmount(this.order?.items),
+        totalCount: this.orderService.calculateTotalCount(this.order?.items),
+        clientName: this.form.controls['clientName'].value,
+        clientTgName: this.form.controls['clientTgName'].value,
+        clientPhone: this.form.controls['clientPhone'].value,
+        clientAddress: this.isDeliveryRequired()? this.form.controls['clientAddress'].value:"",
+        delivery: this.form.controls['delivery'].value as IDelivery,
+        orderDate: new Date(),
+        isAccepted:false,
+        acceptDate: new Date(),
+        isCompleted: false,
+        completeDate: new Date(),
+        isDeclined: false,
+        declineDate: new Date(),
+        declineReason: "",
+        isCorrected: false,
+        correctionDate: new Date(),
+        correctionReason:this.form.controls['correctionReason'].value,
+        description:""
+      }
+    ).subscribe(
+      
+      {
+        next: (data)=>{
+          console.log('addOrder data',data)
+        },
+        error: (err)=>{
+          this.onHandleUpdate();
+          console.log('addOrder error',err);
+        },
+        complete:()=>{
+          
+          
+          //обновляем корзину
+          this.order?.items.forEach(item =>{
+            this.cartService.$cart.update((currentCart) => {
+              const existingItem = currentCart.items.find(
+                (i) => i.product.id === item.product.id,
+              );
+              if (!existingItem) 
+              {
+                return currentCart
+              } 
+              else
+              {
+                if (existingItem.quantity - item.quantity < 0) {
+                  item.quantity = existingItem.quantity;
+                }
+                existingItem.quantity -= item.quantity;
+              }
+        
+              currentCart.items = currentCart.items.filter((p) => p.quantity > 0);
+
+              currentCart.totalCount = this.cartService.calculateTotalCount(currentCart.items);
+              currentCart.totalAmount = this.cartService.calculateTotalAmount(currentCart.items);
+              
+              return currentCart;
+            });            
+          });
+          
+          //обновляем корзину в таблице
+          if (this.telegramService.Id) {
+            this.cartService.sendCartToGoogleAppsScript(
+              this.telegramService.Id,
+              this.telegramService.UserName,
+              'removeCart',
+              this.cartService.$cart(),
+            ).subscribe(
+              {
+                next: (data)=>{
+                  console.log('removeCart data',data)
+                },
+                error: (err)=>{
+                  console.log('removeCart error',err);
+                },
+                complete:()=>{
+                  console.log('removeCart complete');
+                  //console.log(this.cartService.$cart());
+                }
+              }
+            );
+          }
+
+          this.onHandleUpdate();
+          console.log('addOrder complete');
+          this.router.navigate(['/']);
+          if (this.telegramService.IsTelegramWebAppOpened)
+            this.telegramService.tg.close();
+        }
+      }
+    );
+    }
+
   }
 
   onHandleUpdate() {
@@ -378,15 +461,33 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   onClientAddressClear() {
     this.form.controls['clientAddress'].setValue('');
   }
+  onCorrectionReasonClear() {
+    this.form.controls['correctionReason'].setValue('');
+  }
+  onDescriptionClear() {
+    this.form.controls['description'].setValue('');
+  }
 
   
   isDeliveryRequired() {
-    const mydelivery = this.form.controls['delivery'].value as IDelivery;
-    if (!mydelivery) return false;
-    if (mydelivery.name.toLowerCase() == "самовывоз") return false;
-    return true;
+    //console.log(this.form.controls['delivery'].value);
+    // let flag = true;
+    // const mydelivery = this.form.controls['delivery'].value as IDelivery;
+    // if (!mydelivery) flag = false;
+    // if (mydelivery.id<=0) flag = false;
+    // if (mydelivery.name.toLowerCase() == "самовывоз") flag = false;
+
+    const flag = this.orderService.isDeliveryRequired(this.form.controls['delivery'].value as IDelivery);
+
+    if (!flag) this.form.controls['clientAddress'].setErrors(null) ;
+
+    return flag;
 
     //return (mydelivery != null && mydelivery!.amount>0);
+  }
+
+  orderStatus(){
+    return this.orderService.getOrderStatus(this.order);
   }
 
   clientAddressChanging(query:string){

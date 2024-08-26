@@ -40,7 +40,7 @@
       @if (product.price! > 0) {
         <div class="buy-button pb">
           @if (product.discount == 0) {
-            <button mat-flat-button (click)="addItem()">
+            <button mat-flat-button (click)="addItem()" color="primary">
               В корзину за
               {{ product.price | currency: "RUB" : "symbol-narrow" }}
             </button>
@@ -53,6 +53,7 @@
               matBadgePosition="after"
               matBadgeColor="accent"
               (click)="addItem()"
+              color="primary"
             >
               В корзину за
               <s>{{ product.price | currency: "RUB" : "symbol-narrow" }}</s>

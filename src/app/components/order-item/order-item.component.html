@@ -1,163 +1,200 @@
-@if(order && !order.id){
+@if (order && !order.id) {
   <h3 class="mb">Новый заказ</h3>
 }
 
-@if(order.id){
-  <h3 class="mb">Просмотра заказа №{{order.id}}</h3>
+@if (order.id) {
+  <mat-card appearance="outlined" class="mb">
+    <mat-card-header>
+      <mat-card-title>Информация о заказе №{{ order.id }}</mat-card-title>
+      <mat-card-subtitle>Статус: {{ orderStatus() }} </mat-card-subtitle>
+      @if (order.delivery) {<mat-card-subtitle>Выбрана доставка: {{ order.delivery.name }} </mat-card-subtitle>}
+      @if (order.clientAddress) {<mat-card-subtitle>Адрес доставки: {{ order.clientAddress }} </mat-card-subtitle>}
+      @if (order.clientName) {<mat-card-subtitle>Имя покупателя: {{ order.clientName }} </mat-card-subtitle>}
+      @if (order.clientPhone) {<mat-card-subtitle>тел.покупателя: <a mat-button href="{{ 'tel:+7' + order.clientPhone }}">+7{{ order.clientPhone }}</a></mat-card-subtitle>}
+      @if (order.clientTgName) {<mat-card-subtitle>связаться через Telegram: <a mat-button href="{{ 'https://t.me/' + order.clientTgName }}">{{"@" + order.clientTgName}}</a></mat-card-subtitle>}
+    </mat-card-header>
+    <mat-card-content>
+      <!-- @if (order.delivery) {
+        <p>Выбрана доставка: {{ order.delivery.name }}</p>
+      }
+      @if (order.clientAddress) {
+        <p>Адрес доставки: {{ order.clientAddress }}</p>
+      }
+      @if (order.clientName) {
+        <p>Имя покупателя: {{ order.clientName }}</p>
+      }
+      @if (order.clientPhone) {
+        <p>
+          тел.покупателя:
+          <a mat-button href="{{ 'tel:+7' + order.clientPhone }}"
+            >+7{{ order.clientPhone }}</a
+          >
+        </p>
+      }
+
+      @if (order.clientTgName) {
+        <p>
+          связаться через Telegram:
+          <a mat-button href="{{ 'https://t.me/' + order.clientTgName }}">{{
+            "@" + order.clientTgName
+          }}</a>
+        </p>
+      } -->
+    </mat-card-content>
+  </mat-card>
 }
 
-<form [formGroup]="form" (ngSubmit)="sendData()">
-
-  <table
-    mat-table
-    [dataSource]="order.items"
-    matSort
-    class="mat-elevation-z8 table table-bordered table-striped table-hover mb"
-  >
-    <!-- <ng-container matColumnDef="score">
-        <th mat-header-cell *matHeaderCellDef> id </th>
-        <td mat-cell *matCellDef="let element"> {{element?.product?.id}} </td>
-      </ng-container> -->
-    <ng-container matColumnDef="imageUrl">
-      <th
-        mat-header-cell
-        *matHeaderCellDef
-        style="width: 20%"
-        class="align-middle"
+<table
+  mat-table
+  [dataSource]="order.items"
+  matSort
+  class="mat-elevation-z8 table table-bordered table-striped table-hover mb"
+>
+  <!-- <ng-container matColumnDef="score">
+      <th mat-header-cell *matHeaderCellDef> id </th>
+      <td mat-cell *matCellDef="let element"> {{element?.product?.id}} </td>
+    </ng-container> -->
+  <ng-container matColumnDef="imageUrl">
+    <th
+      mat-header-cell
+      *matHeaderCellDef
+      style="width: 20%"
+      class="align-middle"
+    >
+      <strong>Рис.</strong>
+    </th>
+    <td mat-cell *matCellDef="let element" class="align-middle">
+      <a
+        [routerLink]="
+          '/product/' + element.product.id + '/' + element.product.translit
+        "
       >
-        <strong>Рис.</strong>
-      </th>
-      <td mat-cell *matCellDef="let element" class="align-middle">
-        <a
-          [routerLink]="
-            '/product/' + element.product.id + '/' + element.product.translit
-          "
-        >
-          <img
-            mat-card-image
-            [src]="element.product.imageUrl"
-            [alt]="element.product.name"
-            [title]="element.product.name"
-            class="order-item-image"
-          />
-        </a>
-      </td>
-      <td mat-footer-cell *matFooterCellDef><strong>Итого: </strong></td>
-    </ng-container>
-    <ng-container matColumnDef="description">
-      <th
-        mat-header-cell
-        *matHeaderCellDef
-        style="width: 60%"
-        class="align-middle"
-      >
-        <strong>Название</strong>
-      </th>
-      <td mat-cell *matCellDef="let element" class="align-middle">
-        <p>
-          {{ element.product?.name }}
-          {{
-            element.product?.artikul
-              ? " арт.:" + element.product?.artikul
-              : "" + ";"
-          }}
-        </p>
-        <p>
-          <span>{{ element.quantity }} шт. </span>
-          @if (element.product.discount == 0) {
-            <span>
-              по
-              {{ element.product.price | currency: "RUB" : "symbol-narrow" }}
-              @if (element.quantity > 1) {
-                Итого:
-                {{
-                  element.quantity * element.product.price
-                    | currency: "RUB" : "symbol-narrow"
-                }}
-              }
-            </span>
-          }
-          @if (element.product.discount > 0) {
-            <span>
-              по
-              <s>{{
-                element.product.price | currency: "RUB" : "symbol-narrow"
-              }}</s>
+        <img
+          mat-card-image
+          [src]="element.product.imageUrl"
+          [alt]="element.product.name"
+          [title]="element.product.name"
+          class="order-item-image"
+        />
+      </a>
+    </td>
+    <td mat-footer-cell *matFooterCellDef><strong>Итого: </strong></td>
+  </ng-container>
+  <ng-container matColumnDef="description">
+    <th
+      mat-header-cell
+      *matHeaderCellDef
+      style="width: 60%"
+      class="align-middle"
+    >
+      <strong>Название</strong>
+    </th>
+    <td mat-cell *matCellDef="let element" class="align-middle">
+      <p>
+        {{ element.product?.name }}
+        {{
+          element.product?.artikul
+            ? " арт.:" + element.product?.artikul
+            : "" + ";"
+        }}
+      </p>
+      <p>
+        <span>{{ element.quantity }} шт. </span>
+        @if (element.product.discount == 0) {
+          <span>
+            по
+            {{ element.product.price | currency: "RUB" : "symbol-narrow" }}
+            @if (element.quantity > 1) {
+              Итого:
               {{
-                (element.product.price / 100) * (100 - element.product.discount)
+                element.quantity * element.product.price
                   | currency: "RUB" : "symbol-narrow"
               }}
-              @if (element.quantity > 1) {
-                Итого:
-                {{
-                  element.quantity *
-                    (element.product.price / 100) *
-                    (100 - element.product.discount)
-                    | currency: "RUB" : "symbol-narrow"
-                }}
-              }
-            </span>
-          }
-        </p>
-      </td>
-      <td mat-footer-cell *matFooterCellDef>
-        {{ order.totalCount }} шт. на
-        {{ order.totalAmount | currency: "RUB" : "symbol-narrow" }}
-      </td>
-    </ng-container>
-
-    <!-- <ng-container matColumnDef="ActionBar">
-    <th mat-header-cell *matHeaderCellDef style="width: 20%" class="align-middle p-1">  
-      Действия
-    </th>
-    <td mat-cell *matCellDef="let element" class="align-middle p-1"> 
-      <button mat-icon-button  [routerLink]="'/product/' + element.product.id + '/' + element.product.translit"  type="button"><mat-icon>preview</mat-icon></button>
+            }
+          </span>
+        }
+        @if (element.product.discount > 0) {
+          <span>
+            по
+            <s>{{
+              element.product.price | currency: "RUB" : "symbol-narrow"
+            }}</s>
+            {{
+              (element.product.price / 100) * (100 - element.product.discount)
+                | currency: "RUB" : "symbol-narrow"
+            }}
+            @if (element.quantity > 1) {
+              Итого:
+              {{
+                element.quantity *
+                  (element.product.price / 100) *
+                  (100 - element.product.discount)
+                  | currency: "RUB" : "symbol-narrow"
+              }}
+            }
+          </span>
+        }
+      </p>
     </td>
-  </ng-container>     -->
-    <ng-container matColumnDef="Loading">
-      <td
-        mat-footer-cell
-        *matFooterCellDef
-        colspan="6"
-        class="font-italic text-center p-1"
-      >
-        Идет загрузка данных...
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="NoData">
-      <td
-        mat-footer-cell
-        *matFooterCellDef
-        colspan="6"
-        class="font-italic text-center p-1"
-      >
-        У вас пока не создано ни одной записи.
-      </td>
-    </ng-container>
+    <td mat-footer-cell *matFooterCellDef>
+      {{ order.totalCount }} шт. на
+      {{ order.totalAmount | currency: "RUB" : "symbol-narrow" }}
+    </td>
+  </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    <tr
-      mat-footer-row
-      *matFooterRowDef="['Loading']"
-      [ngClass]="{ hide: order.items != null }"
-    ></tr>
-    <tr
-      mat-footer-row
-      *matFooterRowDef="['NoData']"
-      [ngClass]="{ hide: !(order.items != null && order.items.length == 0) }"
-    ></tr>
-    <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
-  </table>
-  
+  <!-- <ng-container matColumnDef="ActionBar">
+  <th mat-header-cell *matHeaderCellDef style="width: 20%" class="align-middle p-1">  
+    Действия
+  </th>
+  <td mat-cell *matCellDef="let element" class="align-middle p-1"> 
+    <button mat-icon-button  [routerLink]="'/product/' + element.product.id + '/' + element.product.translit"  type="button"><mat-icon>preview</mat-icon></button>
+  </td>
+</ng-container>     -->
+  <ng-container matColumnDef="Loading">
+    <td
+      mat-footer-cell
+      *matFooterCellDef
+      colspan="6"
+      class="font-italic text-center p-1"
+    >
+      Идет загрузка данных...
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="NoData">
+    <td
+      mat-footer-cell
+      *matFooterCellDef
+      colspan="6"
+      class="font-italic text-center p-1"
+    >
+      У вас пока не создано ни одной записи.
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  <tr
+    mat-footer-row
+    *matFooterRowDef="['Loading']"
+    [ngClass]="{ hide: order.items != null }"
+  ></tr>
+  <tr
+    mat-footer-row
+    *matFooterRowDef="['NoData']"
+    [ngClass]="{ hide: !(order.items != null && order.items.length == 0) }"
+  ></tr>
+  <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+</table>
+
+<form [formGroup]="form" (ngSubmit)="sendData()" *ngIf="this.telegramService.isAdmin || this.order.id == 0">
+
   <mat-form-field appearance="outline">
     <mat-label>Выберите доставку</mat-label>
     <mat-select
       formControlName="delivery"
-      (selectionChange)="deliveryChange($event.value)"   
-      [compareWith]="compareFunction"      
+      (selectionChange)="deliveryChange($event.value)"
+      [compareWith]="compareFunction"
     >
-    
       <mat-option
         *ngFor="let delivery of orderService.$delivery()"
         [value]="delivery"
@@ -187,8 +224,9 @@
     </mat-error>
   </mat-form-field>
 
+
   <mat-form-field appearance="outline" *ngIf="isDeliveryRequired()">
-    <mat-label>Введите адрес доставки (при необходимости)</mat-label>
+    <mat-label>Введите адрес доставки</mat-label>
     <textarea
       matInput
       matNativeControl
@@ -196,9 +234,9 @@
       formControlName="clientAddress"
       #clientAddress
       maxlength="500"
-      placeholder="Введите адрес доставки (при необходимости)"
+      placeholder="Введите адрес доставки"
       [required]="isDeliveryRequired()"
-      [matAutocomplete]="autoStartPlace"
+      [matAutocomplete]="autoClientAddress"
       (ngModelChange)="clientAddressChanging(clientAddress.value)"
     ></textarea>
     @if (clientAddress.value) {
@@ -222,15 +260,19 @@
     >
   </mat-form-field>
   <mat-autocomplete
-    #autoStartPlace="matAutocomplete"
+    #autoClientAddress="matAutocomplete"
     (optionSelected)="clientAddressChanged()"
   >
-    <mat-option
+    @for (option of ClientAddressOptionsJSON; track option) {
+      <mat-option [value]="option.value">{{ option.value }}</mat-option>
+    }
+    <!-- <mat-option
       *ngFor="let option of ClientAddressOptionsJSON; let i = index"
       [value]="option.value"
       >{{ option.value }}</mat-option
-    >
+    > -->
   </mat-autocomplete>
+
 
   <mat-form-field appearance="outline">
     <mat-label>Введите ваше имя</mat-label>
@@ -273,7 +315,10 @@
     >
   </mat-form-field>
 
-  <mat-form-field appearance="outline" *ngIf="telegramService.IsTelegramWebAppOpened && telegramService.UserName">
+  <mat-form-field
+    appearance="outline"
+    *ngIf="telegramService.IsTelegramWebAppOpened && telegramService.UserName"
+  >
     <mat-label>Введите Telegram</mat-label>
     <input
       matNativeControl
@@ -361,10 +406,6 @@
     >
   </mat-form-field>
 
-  
-
-  
-
   <!-- <button
     mat-raised-button
     color="accent"
@@ -374,40 +415,111 @@
     Submit
   </button> -->
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" *ngIf="order.id>0">
+    <mat-label>Причина корректировки заказа</mat-label>
+    <textarea
+      matInput
+      matNativeControl
+      cdkTextareaAutosize
+      formControlName="correctionReason"
+      #correctionReason
+      maxlength="500"
+      placeholder="Причина корректировки заказа">
+    </textarea>
+    @if (correctionReason.value) {
+      <button
+        matSuffix
+        mat-icon-button
+        type="button"
+        (click)="onCorrectionReasonClear()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+    <mat-hint align="end"
+      >Причина корректировки заказа {{ correctionReason.value.length }}/500</mat-hint
+    >
+    <mat-error *ngIf="form.get('correctionReason')?.hasError('required')"
+      >Это обязательное поле</mat-error
+    >
+    <mat-error *ngIf="form.get('correctionReason')?.hasError('maxlength')"
+      >Максимум 500 символов</mat-error
+    >
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" *ngIf="order.id>0">
+    <mat-label>Служебная информация</mat-label>
+    <textarea
+      matInput
+      matNativeControl
+      cdkTextareaAutosize
+      formControlName="description"
+      #description
+      maxlength="500"
+      placeholder="Служебная информация">
+    </textarea>
+    @if (description.value) {
+      <button
+        matSuffix
+        mat-icon-button
+        type="button"
+        (click)="onDescriptionClear()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+    <mat-hint align="end"
+      >Служебная информация {{ description.value.length }}/500</mat-hint
+    >
+    <mat-error *ngIf="form.get('description')?.hasError('required')"
+      >Это обязательное поле</mat-error
+    >
+    <mat-error *ngIf="form.get('description')?.hasError('maxlength')"
+      >Максимум 500 символов</mat-error
+    >
+  </mat-form-field>
+
+
+  <mat-form-field appearance="outline" *ngIf="order.id==0">
     <mat-label>Согласие на обработку ПД</mat-label>
     <input
       style="display: none"
       matNativeControl
       formControlName="isAgeePersonalData"
+      [required]="order.id==0"
     />
     <mat-checkbox
       formControlName="isAgeePersonalData"
       #isAgeePersonalData
       placeholder="Согласие на обработку ПД"
+      [required]="order.id==0"
       >Согласие на обработку персональных данных</mat-checkbox
     >
     <mat-error *ngIf="form.get('isAgeePersonalData')?.hasError('required')"
       >Необходимо ваше согласие</mat-error
     >
   </mat-form-field>
-  <h3>
+  <h3 *ngIf="order.id==0">
     Ознакомиться с политикой в отношении обработки персональных данных можно
     <a target="_blank" routerLink="/company/privacy/">по ссылке</a>
   </h3>
 
-  @if(totalAmountOrder>0){<h3>Итого заказ на {{ totalAmountOrder | currency: "RUB" : "symbol-narrow"}}</h3>}
+  @if (totalAmountOrder > 0) {
+    <h3>
+      Итого заказ на {{ totalAmountOrder | currency: "RUB" : "symbol-narrow" }}
+    </h3>
+  }
 
-  @if (!telegramService.IsTelegramWebAppOpened){
-  <div class="buy-button pb">
-    <button
-      mat-flat-button
-      [disabled]="!form.valid || disableButton"
-      color="accent"
-      type="submit"
-    >
-      Отправить в PROКРАСОТУ
-    </button>
-  </div>
-}
+  @if (!telegramService.IsTelegramWebAppOpened) {
+    <div class="buy-button pb">
+      <button
+        mat-flat-button
+        [disabled]="!form.valid || disableButton"
+        color="accent"
+        type="submit"
+      >
+        Отправить в PROКРАСОТУ
+      </button>
+    </div>
+  }
 </form>

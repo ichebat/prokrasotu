@@ -35,6 +35,7 @@ import { OrderItemComponent } from './components/order-item/order-item.component
 import { ConfirmDialogDemoComponent } from './components/confirm-dialog-demo/confirm-dialog-demo.component';
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { PrivacyComponent } from './pages/company/privacy/privacy.component';
+import { ProductSearchComponent } from './components/product-search/product-search.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +64,7 @@ import { PrivacyComponent } from './pages/company/privacy/privacy.component';
     OrderItemComponent,
     ConfirmDialogDemoComponent,
     PrivacyComponent,
+    ProductSearchComponent,
   ],
   imports: [
     MaterialModule,
