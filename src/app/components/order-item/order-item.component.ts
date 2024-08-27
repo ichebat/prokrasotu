@@ -8,6 +8,8 @@ import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialo
 import { CartService, ICartItem } from '../../services/cart.service';
 import { NavigationService } from '../../services/navigation.service';
 import { filter, takeUntil } from 'rxjs';
+import { ProductSearchComponent } from '../product-search/product-search.component';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-order-item',
@@ -18,7 +20,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   @Input() order!: IOrder;
 
   form: FormGroup = new FormGroup({});
-  displayedColumns: string[] = ['imageUrl', 'description'];
+  dataSource: MatTableDataSource<ICartItem>;
+
+  displayedColumns: string[] = ['imageUrl', 'description','ActionBar'];
 
   totalAmountOrder;
   isUserAgreePersonalData: boolean = false;
@@ -92,6 +96,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     
     // console.log(this.order);
     // console.log(this.order?.delivery!);
+
+    this.dataSource = new MatTableDataSource([]as ICartItem[]);
+
     this.form = fb.group({
       id: [this.order?.id, []],
       items: [this.order?.items, []],
@@ -164,6 +171,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.form.controls['clientAddress'].setValue(this.order?.clientAddress);
     this.form.controls['correctionReason'].setValue(this.order?.correctionReason);
     this.form.controls['description'].setValue(this.order?.description);
+
+    this.dataSource = new MatTableDataSource(this.order.items);
   }
 
   ngOnInit(): void {
@@ -189,6 +198,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
 
     this.telegramService.MainButton.setText('Отправить в PROКРАСОТУ');
+    if (this.order.id>0) this.telegramService.MainButton.setText('Изменить заказ');
   }
 
   ngOnDestroy(): void {
@@ -201,10 +211,11 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   private isFormValid() {
     //console.log('form is valid: '+this.form.valid)
-    if (this.form.valid) 
+    if (this.form.valid && (this.order.id == 0 || (this.telegramService.isAdmin && this.order.id>0))) 
     {
       if (!this.telegramService.MainButton.isVisible) this.telegramService.MainButton.show();
-    } else 
+    } 
+    else 
     {
       if (this.telegramService.MainButton.isVisible) this.telegramService.MainButton.hide();
     }
@@ -216,9 +227,6 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   }
 
   sendData() {
-
-    
-    
 
     //добавление нового заказа
     if (this.telegramService.Id && this.form.valid && this.order.id ==0) 
@@ -249,8 +257,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         declineReason: "",
         isCorrected: false,
         correctionDate: new Date(),
-        correctionReason:"",
-        description:""
+        correctionReason: "",
+        description: this.form.controls['description'].value
       }
     ).subscribe(
       
@@ -266,6 +274,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           
           
           //обновляем корзину
+          let flagCart = false;
           this.order?.items.forEach(item =>{
             this.cartService.$cart.update((currentCart) => {
               const existingItem = currentCart.items.find(
@@ -281,6 +290,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                   item.quantity = existingItem.quantity;
                 }
                 existingItem.quantity -= item.quantity;
+                flagCart = true;
               }
         
               currentCart.items = currentCart.items.filter((p) => p.quantity > 0);
@@ -293,7 +303,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           });
           
           //обновляем корзину в таблице
-          if (this.telegramService.Id) {
+          if (flagCart && this.telegramService.Id) {
             this.cartService.sendCartToGoogleAppsScript(
               this.telegramService.Id,
               this.telegramService.UserName,
@@ -329,13 +339,16 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     if (this.telegramService.Id && this.form.valid && this.order.id >0 && this.telegramService.isAdmin) 
     {
       this.disableButton = true;
+
+      // console.log(this.form.value);
+      // console.log(this.order);
       
       this.orderService.sendOrderToGoogleAppsScript(
         this.telegramService.Id, 
         this.telegramService.UserName, 
         "updateOrder", 
         {
-        id:0,
+        id:this.order?.id,
         items: this.order?.items,
         totalAmount: this.orderService.calculateTotalAmount(this.order?.items),
         totalCount: this.orderService.calculateTotalCount(this.order?.items),
@@ -344,18 +357,18 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         clientPhone: this.form.controls['clientPhone'].value,
         clientAddress: this.isDeliveryRequired()? this.form.controls['clientAddress'].value:"",
         delivery: this.form.controls['delivery'].value as IDelivery,
-        orderDate: new Date(),
-        isAccepted:false,
-        acceptDate: new Date(),
-        isCompleted: false,
-        completeDate: new Date(),
-        isDeclined: false,
-        declineDate: new Date(),
-        declineReason: "",
-        isCorrected: false,
+        orderDate: this.order?.orderDate,
+        isAccepted: this.order?.isAccepted,
+        acceptDate: this.order?.acceptDate,
+        isCompleted: this.order?.isCompleted,
+        completeDate: this.order?.completeDate,
+        isDeclined: this.order?.isDeclined,
+        declineDate: this.order?.declineDate,
+        declineReason: this.order?.declineReason,
+        isCorrected: true,
         correctionDate: new Date(),
-        correctionReason:this.form.controls['correctionReason'].value,
-        description:""
+        correctionReason: this.form.controls['correctionReason'].value,
+        description: this.form.controls['description'].value
       }
     ).subscribe(
       
@@ -371,6 +384,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           
           
           //обновляем корзину
+          let flagCart = false;
           this.order?.items.forEach(item =>{
             this.cartService.$cart.update((currentCart) => {
               const existingItem = currentCart.items.find(
@@ -386,6 +400,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                   item.quantity = existingItem.quantity;
                 }
                 existingItem.quantity -= item.quantity;
+                flagCart = true;
               }
         
               currentCart.items = currentCart.items.filter((p) => p.quantity > 0);
@@ -398,7 +413,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           });
           
           //обновляем корзину в таблице
-          if (this.telegramService.Id) {
+          if (flagCart && this.telegramService.Id) {
             this.cartService.sendCartToGoogleAppsScript(
               this.telegramService.Id,
               this.telegramService.UserName,
@@ -436,16 +451,11 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.disableButton = false;
   }
 
-  openForEdit(userId: string) {
-    this.router.navigate(['/admin/user/edit/' + userId]);
-  }
-
+  
   deliveryChange(item: IDelivery) {
-    //this.order.totalAmount = this.orderService.calculateTotalAmount(this.order.items);
     this.totalAmountOrder =
       this.order.totalAmount +
       (item.freeAmount <= this.order.totalAmount ? 0 : item.amount);
-    //console.log(this.form.controls['delivery'].value);
   }
 
   onClientNameClear() {
@@ -470,12 +480,6 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   
   isDeliveryRequired() {
-    //console.log(this.form.controls['delivery'].value);
-    // let flag = true;
-    // const mydelivery = this.form.controls['delivery'].value as IDelivery;
-    // if (!mydelivery) flag = false;
-    // if (mydelivery.id<=0) flag = false;
-    // if (mydelivery.name.toLowerCase() == "самовывоз") flag = false;
 
     const flag = this.orderService.isDeliveryRequired(this.form.controls['delivery'].value as IDelivery);
 
@@ -493,8 +497,6 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   clientAddressChanging(query:string){
     
     var additionalQuery: string="";
-    //if(this.onlyUfaSearch)additionalQuery=additionalQuery+" Уфа, ";
-    //if(this.onlyBashSearch)additionalQuery=additionalQuery+" Башкортостан, ";
     const mydelivery = this.form.controls['delivery'].value as IDelivery;
     var dadataFilterString = "";
     if (mydelivery != null && mydelivery!.dadataFilter) dadataFilterString = mydelivery!.dadataFilter;
@@ -516,39 +518,149 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     return (o1.id.toString() == o2.id.toString());
   }
 
-  // onDeleteItem(cartItem: ICartItem) {
-  //   const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-  //     ConfirmDialogDemoComponent,
-  //     {
-  //       data: {
-  //         message: 'Удаление?',
-  //         description:
-  //           'Следующий товар: [' +
-  //           cartItem.product.name +
-  //           '] будет удален из заказа. Подтвердите действие.',
-  //       },
-  //     },
-  //   );
-  //   dialogRef.afterClosed().subscribe((result) => {
-  //     if (result == true) {
-  //       const newItem: ICartItem = {
-  //         product: cartItem.product,
-  //         quantity: cartItem.quantity,
-  //         checked: cartItem.checked,
-  //       };
+  addProduct(){
+    if (!this.telegramService.isAdmin) return;
+    const dialogRef = this.dialog.open<ProductSearchComponent>(ProductSearchComponent, {
+      data: {
+        message: "Добавление позиции в заказ",
+        description: "Выберите продукт и укажите количество",
+        cartItem: {
+          product: null,
+          quantity: 1,
+          checked: true
+        }
+      }
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      
+      if (result && result.flag)
+      {
+        let isItemChanged = false;
+        const newCartItem = result.cartItem as ICartItem;
+        if (newCartItem) 
+        {
+          this.order.items.forEach(item =>{
+          //если такой продукт уже был в корзине то количество увеличиваем
+          if(item.product.id == newCartItem.product.id){
+              
+              isItemChanged = true;
+              item.quantity += newCartItem.quantity;
+              this.order.totalAmount = this.orderService.calculateTotalAmount(this.order?.items);
+              this.order.totalCount = this.orderService.calculateTotalCount(this.order?.items);
+              
+              if (isItemChanged) 
+              {
+                // this.order.isCorrected = true;
+                // this.order.correctionDate = new Date();
+                // this.order.correctionReason = '';
+                // this.form.controls['isCorrected'].setValue(true);
+                // this.form.controls['correctionDate'].setValue(new Date());
+                // this.form.controls['correctionReason'].setValue('');
+              }
+              return;
+            }
+          });
 
-  //       this.orderService.removeItem(newItem);
-  //       // const index =this.order.items.indexOf(cartItem);
-  //       // if (index > -1) { // only splice array when item is found
-  //       //   this.order.items.splice(index, 1); // 2nd parameter means remove one item only
-  //       //   console.log(this.order.items);
-  //       // }
+          //если такого продукта не было то добавляем
+          isItemChanged = true;
+          console.log(newCartItem);
+          this.order.items.push(newCartItem);
+          
+          this.order.totalAmount = this.orderService.calculateTotalAmount(this.order?.items);
+          this.order.totalCount = this.orderService.calculateTotalCount(this.order?.items);
+          
+          // this.form.controls['isCorrected'].setValue(true);
+          // this.form.controls['correctionDate'].setValue(new Date());
+          // this.form.controls['correctionReason'].setValue('');
+          
+          // this.order.isCorrected = true;
+          // this.order.correctionDate = new Date();
+          // this.order.correctionReason = '';
 
-  //       // this.service.deleteUser(id).then(res => {
-  //       //   this.refreshList();
-  //       //   this.toastr.warning("Пользователь удален", "CheckIn7 - Запись онлайн");
-  //       // });
-  //     }
-  //   });
-  // }
+          this.dataSource = new MatTableDataSource(this.order.items);
+          
+        }
+      } 
+    });
+  }
+
+  removeProduct(cartItem: ICartItem){
+    if (!this.telegramService.isAdmin) return;
+    //нельзя удалить последнюю позицию
+    if (this.order.items.length <= 1) return;
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+      ConfirmDialogDemoComponent,
+      {
+        data: {
+          message: 'Удаление?',
+          description:
+            'Следующий товар: [' +
+            cartItem.product.name +
+            '] будет удален из заказа. Подтвердите действие.',
+        },
+      },
+    );
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result == true) {
+        
+        const index =this.order.items.findIndex(p=>p.product.id == cartItem.product.id);
+        if (index > -1) { 
+          this.order.items.splice(index, 1); 
+          this.dataSource = new MatTableDataSource(this.order.items);
+          this.order.totalAmount = this.orderService.calculateTotalAmount(this.order?.items);
+          this.order.totalCount = this.orderService.calculateTotalCount(this.order?.items);
+          // this.order.isCorrected = true;
+          // this.order.correctionDate = new Date();
+          // this.order.correctionReason = '';
+          // this.form.controls['isCorrected'].setValue(true);
+          // this.form.controls['correctionDate'].setValue(new Date());
+          // this.form.controls['correctionReason'].setValue('');
+        }
+
+      }
+    });
+  }
+
+  openDialog(cartItem: ICartItem){
+    if (!this.telegramService.isAdmin) return;
+
+    const dialogRef = this.dialog.open<ProductSearchComponent>(ProductSearchComponent, {
+      data: {
+        message: "Замена позиции в заказе",
+        description: ""+(cartItem.product.artikul ? "арт." + cartItem.product.artikul + ": " : "") + cartItem.product.name+" - "+cartItem.quantity+" шт.",
+        cartItem: cartItem
+      }
+    });
+    dialogRef.afterClosed().subscribe((result) => {
+      //console.log(result);
+      if (result && result.flag)
+      {
+        let isItemChanged = false;
+        const newCartItem = result.cartItem as ICartItem;
+        if (newCartItem)
+        this.order.items.forEach(item =>{
+          if(item.product.id == cartItem.product.id){
+            if (cartItem.product.id != newCartItem.product.id || cartItem.quantity != newCartItem.quantity) isItemChanged = true;
+              item = newCartItem;
+              this.order.totalAmount = this.orderService.calculateTotalAmount(this.order?.items);
+              this.order.totalCount = this.orderService.calculateTotalCount(this.order?.items);
+              if (isItemChanged) 
+              {
+                // this.form.controls['isCorrected'].setValue(true);
+                // this.form.controls['correctionDate'].setValue(new Date());
+                // this.form.controls['correctionReason'].setValue('');
+                // this.order.isCorrected = true;
+                // this.order.correctionDate = new Date();
+                // this.order.correctionReason = '';
+
+                this.dataSource = new MatTableDataSource(this.order.items);
+              }
+              return;
+          }
+        });
+      } 
+    });
+  }
+
+ 
 }

@@ -53,22 +53,23 @@
   />
 }
  -->
- @if (productsService.$productCategory() && productsService.$productType()){
-
-  <mat-form-field appearance="outline">
-    <mat-label>Введите строку для поиска</mat-label>
-    <input matNativeControl
-      #filter
-      maxlength="50"
-      placeholder="Поиск"
-      (input)="productsService.updateFilter(filter.value)"
-      autocomplete="off"
-      [value]="productsService.$searchFilter()">
-      @if(filter.value){<button matSuffix mat-icon-button type="button" (click)="onSearchClear()">
-          <mat-icon>close</mat-icon>
-      </button>}
-    <mat-hint>Введите строку для поиска {{filter.value.length}}/50</mat-hint>                                    
+ <mat-form-field appearance="outline">
+   <mat-label>Введите строку для поиска</mat-label>
+   <input matNativeControl
+     #filter
+     maxlength="50"
+     placeholder="Поиск"
+     (input)="productsService.updateFilter(filter.value)"
+     autocomplete="off"
+     [value]="productsService.$searchFilter()">
+     @if(filter.value){<button matSuffix mat-icon-button type="button" (click)="onSearchClear()">
+         <mat-icon>close</mat-icon>
+     </button>}
+   <mat-hint>Введите строку для поиска {{filter.value.length}}/50</mat-hint>                                    
 </mat-form-field>
+
+ @if ((productsService.$productCategory() && productsService.$productType())||productsService.$searchFilter()){
+
 
   <!-- <input
     type="text"

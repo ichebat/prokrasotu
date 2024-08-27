@@ -7,6 +7,7 @@ import { CartService, ICartItem } from '../../services/cart.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogDemoComponent } from '../../components/confirm-dialog-demo/confirm-dialog-demo.component';
+import { ProductSearchComponent } from '../../components/product-search/product-search.component';
 
 @Component({
   selector: 'app-order',
@@ -145,22 +146,24 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.router.navigate(['/admin/user/edit/' + userId]);
   }
 
-  onDeleteItem(id: string, itemName:string) {
-    const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(ConfirmDialogDemoComponent, {
-      data: {
-        message: "Вы действительно хотите удалить пользователя?",
-        description: "Следующий пользователь: ["+itemName+"] будет удален. Подтвердите действие."
-      }
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result == true)
-      {
-        // this.service.deleteUser(id).then(res => {
-        //   this.refreshList();
-        //   this.toastr.warning("Пользователь удален", "CheckIn7 - Запись онлайн");          
-        // });
+  // onDeleteItem(id: string, itemName:string) {
+  //   const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(ConfirmDialogDemoComponent, {
+  //     data: {
+  //       message: "Вы действительно хотите удалить пользователя?",
+  //       description: "Следующий пользователь: ["+itemName+"] будет удален. Подтвердите действие."
+  //     }
+  //   });
+  //   dialogRef.afterClosed().subscribe((result) => {
+  //     if (result == true)
+  //     {
+  //       // this.service.deleteUser(id).then(res => {
+  //       //   this.refreshList();
+  //       //   this.toastr.warning("Пользователь удален", "CheckIn7 - Запись онлайн");          
+  //       // });
         
-      }      
-    });
-  }
+  //     }      
+  //   });
+  // }
+
+  
 }

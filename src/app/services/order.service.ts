@@ -5,7 +5,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, asyncScheduler, map, of, scheduled, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import moment from 'moment';
 
 export interface IDelivery {
   id: number;
@@ -324,22 +323,22 @@ export class OrderService {
   getOrderStatus(order: IOrder){
     
     let result = "";
-    if (order.isCompleted) result = "Заказ выполнен. "+moment(order.completeDate).format('DD.MM.YYYY HH:mm');
+    if (order.isCompleted) result = "Заказ выполнен. "+new Date(order.completeDate).toLocaleDateString();
     else
-    if (order.isDeclined) result = "Заказ отклонен. "+moment(order.declineDate).format('DD.MM.YYYY HH:mm')+"\n"+order.declineReason ? " Причина: "+order.declineReason:"";
+    if (order.isDeclined) result = "Заказ отклонен. "+new Date(order.declineDate).toLocaleDateString()+"\n"+order.declineReason ? " Причина: "+order.declineReason:"";
     else    
     if (order.isAccepted) 
     {
       if (this.isDeliveryRequired(order.delivery))
-        result = "Заказ готов к выдаче ("+order.delivery.description+"). "+moment(order.acceptDate).format('DD.MM.YYYY HH:mm');
+        result = "Заказ готов к выдаче ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
       else
-        result = "Заказ направлен в доставку ("+order.delivery.description+"). "+moment(order.acceptDate).format('DD.MM.YYYY HH:mm');
+        result = "Заказ направлен в доставку ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
     }
     else
     //result = "Заказ в обработке ["+moment(order.acceptDate).format('DD.MM.YYYY HH:mm:ss SSS')+"]";
-    result = "Заказ в обработке у продавца. "+moment(order.orderDate).format('DD.MM.YYYY HH:mm');
+    result = "Заказ в обработке у продавца. "+new Date(order.orderDate).toLocaleDateString();
 
-    if (order.isCorrected) result += "\nЗаказ был скорректирован. "+moment(order.correctionDate).format('DD.MM.YYYY HH:mm')+"\n"+order.correctionDate ? " Причина: "+order.correctionReason:"";
+    if (order.isCorrected) result += "\nЗаказ был скорректирован. "+new Date(order.correctionDate).toLocaleDateString()+"\n"+order.correctionReason ? " Причина: "+order.correctionReason:"";
     return result;
 
   }

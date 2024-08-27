@@ -2,9 +2,13 @@ import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, signal }
 import { IProduct, ProductsService } from '../../services/products.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { DialogData } from '../confirm-dialog-demo/confirm-dialog-demo.component';
+import { ICartItem } from '../../services/cart.service';
 
-
+export interface DialogData {  
+  message: string;
+  description: string;
+  cartItem: ICartItem;
+}
 
 @Component({
   selector: 'app-product-search',
@@ -29,11 +33,15 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   ) {
     this.form = fb.group({
       product: [null, [Validators.required]],
+      quantity: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
     });
   }
 
   setInitialValue() {
+    if (this.data.cartItem.product) this.form.controls['product'].setValue(this.data.cartItem.product);
+    else
     this.form.controls['product'].setValue(null);
+    this.form.controls['quantity'].setValue(this.data.cartItem.quantity);
   }
 
   public displayFn(product?: IProduct): string {
@@ -54,9 +62,14 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   onProductClear() {
-    this.form.controls['product'].setValue('');
+    this.form.controls['product'].setValue(null);
     this.onSearchClear();
   }
+
+  onQuantityClear() {
+    this.form.controls['quantity'].setValue('');
+  }
+
 
   ngOnDestroy(): void {
     this.onSearchClear();
@@ -73,5 +86,19 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   updateFilter(filter: string) {
     this.productsService.updateFilter(filter);
     this.FilteredProducts = this.productsService.$products();
+  }
+
+  openDialog(flag: boolean){
+    if (flag && this.form.valid)
+    {
+      this.data.cartItem.product = this.form.controls['product'].value as IProduct;
+      this.data.cartItem.quantity = parseInt(this.form.controls['quantity'].value);
+      this.data.cartItem.checked = true;
+    }
+    this.dialogRef.close(
+    {
+      flag: flag, 
+      cartItem: this.data.cartItem
+    });
   }
 }

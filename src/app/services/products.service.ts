@@ -140,7 +140,7 @@ export class ProductsService {
     if (productsAPIValue == undefined) {
       return [] as IProduct[];
     } else {
-      return productsAPIValue.filter((p) => {
+      const filteredArray = productsAPIValue.filter((p) => {
         return (
           p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
           && (transliterate(p.category).toString().toLowerCase() === selectedCategoryTranslitValue.toString().toLowerCase() || !selectedCategoryTranslitValue)
@@ -148,6 +148,9 @@ export class ProductsService {
           && (transliterate(p.brand).toString().toLowerCase() === selectedBrandTranslitValue.toString().toLowerCase() || !selectedBrandTranslitValue)
         );
       });
+      //если пользуемся поиском без выбора типа то выводим первые 10 продуктов
+      return filteredArray;//searchFilterValue && !selectedTypeTranslitValue ? filteredArray.splice(0,10) : filteredArray;
+      //return (searchFilterValue ) ? filteredArray.splice(filteredArray.length>10 ? 10: filteredArray.length-1) : filteredArray;
     }
   });
 
