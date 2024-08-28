@@ -14,7 +14,6 @@ interface TgButton {
   //onEvent(eventName:string, fn: Function): void;
   enable(): void;
   disable(): void;
-  isVisible: boolean;
 }
 
 @Injectable({
@@ -72,8 +71,8 @@ export class TelegramService {
   }
 
   get IsTelegramWebAppOpened(): boolean {
-    if (!environment.production) return false;
-    //if (!environment.production) return true;
+    //if (!environment.production) return false;
+    if (!environment.production) return true;
     if (!this.FIO && !this.Id && !this.UserName) return false;
     return true;
   }
