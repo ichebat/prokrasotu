@@ -1,2 +1,17 @@
-<p>order-icon works!</p>
-{{order.id}}
+<mat-card
+  class="order-icon mat-elevation-z5"
+  [routerLink]="'/order/' + order!.id"
+>
+  <mat-card-header>
+    <mat-card-title
+      >№{{ order.id }} от {{ order.orderDate | date: "dd.MM" }}</mat-card-title
+    >
+    <mat-card-subtitle>{{ orderStatus() }} </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p>
+      {{ order.totalCount }} шт. на
+      {{ order.totalAmount | currency: "RUB" : "symbol-narrow" }}
+    </p>
+  </mat-card-content>
+</mat-card>

@@ -60,19 +60,21 @@ export class TelegramService {
   }
 
   get Id(): string {
-    //if (!environment.production) return '';
+    //if (!environment.production) return '619864883';
     if (!environment.production) return '1376405450';
+    
     const id = this.tg.initDataUnsafe?.user?.id;
     return (!id)?(""):(id);
   }
 
   get isAdmin(): boolean{
+    
     return this.UserName == environment.masterUserName || this.Id == environment.masterChatId
   }
 
   get IsTelegramWebAppOpened(): boolean {
-    //if (!environment.production) return false;
-    if (!environment.production) return true;
+    if (!environment.production) return false;
+    //if (!environment.production) return true;
     if (!this.FIO && !this.Id && !this.UserName) return false;
     return true;
   }

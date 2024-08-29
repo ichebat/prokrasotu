@@ -23,6 +23,7 @@ export interface IOrder {
   totalCount: number;
   clientName: string;
   clientTgName: string;
+  clientTgChatId: string;
   clientPhone: string;
   clientAddress: string;
   delivery: IDelivery;
@@ -93,6 +94,7 @@ export class OrderService {
           ),
           clientName: '',
           clientTgName: this.telegram.UserName,
+          clientTgChatId: this.telegram.Id,
           clientPhone: '',
           clientAddress: '',
           delivery: {
@@ -293,15 +295,15 @@ export class OrderService {
   //проверка требуется ли указывать адрес для данного вида доставки
   isDeliveryRequired(delivery: IDelivery){
     let flag = true;
-    if (!delivery) flag = false;
+    if (!delivery || delivery == undefined) flag = false;
     if (delivery.id<=0) flag = false;
-    if (delivery.name.toLowerCase() == "самовывоз") flag = false;
+    if (delivery?.name?.toLowerCase() == "самовывоз") flag = false;
 
     return flag;
   }
 
   getOrders(chat_id: string): Observable<IOrder[]> {
-    
+    //console.log('Start get orders by chat_id: '+chat_id);
     if (!chat_id) return scheduled<IOrder[]>([], asyncScheduler);
     return this.telegram.getOrdersFromGoogleAppsScript(chat_id).pipe(
       map((res: any) => {
@@ -323,22 +325,22 @@ export class OrderService {
   getOrderStatus(order: IOrder){
     
     let result = "";
-    if (order.isCompleted) result = "Заказ выполнен. "+new Date(order.completeDate).toLocaleDateString();
-    else
-    if (order.isDeclined) result = "Заказ отклонен. "+new Date(order.declineDate).toLocaleDateString()+"\n"+order.declineReason ? " Причина: "+order.declineReason:"";
-    else    
     if (order.isAccepted) 
     {
-      if (this.isDeliveryRequired(order.delivery))
+      if (!this.isDeliveryRequired(order.delivery))
         result = "Заказ готов к выдаче ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
       else
         result = "Заказ направлен в доставку ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
     }
     else
+    if (order.isCompleted) result = "Заказ выполнен. "+new Date(order.completeDate).toLocaleDateString();
+    else
+    if (order.isDeclined) result = "Заказ отклонен. "+new Date(order.declineDate).toLocaleDateString()+(order.declineReason ? " Причина: "+order.declineReason:"");
+    else
     //result = "Заказ в обработке ["+moment(order.acceptDate).format('DD.MM.YYYY HH:mm:ss SSS')+"]";
     result = "Заказ в обработке у продавца. "+new Date(order.orderDate).toLocaleDateString();
 
-    if (order.isCorrected) result += "\nЗаказ был скорректирован. "+new Date(order.correctionDate).toLocaleDateString()+"\n"+order.correctionReason ? " Причина: "+order.correctionReason:"";
+    //if (order.isCorrected) result += "\nЗаказ был скорректирован. "+new Date(order.correctionDate).toLocaleDateString()+"\n"+order.correctionReason ? " Причина: "+order.correctionReason:"";
     return result;
 
   }
@@ -377,6 +379,9 @@ export class OrderService {
   //обновляет id для выбора текущего заказа и список последних 10 заказов с сервера
   updateId(id) {
     this.$orderId.set(id);
+  }
+
+  updateOrdersApi(){
     this.ordersResponseChanged.next();
   }
 

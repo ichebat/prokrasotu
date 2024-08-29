@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IOrder } from '../../services/order.service';
+import { IOrder, OrderService } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-icon',
@@ -8,5 +8,14 @@ import { IOrder } from '../../services/order.service';
 })
 export class OrderIconComponent {
   @Input() order!: IOrder;
+
+  constructor(
+    public orderService: OrderService,){
+      
+    }
+
+  orderStatus() {
+    return this.orderService.getOrderStatus(this.order);
+  }
 
 }

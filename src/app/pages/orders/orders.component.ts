@@ -27,6 +27,8 @@ export class OrdersComponent  implements OnInit, OnDestroy {
     private telegramService: TelegramService,
     public orderService: OrderService,
   ) {
+    this.orderService.updateId(-1);//обновляем список заказов с сервера
+    this.orderService.updateOrdersApi();
     this.goBack = this.goBack.bind(this);
   }
 

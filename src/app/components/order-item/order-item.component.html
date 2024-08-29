@@ -6,7 +6,7 @@
   <mat-card appearance="outlined" class="mb">
     <mat-card-header>
       <mat-card-title>Информация о заказе №{{ order.id }}</mat-card-title>
-      <mat-card-subtitle>Статус: {{ orderStatus() }} </mat-card-subtitle>
+      <mat-card-title>{{ orderStatus() }} </mat-card-title>
       @if (order.delivery) {
         <mat-card-subtitle
           >Выбрана доставка: {{ order.delivery.name }}
@@ -42,39 +42,46 @@
     <mat-card-content>
       <mat-card-actions>
         <div class="buy-button-x3">
+          @if (!order.isCompleted && !order.isDeclined) {
+            <button
+              mat-button
+              color="warn"
+              type="button"
+              [disabled]="!form.valid || disableButton || order.isDeclined"
+              (click)="declineOrder()"
+            >
+              <mat-icon>cancel</mat-icon> Отменить
+            </button>
+          }
 
-        @if(!order.isCompleted && !order.isDeclined){
-        <button
-          mat-button
-          color="primary"
-          type="button"
-          [disabled]="order.isDeclined"
-          (click)="declineOrder()"
-        >
-          <mat-icon>cancel</mat-icon> Отклонен
-        </button>}
+          @if (telegramService.isAdmin && !order.isAccepted && !order.isDeclined) {
+            <button
+            mat-flat-button
+              color="primary"
+              type="button"
+              [disabled]="!form.valid || disableButton"
+              (click)="acceptOrder()"
+            >
+              <mat-icon>credit_card</mat-icon> Готов к оплате
+            </button>
+          }
 
-        @if(!order.isAccepted && !order.isDeclined){
-          <button
-            mat-button
-            color="primary"
-            type="button"
-            (click)="acceptOrder()"
-          >
-            <mat-icon>credit_card</mat-icon> Готов к оплате
-          </button>}
-        
-        @if(order.isAccepted && !order.isCompleted && !order.isDeclined){
-        <button
-          mat-button
-          color="primary"
-          type="button"
-          [disabled]="!order.isAccepted && order.isCompleted"
-          (click)="completeOrder()"
-        >
-          <mat-icon>check_circle</mat-icon> Завершен
-        </button>}
-      </div>
+          @if (telegramService.isAdmin && order.isAccepted && !order.isCompleted && !order.isDeclined) {
+            <button
+              mat-button
+              color="primary"
+              type="button"
+              [disabled]="
+                !form.valid ||
+                disableButton ||
+                (!order.isAccepted && order.isCompleted)
+              "
+              (click)="completeOrder()"
+            >
+              <mat-icon>check_circle</mat-icon> Завершить
+            </button>
+          }
+        </div>
       </mat-card-actions>
       <!-- @if (order.delivery) {
         <p>Выбрана доставка: {{ order.delivery.name }}</p>
@@ -211,32 +218,39 @@
       style="width: 20%"
       class="align-middle p-1"
     >
-      <button
-        mat-icon-button
-        matTooltip="Добавить продукт"
-        type="button"
-        (click)="addProduct()"
-      >
-        <mat-icon>add_circle</mat-icon>
-      </button>
+      @if (telegramService.isAdmin && !order.isAccepted && !order.isCompleted && !order.isDeclined) {
+        <button
+          mat-icon-button
+          matTooltip="Добавить продукт"
+          type="button"
+          [disabled]="order.isAccepted"
+          (click)="addProduct()"
+        >
+          <mat-icon>add_circle</mat-icon>
+        </button>
+      }
     </th>
     <td mat-cell *matCellDef="let element" class="align-middle p-1">
-      <button
-        mat-icon-button
-        matTooltip="Заменить продукт"
-        type="button"
-        (click)="openDialog(element)"
-      >
-        <mat-icon>find_replace</mat-icon>
-      </button>
-      <button
-        mat-icon-button
-        matTooltip="Удалить продукт"
-        type="button"
-        (click)="removeProduct(element)"
-      >
-        <mat-icon>delete</mat-icon>
-      </button>
+      @if (telegramService.isAdmin && !order.isAccepted && !order.isCompleted && !order.isDeclined) {
+        <button
+          mat-icon-button
+          matTooltip="Заменить продукт"
+          type="button"
+          [disabled]="order.isAccepted"
+          (click)="openDialog(element)"
+        >
+          <mat-icon>find_replace</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          matTooltip="Удалить продукт"
+          type="button"
+          [disabled]="order.isAccepted"
+          (click)="removeProduct(element)"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      }
     </td>
     <td mat-footer-cell *matFooterCellDef></td>
   </ng-container>
@@ -277,11 +291,7 @@
   <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
 </table>
 
-<form
-  [formGroup]="form"
-  (ngSubmit)="sendData()"
-  *ngIf="this.telegramService.isAdmin || this.order.id == 0"
->
+<form [formGroup]="form" (ngSubmit)="sendData()">
   <mat-form-field appearance="outline">
     <mat-label>Выберите доставку</mat-label>
     <mat-select
@@ -454,6 +464,51 @@
     >
   </mat-form-field>
 
+  <mat-form-field
+    appearance="outline"
+    *ngIf="telegramService.IsTelegramWebAppOpened && telegramService.Id"
+  >
+    <mat-label>Введите Telegram ChatId</mat-label>
+    <input
+      matNativeControl
+      formControlName="clientTgChatId"
+      [readonly]="telegramService.IsTelegramWebAppOpened"
+      #clientTgChatId
+      placeholder="Введите Telegram ChatId"
+    />
+    @if (clientTgChatId.value && order.id > 0) {
+      <button
+        matSuffix
+        mat-icon-button
+        type="button"
+        (click)="onClientTgChatIdClear()"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+    <mat-hint align="end"
+      >Введите Telegram ChatId {{ clientTgChatId.value.length }}/50</mat-hint
+    >
+    <mat-error *ngIf="form.get('clientTgChatId')?.hasError('required')"
+      >Это обязательное поле</mat-error
+    >
+    <mat-error *ngIf="form.get('clientTgChatId')?.hasError('minlength')"
+      >Минимум 2 символа</mat-error
+    >
+    <mat-error *ngIf="form.get('clientTgChatId')?.hasError('maxlength')"
+      >Максимум 50 символов</mat-error
+    >
+    <mat-error
+      *ngIf="
+        !form.get('clientTgChatId')?.hasError('minlength') &&
+        !form.get('clientTgChatId')?.hasError('maxlength') &&
+        form.get('clientTgChatId')?.hasError('pattern')
+      "
+      >Некорректное значение, разрешено использование цифр
+      _</mat-error
+    >
+  </mat-form-field>
+
   <mat-form-field appearance="outline">
     <mat-label>Номер сотового телефона (10 цифр)</mat-label>
     <input
@@ -585,7 +640,7 @@
       formControlName="declineReason"
       #declineReason
       maxlength="500"
-      placeholder="Причина корректировки заказа"
+      placeholder="Причина отмены заказа"
       [required]="order.isDeclined"
     >
     </textarea>
@@ -600,8 +655,7 @@
       </button>
     }
     <mat-hint align="end"
-      >Причина отмены заказа
-      {{ declineReason.value.length }}/500</mat-hint
+      >Причина отмены заказа {{ declineReason.value.length }}/500</mat-hint
     >
     <mat-error *ngIf="form.get('declineReason')?.hasError('required')"
       >Это обязательное поле</mat-error
@@ -644,14 +698,28 @@
 
   @if (!telegramService.IsTelegramWebAppOpened) {
     <div class="buy-button pb">
+    @if(order.id == 0 || telegramService.isAdmin){
       <button
         mat-flat-button
         [disabled]="!form.valid || disableButton"
         color="accent"
         type="submit"
       >
-        Отправить в PROКРАСОТУ
+          Отправить в PROКРАСОТУ
       </button>
+    }
+
+    @if(order.id > 0 && !telegramService.isAdmin){
+      <button
+        mat-flat-button
+        color="accent"
+        type="button"
+        (click)="closeForm()"
+        routerLink="/"
+      >
+          Закрыть
+      </button>
+    }
     </div>
   }
 </form>

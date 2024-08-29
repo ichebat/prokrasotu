@@ -23,6 +23,7 @@ import { NavigationService } from '../../services/navigation.service';
 import { filter, takeUntil } from 'rxjs';
 import { ProductSearchComponent } from '../product-search/product-search.component';
 import { MatTableDataSource } from '@angular/material/table';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-order-item',
@@ -39,6 +40,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   totalAmountOrder; //общая стоимость заказа с учетом доставки
   isUserAgreePersonalData: boolean = false; //для галочки с ПД
+  isOrderItemsChanged: boolean = false; //менялся ли состав заказа
+  isDeliveryChanged: boolean = false; //менялась ли доставка
 
   disableButton: boolean = false; //отключает кнопки на время отправки данных
 
@@ -59,7 +62,13 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.sendData = this.sendData.bind(this);
 
     //ниже привязка действия к MainButton телеграм
+    //если существующий заказ просматривает не админ, то его можно только отменить
     const sendDataToTelegram = () => {
+    if (this.order.id>0 && !this.telegramService.isAdmin)
+      {
+        this.closeForm();
+      }
+    else
       this.sendData();
     };
 
@@ -80,7 +89,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.form = fb.group({
       id: [this.order?.id, []],
       items: [this.order?.items, []],
-      delivery: [this.order?.delivery!, [Validators.required, this.deliveryValidator]],
+      delivery: [
+        this.order?.delivery!,
+        [Validators.required, this.deliveryValidator],
+      ],
       totalAmount: [this.order?.totalAmount, []],
       totalCount: [this.order?.totalCount, []],
       clientName: [
@@ -100,6 +112,14 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           Validators.pattern('[A-Za-zА-Яа-я0-9-_ ]{2,50}'),
         ],
       ],
+      clientTgChatId: [
+        this.telegramService.Id,
+        [
+          Validators.minLength(2),
+          Validators.maxLength(50),
+          Validators.pattern('[0-9]{2,50}'),
+        ],
+      ],
       clientPhone: [
         this.order?.clientPhone,
         [
@@ -109,7 +129,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           //Validators.pattern('\([7-9]{1}\d{2}\)\s\d{3}\-\d{2}\-\d{2}'),
         ],
       ],
-      clientAddress: [this.order?.clientAddress, [Validators.maxLength(500), Validators.required]],
+      clientAddress: [
+        this.order?.clientAddress,
+        [Validators.maxLength(500), Validators.required],
+      ],
       isAgeePersonalData: [
         this.isUserAgreePersonalData,
         [
@@ -120,30 +143,33 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         this.order?.correctionReason,
         [Validators.maxLength(500)],
       ],
-      
-      declineReason: [
-        this.order?.declineReason,
-        [Validators.maxLength(500)],
-      ],
+
+      declineReason: [this.order?.declineReason, (this.telegramService.isAdmin || !this.telegramService.IsTelegramWebAppOpened)?[Validators.maxLength(500)]:[Validators.required,Validators.maxLength(500)]],
       description: [this.order?.description, [Validators.maxLength(500)]],
     });
+
+    // this.form.statusChanges.subscribe(newStatus=> {
+    //   console.log('form status changed')
+    //   console.log(newStatus)
+    //   this.isFormValid()
+    // })
   }
 
   // валидатор выбранной доставки
   //необходимо, так как по умолчанию ставится пустая доставка с Id=0 а не null
-  deliveryValidator(control: FormControl): {[s:string]:boolean}|null{
-         
-    if(control.value && (control.value as IDelivery).id<=0){
-        return {"delivery": true};
+  deliveryValidator(control: FormControl): { [s: string]: boolean } | null {
+    if (control.value && (control.value as IDelivery).id <= 0) {
+      return { delivery: true };
     }
     return null;
   }
 
   // валидатор адреса доставки
-  clientAddressValidator(control: FormControl): {[s:string]:boolean}|null{
-         
-    if(control.value && control.value === "" && this.isDeliveryRequired()){
-        return {"clientAddress": true};
+  clientAddressValidator(
+    control: FormControl,
+  ): { [s: string]: boolean } | null {
+    if (control.value && control.value === '' && this.isDeliveryRequired()) {
+      return { clientAddress: true };
     }
     return null;
   }
@@ -151,22 +177,48 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   setInitialValue() {
     this.form.controls['id'].setValue(this.order?.id);
     this.form.controls['items'].setValue(this.order?.items);
-    this.form.controls['delivery'].setValue(this.order?.delivery);
-    this.form.controls['totalAmount'].setValue(this.order?.totalAmount);
+    this.form.controls['delivery'].setValue(this.order?.delivery), //{value: this.order?.delivery, disabled: (this.order?.isAccepted || this.order?.isCompleted || this.order?.isDeclined)});
+      this.form.controls['totalAmount'].setValue(this.order?.totalAmount);
     this.form.controls['totalCount'].setValue(this.order?.totalCount);
     this.form.controls['clientName'].setValue(this.order?.clientName);
     this.form.controls['clientTgName'].setValue(this.order?.clientTgName);
+    this.form.controls['clientTgChatId'].setValue(this.order?.clientTgChatId);
     this.form.controls['clientPhone'].setValue(this.order?.clientPhone);
     this.form.controls['clientAddress'].setValue(this.order?.clientAddress);
     this.form.controls['correctionReason'].setValue(
       this.order?.correctionReason,
     );
-    this.form.controls['declineReason'].setValue(
-      this.order?.declineReason,
-    );
+    this.form.controls['declineReason'].setValue(this.order?.declineReason);
     this.form.controls['description'].setValue(this.order?.description);
 
     this.dataSource = new MatTableDataSource(this.order.items);
+
+    this.totalAmountOrder =
+      this.order.totalAmount +
+      (this.order.delivery.freeAmount <= this.order.totalAmount
+        ? 0
+        : this.order.delivery.amount);
+
+    if (this.telegramService.IsTelegramWebAppOpened &&
+      (!this.telegramService.isAdmin ||
+      this.order?.isAccepted ||
+      this.order?.isCompleted ||
+      this.order?.isDeclined)
+    ) {
+      this.form.controls['delivery'].disable();
+      this.form.controls['clientAddress'].disable();
+      this.form.controls['clientName'].disable();
+      this.form.controls['clientTgName'].disable();
+      this.form.controls['clientTgChatId'].disable();
+      this.form.controls['clientPhone'].disable();
+
+      if (!this.telegramService.isAdmin) {
+        this.form.controls['correctionReason'].disable();
+        this.form.controls['description'].disable();
+      }
+    }
+
+    
   }
 
   ngOnInit(): void {
@@ -177,26 +229,48 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //   filter(() => this.form.valid),
     //   takeUntil(this.destroy$))
     //   .subscribe(() => this.onFormValid());
+
+  //   this.form.statusChanges.subscribe(newStatus=> {
+  //     console.log('firstname status changed')
+  //     console.log(newStatus)                                    //latest status
+  //     console.log(this.form.get("id")?.status)   //latest status
+  //     console.log(this.form.status)                    //Previous status
+         
+  //     setTimeout(() => {
+  //       console.log(this.form.status)                  //latest status
+  //     })
+         
+  //  })
+  
     this.form.statusChanges
-      .pipe
-      //filter(() => this.form.valid)
-      ()
-      .subscribe(() => this.isFormValid());
+      // .pipe
+      // //filter(() => this.form.valid)
+      // ()
+      .subscribe(() => 
+      {
+        setTimeout(() => {
+          //console.log(this.form.status) 
+        
+        this.isFormValid()
+        })
+        
+      });
+    this.form.updateValueAndValidity();
+      
 
     //this.formControlValueChanged() // Note if you are doing an edit/fetching data from an observer this must be called only after your form is properly initialized otherwise you will get error.
 
     this.telegramService.BackButton.show();
     this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
 
-    
     this.onHandleUpdate();
   }
 
-//   formControlValueChanged(): void {       
-//     this.form.valueChanges.subscribe(value => {
-//         console.log('value changed', value)
-//     })
-// }
+  //   formControlValueChanged(): void {
+  //     this.form.valueChanges.subscribe(value => {
+  //         console.log('value changed', value)
+  //     })
+  // }
 
   ngOnDestroy(): void {
     this.telegramService.BackButton.hide();
@@ -207,18 +281,28 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   }
 
   private isFormValid() {
+    
+      
     if (
-      this.telegramService.IsTelegramWebAppOpened &&
-      this.form.valid &&
-      (this.order.id == 0 ||
-        (this.telegramService.isAdmin && this.order.id > 0))
-    ) {     
+      //this.telegramService.IsTelegramWebAppOpened &&
+      (
+        (this.form.valid && (this.order.id == 0 || (this.telegramService.isAdmin && this.order.id > 0))) 
+      )
+      ) 
+      {
         //this.telegramService.MainButton.enable();
-        this.telegramService.MainButton.show();      
-    } else {
-      //this.telegramService.MainButton.disable();
-      this.telegramService.MainButton.hide();
-    }
+        this.telegramService.MainButton.show();
+      } else 
+      {
+        //this.telegramService.MainButton.disable();
+        this.telegramService.MainButton.hide();
+      }
+
+      // if (this.telegramService.IsTelegramWebAppOpened && !this.telegramService.isAdmin && this.order.id > 0) 
+      //   {
+      //     //в режиме не админ кнопка будет закрывать форму и должна отображаться
+      //     this.telegramService.MainButton.show();
+      //   }
   }
 
   //кнопка назад в WebApp telegram
@@ -227,38 +311,114 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.navigation.back();
   }
 
-  acceptOrder(){
+  acceptOrder() {
+    //принятым считается заказ который не был принят ранее и не отклонен
+    if (this.order.isAccepted || this.order.isDeclined) return;
+
     //редактирование существующего заказа может делать только админ
     if (
       this.telegramService.Id &&
       this.form.valid &&
       this.order.id > 0 &&
       this.telegramService.isAdmin
-    ){
-      this.order.isAccepted = true;
-      this.order.acceptDate = new Date();
-      this.sendData();
+    ) {
+      //если заказ переводится в "Готов к оплате", но была коррекция необходимо подтверждение
+      if (this.isOrderItemsChanged || this.isDeliveryChanged) {
+        const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+          ConfirmDialogDemoComponent,
+          {
+            data: {
+              message: 'Заказ был изменен',
+              description:
+                'Клиент получит сообщение о причине изменений: [' +
+                this.order.correctionReason +
+                '].\nМожно изменить сообщение перед отправкой. Если все устраивает - подтвердите действие.',
+            },
+          },
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result == true) {
+            this.order.isAccepted = true;
+            this.order.acceptDate = new Date();
+            this.sendData();
+          } else return;
+        });
+      } else {
+        this.order.isAccepted = true;
+        this.order.acceptDate = new Date();
+        this.sendData();
+      }
     }
-
   }
 
-  declineOrder(){
-
+  declineOrder() {
+    //отклонить можно если не отклонялся ранее
+    if (this.order.isDeclined) return;
+    const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+      ConfirmDialogDemoComponent,
+      {
+        data: {
+          message: 'Заказ отменяется',
+          description:
+            'Причина отмены заказа: [' +
+            (this.form.controls['declineReason'].value
+              ? this.form.controls['declineReason'].value.toString()
+              : 'Не указана') +
+            ']. Можно изменить причину перед отправкой. Если все устраивает - подтвердите действие.',
+        },
+      },
+    );
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result == true) {
+        this.order.isDeclined = true;
+        this.order.declineDate = new Date();
+        this.order.declineReason = this.form.controls['declineReason'].value;
+        this.sendData();
+      } else return;
+    });
   }
 
-  completeOrder(){
+  completeOrder() {
+    //завершить можно если заказ был принят и не отклонялся позднее
+    if (!this.order.isAccepted || this.order.isCompleted) return;
+    const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+      ConfirmDialogDemoComponent,
+      {
+        data: {
+          message: 'Заказ завершается',
+          description:
+            'Заказ считается выполненным и будет завершен. После этого он будет помещен в архив. Если все устраивает - подтвердите действие.',
+        },
+      },
+    );
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result == true) {
+        this.order.isCompleted = true;
+        this.order.completeDate = new Date();
+        this.sendData();
+      } else return;
+    });
+  }
 
+  closeForm(){
+    this.router.navigate(['/']);
+    if (this.telegramService.IsTelegramWebAppOpened)
+      this.telegramService.tg.close();
   }
 
   sendData() {
     //добавление нового заказа
-    if (this.telegramService.Id && this.form.valid && this.order.id == 0) {
+    
+    
+    if ((this.telegramService.Id || !environment.useOnlyTgOrders) && this.order.id == 0 && this.form.valid) {
+      
+    
       this.disableButton = true;
-      this.telegramService.MainButton.setText("Отправка...");
+      this.telegramService.MainButton.setText('Отправка...');
       this.telegramService.MainButton.disable();
 
       this.orderService
-        .sendOrderToGoogleAppsScript(
+        .sendOrderToGoogleAppsScript(          
           this.telegramService.Id,
           this.telegramService.UserName,
           'addOrder',
@@ -273,6 +433,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             ),
             clientName: this.form.controls['clientName'].value,
             clientTgName: this.form.controls['clientTgName'].value,
+            clientTgChatId: this.form.controls['clientTgChatId'].value,
             clientPhone: this.form.controls['clientPhone'].value,
             clientAddress: this.isDeliveryRequired()
               ? this.form.controls['clientAddress'].value
@@ -365,7 +526,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         });
     }
 
-    //редактирование существующего заказа может делать только админ
+    //редактирование существующего заказа может делать только админ и только через Tg
     if (
       this.telegramService.Id &&
       this.form.valid &&
@@ -373,11 +534,11 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       this.telegramService.isAdmin
     ) {
       this.disableButton = true;
-      this.telegramService.MainButton.setText("Отправка...");
+      this.telegramService.MainButton.setText('Отправка...');
       this.telegramService.MainButton.disable();
 
-      // console.log(this.form.value);
-      // console.log(this.order);
+      // console.log("this.isDeliveryChanged "+this.isDeliveryChanged);
+      // console.log("this.isOrderItemsChanged "+this.isOrderItemsChanged);
 
       this.orderService
         .sendOrderToGoogleAppsScript(
@@ -395,6 +556,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             ),
             clientName: this.form.controls['clientName'].value,
             clientTgName: this.form.controls['clientTgName'].value,
+            clientTgChatId: this.form.controls['clientTgChatId'].value,
             clientPhone: this.form.controls['clientPhone'].value,
             clientAddress: this.isDeliveryRequired()
               ? this.form.controls['clientAddress'].value
@@ -408,8 +570,14 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             isDeclined: this.order?.isDeclined,
             declineDate: this.order?.declineDate,
             declineReason: this.form.controls['declineReason'].value,
-            isCorrected: true,
-            correctionDate: new Date(),
+            isCorrected:
+              this.order?.isCorrected ||
+              this.isDeliveryChanged ||
+              this.isOrderItemsChanged,
+            correctionDate:
+              this.isDeliveryChanged || this.isOrderItemsChanged
+                ? new Date()
+                : this.order?.correctionDate,
             correctionReason: this.form.controls['correctionReason'].value,
             description: this.form.controls['description'].value,
           },
@@ -491,13 +659,23 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   onHandleUpdate() {
     this.disableButton = false;
     this.telegramService.MainButton.enable();
-    if (this.order.id > 0)
+    if (this.order.id > 0){
+      //не админ может только отменить заказ
+      if (!this.telegramService.isAdmin) 
+      this.telegramService.MainButton.setText('Закрыть');
+      else
       this.telegramService.MainButton.setText('Обновить данные');
-    else
-      this.telegramService.MainButton.setText('Отправить в PROКРАСОТУ');
+    }
+    else this.telegramService.MainButton.setText('Отправить в PROКРАСОТУ');
   }
 
   deliveryChange(item: IDelivery) {
+    this.isDeliveryChanged = true;
+    this.order.correctionReason =
+      'Заказ изменен в магазине: Изменена доставка в заказе';
+    this.form.controls['correctionReason'].setValue(
+      this.order.correctionReason,
+    );
     // console.log(item);
     // this.form.controls['clientAddress'].clearValidators();
     // if (this.isDeliveryRequired()) {
@@ -521,26 +699,37 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   }
 
   onClientNameClear() {
-    this.form.controls['clientName'].setValue('');
+    if (!this.form.controls['clientName'].disabled)
+      this.form.controls['clientName'].setValue('');
   }
 
   onClientTgNameClear() {
-    this.form.controls['clientTgName'].setValue('');
+    if (!this.form.controls['clientTgName'].disabled)
+      this.form.controls['clientTgName'].setValue('');
+  }
+  onClientTgChatIdClear() {
+    if (!this.form.controls['clientTgChatId'].disabled)
+      this.form.controls['clientTgChatId'].setValue('');
   }
   onClientPhoneClear() {
-    this.form.controls['clientPhone'].setValue('');
+    if (!this.form.controls['clientPhone'].disabled)
+      this.form.controls['clientPhone'].setValue('');
   }
   onClientAddressClear() {
-    this.form.controls['clientAddress'].setValue('');
+    if (!this.form.controls['clientAddress'].disabled)
+      this.form.controls['clientAddress'].setValue('');
   }
   onDeclineReasonClear() {
-    this.form.controls['declineReason'].setValue('');
+    if (!this.form.controls['declineReason'].disabled)
+      this.form.controls['declineReason'].setValue('');
   }
   onCorrectionReasonClear() {
-    this.form.controls['correctionReason'].setValue('');
+    if (!this.form.controls['correctionReason'].disabled)
+      this.form.controls['correctionReason'].setValue('');
   }
   onDescriptionClear() {
-    this.form.controls['description'].setValue('');
+    if (!this.form.controls['description'].disabled)
+      this.form.controls['description'].setValue('');
   }
 
   isDeliveryRequired() {
@@ -584,6 +773,13 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   addProduct() {
     if (!this.telegramService.isAdmin) return;
+    if (
+      this.order.isAccepted ||
+      this.order.isCompleted ||
+      this.order.isDeclined
+    )
+      return;
+
     const dialogRef = this.dialog.open<ProductSearchComponent>(
       ProductSearchComponent,
       {
@@ -616,6 +812,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
               );
 
               if (isItemChanged) {
+                this.isOrderItemsChanged = true;
+                this.order.correctionReason =
+                  'Состав заказа изменен в магазине';
+                this.form.controls['correctionReason'].setValue(
+                  this.order.correctionReason,
+                );
                 // this.order.isCorrected = true;
                 // this.order.correctionDate = new Date();
                 // this.order.correctionReason = '';
@@ -651,6 +853,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           // this.order.declineReason = '';
           // this.order.correctionReason = '';
 
+          this.isOrderItemsChanged = true;
+          this.order.correctionReason = 'Состав заказа изменен в магазине';
+          this.form.controls['correctionReason'].setValue(
+            this.order.correctionReason,
+          );
+
           this.dataSource = new MatTableDataSource(this.order.items);
         }
       }
@@ -659,6 +867,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   removeProduct(cartItem: ICartItem) {
     if (!this.telegramService.isAdmin) return;
+    if (
+      this.order.isAccepted ||
+      this.order.isCompleted ||
+      this.order.isDeclined
+    )
+      return;
     //нельзя удалить последнюю позицию
     if (this.order.items.length <= 1) return;
     const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
@@ -680,6 +894,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         );
         if (index > -1) {
           this.order.items.splice(index, 1);
+          this.isOrderItemsChanged = true;
+          this.order.correctionReason = 'Состав заказа изменен в магазине';
+          this.form.controls['correctionReason'].setValue(
+            this.order.correctionReason,
+          );
+
           this.dataSource = new MatTableDataSource(this.order.items);
           this.order.totalAmount = this.orderService.calculateTotalAmount(
             this.order?.items,
@@ -701,7 +921,14 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   }
 
   openDialog(cartItem: ICartItem) {
+    //менять позиции можно только если админ и заказ еще не обработан
     if (!this.telegramService.isAdmin) return;
+    if (
+      this.order.isAccepted ||
+      this.order.isCompleted ||
+      this.order.isDeclined
+    )
+      return;
 
     const dialogRef = this.dialog.open<ProductSearchComponent>(
       ProductSearchComponent,
@@ -750,6 +977,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 // this.order.correctionDate = new Date();
                 // this.order.declineReason = '';
                 // this.order.correctionReason = '';
+                this.isOrderItemsChanged = true;
+                this.order.correctionReason =
+                  'Состав заказа изменен в магазине';
+                this.form.controls['correctionReason'].setValue(
+                  this.order.correctionReason,
+                );
 
                 this.dataSource = new MatTableDataSource(this.order.items);
               }

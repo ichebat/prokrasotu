@@ -1,5 +1,13 @@
+<mat-chip-listbox>
+  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+</mat-chip-listbox>
+
 <app-order-list 
-    titleList=""
+    titleList="История заказов"
     subtitleList=""
     [orders]="orderService.$orders()!"
   />
+
+  <mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+  </mat-chip-listbox>
