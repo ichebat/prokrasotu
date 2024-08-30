@@ -2,6 +2,8 @@
   <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
 </mat-chip-listbox>
 
+@if (orderService.$orders()!.length > 0) {
+
 <app-order-list 
     titleList="История заказов"
     subtitleList=""
@@ -11,3 +13,5 @@
   <mat-chip-listbox>
     <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
   </mat-chip-listbox>
+
+}

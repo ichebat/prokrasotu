@@ -18,6 +18,10 @@
   } -->
 @if ((orderService.$order()?.items)!.length > 0) {
   <app-order-item [order]="orderService.$order()!" />
+  
+  <mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+  </mat-chip-listbox>
 }
 
 <!-- <form [formGroup]="form" (ngSubmit)="submit()">
@@ -72,6 +76,4 @@
     <button mat-raised-button color="accent" [disabled]="!form.valid || disableButton" type="submit">Submit</button>  
   </form>
    -->
-<mat-chip-listbox>
-  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
-</mat-chip-listbox>
+

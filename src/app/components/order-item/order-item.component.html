@@ -42,40 +42,36 @@
     <mat-card-content>
       <mat-card-actions>
         <div class="buy-button-x3">
-          @if (!order.isCompleted && !order.isDeclined) {
+          @if (getVisible('button_decline')) {
             <button
               mat-button
               color="warn"
               type="button"
-              [disabled]="!form.valid || disableButton || order.isDeclined"
+              [disabled]="!form.valid || disableButton || !getEnabled('button_decline')"
               (click)="declineOrder()"
             >
               <mat-icon>cancel</mat-icon> Отменить
             </button>
           }
 
-          @if (telegramService.isAdmin && !order.isAccepted && !order.isDeclined) {
+          @if (getVisible('button_accept')) {
             <button
-            mat-flat-button
+              mat-flat-button
               color="primary"
               type="button"
-              [disabled]="!form.valid || disableButton"
+              [disabled]="!form.valid || disableButton || !getEnabled('button_accept')"
               (click)="acceptOrder()"
             >
               <mat-icon>credit_card</mat-icon> Готов к оплате
             </button>
           }
 
-          @if (telegramService.isAdmin && order.isAccepted && !order.isCompleted && !order.isDeclined) {
+          @if (getVisible('button_complete')) {
             <button
               mat-button
               color="primary"
               type="button"
-              [disabled]="
-                !form.valid ||
-                disableButton ||
-                (!order.isAccepted && order.isCompleted)
-              "
+              [disabled]="!form.valid || disableButton || !getEnabled('button_complete')"
               (click)="completeOrder()"
             >
               <mat-icon>check_circle</mat-icon> Завершить
@@ -218,12 +214,12 @@
       style="width: 20%"
       class="align-middle p-1"
     >
-      @if (telegramService.isAdmin && !order.isAccepted && !order.isCompleted && !order.isDeclined) {
+      @if (getVisible('button_items_add')) {
         <button
           mat-icon-button
           matTooltip="Добавить продукт"
           type="button"
-          [disabled]="order.isAccepted"
+          [disabled]="!getEnabled('button_items_add')"
           (click)="addProduct()"
         >
           <mat-icon>add_circle</mat-icon>
@@ -231,21 +227,23 @@
       }
     </th>
     <td mat-cell *matCellDef="let element" class="align-middle p-1">
-      @if (telegramService.isAdmin && !order.isAccepted && !order.isCompleted && !order.isDeclined) {
+      @if (getVisible('button_items_replace')) {
         <button
           mat-icon-button
           matTooltip="Заменить продукт"
           type="button"
-          [disabled]="order.isAccepted"
+          [disabled]="!getEnabled('button_items_replace')"
           (click)="openDialog(element)"
         >
           <mat-icon>find_replace</mat-icon>
         </button>
+      }
+      @if (getVisible('button_items_remove')) {  
         <button
           mat-icon-button
           matTooltip="Удалить продукт"
           type="button"
-          [disabled]="order.isAccepted"
+          [disabled]="!getEnabled('button_items_remove')"
           (click)="removeProduct(element)"
         >
           <mat-icon>delete</mat-icon>
@@ -292,12 +290,19 @@
 </table>
 
 <form [formGroup]="form" (ngSubmit)="sendData()">
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" *ngIf="getVisible('delivery')">
     <mat-label>Выберите доставку</mat-label>
+    <input
+      *ngIf="!getVisible('delivery')"
+      matInput
+      formControlName="delivery"
+      [readonly]="true"
+    />
     <mat-select
       formControlName="delivery"
       (selectionChange)="deliveryChange($event.value)"
       [compareWith]="compareFunction"
+      *ngIf="getVisible('delivery')"
     >
       <mat-option
         *ngFor="let delivery of orderService.$delivery()"
@@ -378,13 +383,14 @@
     </mat-autocomplete>
   }
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" *ngIf="getVisible('clientName')">
     <mat-label>Введите ваше имя</mat-label>
     <input
       matNativeControl
       formControlName="clientName"
       #clientName
       placeholder="Введите ваше имя"
+      [readonly]="!getEnabled('clientName')"
     />
     @if (clientName.value) {
       <button
@@ -419,15 +425,12 @@
     >
   </mat-form-field>
 
-  <mat-form-field
-    appearance="outline"
-    *ngIf="telegramService.IsTelegramWebAppOpened && telegramService.UserName"
-  >
+  <mat-form-field appearance="outline" *ngIf="getVisible('clientTgName')">
     <mat-label>Введите Telegram</mat-label>
     <input
       matNativeControl
       formControlName="clientTgName"
-      [readonly]="telegramService.IsTelegramWebAppOpened"
+      [readonly]="!getEnabled('clientTgName')"
       #clientTgName
       placeholder="Введите Telegram"
     />
@@ -464,15 +467,12 @@
     >
   </mat-form-field>
 
-  <mat-form-field
-    appearance="outline"
-    *ngIf="telegramService.IsTelegramWebAppOpened && telegramService.Id"
-  >
+  <mat-form-field appearance="outline" *ngIf="getVisible('clientTgChatId')">
     <mat-label>Введите Telegram ChatId</mat-label>
     <input
       matNativeControl
       formControlName="clientTgChatId"
-      [readonly]="telegramService.IsTelegramWebAppOpened"
+      [readonly]="!getEnabled('clientTgChatId')"
       #clientTgChatId
       placeholder="Введите Telegram ChatId"
     />
@@ -504,12 +504,11 @@
         !form.get('clientTgChatId')?.hasError('maxlength') &&
         form.get('clientTgChatId')?.hasError('pattern')
       "
-      >Некорректное значение, разрешено использование цифр
-      _</mat-error
+      >Некорректное значение, разрешено использование цифр _</mat-error
     >
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" *ngIf="getVisible('clientPhone')">
     <mat-label>Номер сотового телефона (10 цифр)</mat-label>
     <input
       matNativeControl
@@ -518,6 +517,7 @@
       placeholder="Номер сотового телефона (10 цифр)"
       [dropSpecialCharacters]="true"
       mask="(000) 000-00-00"
+      [readonly]="!getEnabled('clientPhone')"
     />
     @if (clientPhone.value) {
       <button
@@ -564,7 +564,7 @@
     Submit
   </button> -->
 
-  <mat-form-field appearance="outline" *ngIf="order.id > 0">
+  <mat-form-field appearance="outline" *ngIf="getVisible('correctionReason')">
     <mat-label>Причина корректировки заказа</mat-label>
     <textarea
       matInput
@@ -574,6 +574,7 @@
       #correctionReason
       maxlength="500"
       placeholder="Причина корректировки заказа"
+      [readonly]="!getEnabled('correctionReason')"
     >
     </textarea>
     @if (correctionReason.value) {
@@ -598,7 +599,7 @@
     >
   </mat-form-field>
 
-  <mat-form-field appearance="outline" *ngIf="order.id > 0">
+  <mat-form-field appearance="outline" *ngIf="getVisible('description')">
     <mat-label>Служебная информация</mat-label>
     <textarea
       matInput
@@ -608,6 +609,7 @@
       #description
       maxlength="500"
       placeholder="Служебная информация"
+      [readonly]="!getEnabled('description')"
     >
     </textarea>
     @if (description.value) {
@@ -631,7 +633,7 @@
     >
   </mat-form-field>
 
-  <mat-form-field appearance="outline" *ngIf="order.id > 0">
+  <mat-form-field appearance="outline" *ngIf="getVisible('declineReason')">
     <mat-label>Причина отмены заказа</mat-label>
     <textarea
       matInput
@@ -642,6 +644,7 @@
       maxlength="500"
       placeholder="Причина отмены заказа"
       [required]="order.isDeclined"
+      [readonly]="!getEnabled('declineReason')"
     >
     </textarea>
     @if (declineReason.value) {
@@ -665,13 +668,14 @@
     >
   </mat-form-field>
 
-  <mat-form-field appearance="outline" *ngIf="order.id == 0">
+  <mat-form-field appearance="outline" *ngIf="getVisible('isAgeePersonalData')">
     <mat-label>Согласие на обработку ПД</mat-label>
     <input
       style="display: none"
       matNativeControl
       formControlName="isAgeePersonalData"
       [required]="order.id == 0"
+      [readonly]="!getEnabled('isAgeePersonalData')"
     />
     <mat-checkbox
       formControlName="isAgeePersonalData"
@@ -698,28 +702,30 @@
 
   @if (!telegramService.IsTelegramWebAppOpened) {
     <div class="buy-button pb">
-    @if(order.id == 0 || telegramService.isAdmin){
-      <button
-        mat-flat-button
-        [disabled]="!form.valid || disableButton"
-        color="accent"
-        type="submit"
-      >
+      <!-- @if (order.id == 0 || telegramService.isAdmin) { -->
+        @if (getVisible('button_submit')) {
+        <button
+          mat-flat-button
+          [disabled]="!form.valid || disableButton"
+          color="accent"
+          type="submit"
+        >
           Отправить в PROКРАСОТУ
-      </button>
-    }
+        </button>
+      }
 
-    @if(order.id > 0 && !telegramService.isAdmin){
-      <button
-        mat-flat-button
-        color="accent"
-        type="button"
-        (click)="closeForm()"
-        routerLink="/"
-      >
+      <!-- @if (order.id > 0 && !telegramService.isAdmin) { -->
+        @if (getVisible('button_close')) {
+        <button
+          mat-flat-button
+          color="accent"
+          type="button"
+          (click)="closeForm()"
+          routerLink="/"
+        >
           Закрыть
-      </button>
-    }
+        </button>
+      }
     </div>
   }
 </form>
