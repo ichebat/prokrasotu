@@ -10,9 +10,115 @@
   </mat-card-header>
 
   <mat-card-content>
-    <form [formGroup]="form">
-      {{ form.get("product")?.value?.id }}
+    <!-- <mat-stepper [linear]="isLinear" #stepper>
+      <mat-step [stepControl]="form1" label="Выберите продукт">
+        <form [formGroup]="form1">
+          <mat-form-field appearance="outline">
+            <mat-label>Выберите продукт</mat-label>
+            <textarea
+              cdkTextareaAutosize
+              type="text"
+              #product
+              matInput
+              formControlName="product"
+              [matAutocomplete]="auto"
+              #filter
+              (input)="updateFilter(filter.value)"
+            ></textarea>
+            @if (product.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                (click)="onProductClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+              <mat-option
+                *ngFor="let product of FilteredProducts"
+                [value]="product"
+                >{{
+                  (product.artikul ? "арт." + product.artikul + ": " : "") +
+                    product.name
+                }}</mat-option
+              >
+            </mat-autocomplete>
+            <mat-error *ngIf="form1.get('product')!.hasError('required')">
+              Необходимо выбрать продукт
+            </mat-error>
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperNext>Дальше</button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step [stepControl]="form2" label="Введите количество">
+        <form [formGroup]="form2">
+          <mat-form-field appearance="outline">
+            <mat-label>Количество</mat-label>
+            <input
+              matNativeControl
+              formControlName="quantity"
+              #quantity
+              placeholder="Количество"
+            />
+            @if (quantity.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                (click)="onQuantityClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-error *ngIf="form2.get('quantity')?.hasError('required')"
+              >Это обязательное поле</mat-error
+            >
+            <mat-error *ngIf="form2.get('quantity')?.hasError('min')"
+              >Значение должно быть больше 0</mat-error
+            >
+            <mat-error *ngIf="form2.get('quantity')?.hasError('max')"
+              >Значение должно быть не больше 50</mat-error
+            >
+          </mat-form-field>
+          <div>
+            <button mat-button matStepperPrevious>Назад</button>
+            <button mat-button matStepperNext>Дальше</button>
+          </div>
+        </form>
+      </mat-step>
+      <mat-step label="Сохраните изменения">
+        <p>Для сохранения нажмите <mat-icon>check</mat-icon> ниже.</p>
+        <div>
+          <button mat-button matStepperPrevious>Назад</button>
+          <button
+            mat-button
+            color="warn"
+            size="large"
+            type="button"
+            (click)="dialogRef.close(false)"
+          >
+            <mat-icon>cancel</mat-icon>
+            <span> ОТМЕНА</span>
+          </button>
+          <button
+            mat-button
+            color="primary"
+            type="button"
+            size="large"
+            (click)="dialogRef.close(true)"
+          >
+            <mat-icon>check</mat-icon>
+            <span> ОК</span>
+          </button>
+        </div>
+      </mat-step>
+    </mat-stepper> -->
 
+    <form [formGroup]="form">
       <mat-form-field appearance="outline">
         <mat-label>Выберите продукт</mat-label>
         <textarea

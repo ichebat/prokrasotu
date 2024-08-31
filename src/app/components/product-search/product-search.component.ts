@@ -19,8 +19,12 @@ export interface DialogData {
 export class ProductSearchComponent implements OnInit, OnDestroy {
   FilteredProducts: IProduct[] = []; //для работы с поиском
   form: FormGroup = new FormGroup({});
+  // form1: FormGroup = new FormGroup({});
+  // form2: FormGroup = new FormGroup({});
 
   public $searchFilter = signal<string>('');
+
+  isLinear = false;
 
   /**
    *
@@ -35,6 +39,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
       product: [null, [Validators.required]],
       quantity: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
     });
+    // this.form1 = fb.group({
+    //   product: [null, [Validators.required]],
+    // });
+    // this.form2 = fb.group({
+    //   quantity: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
+    // });
   }
 
   setInitialValue() {
@@ -42,6 +52,10 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     else
     this.form.controls['product'].setValue(null);
     this.form.controls['quantity'].setValue(this.data.cartItem.quantity);
+    // if (this.data.cartItem.product) this.form1.controls['product'].setValue(this.data.cartItem.product);
+    // else
+    // this.form1.controls['product'].setValue(null);
+    // this.form2.controls['quantity'].setValue(this.data.cartItem.quantity);
   }
 
   public displayFn(product?: IProduct): string {
@@ -63,11 +77,13 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   onProductClear() {
     this.form.controls['product'].setValue(null);
+    // this.form1.controls['product'].setValue(null);
     this.onSearchClear();
   }
 
   onQuantityClear() {
     this.form.controls['quantity'].setValue('');
+    // this.form2.controls['quantity'].setValue('');
   }
 
 
@@ -81,6 +97,8 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   resetForm() {
     this.form.reset();
+    // this.form1.reset();
+    // this.form2.reset();
   }
 
   updateFilter(filter: string) {
@@ -90,9 +108,12 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
 
   openDialog(flag: boolean){
     if (flag && this.form.valid)
+    // if (flag && this.form1.valid && this.form2.valid)
     {
       this.data.cartItem.product = this.form.controls['product'].value as IProduct;
       this.data.cartItem.quantity = parseInt(this.form.controls['quantity'].value);
+      // this.data.cartItem.product = this.form1.controls['product'].value as IProduct;
+      // this.data.cartItem.quantity = parseInt(this.form2.controls['quantity'].value);
       this.data.cartItem.checked = true;
     }
     this.dialogRef.close(

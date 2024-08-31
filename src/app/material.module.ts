@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
  import { MatCardModule } from '@angular/material/card';
  import { MatCheckboxModule } from '@angular/material/checkbox';
  import { MatChipsModule } from '@angular/material/chips';
-// import { MatStepperModule } from '@angular/material/stepper';
+ import { MatStepperModule } from '@angular/material/stepper';
 // import { MatDatepickerModule } from '@angular/material/datepicker';
  import { MatDialogModule } from '@angular/material/dialog';
 import {MatDividerModule} from '@angular/material/divider';
@@ -80,7 +80,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
      MatSlideToggleModule,
     // MatSnackBarModule,
     // MatSortModule,
-    // MatStepperModule,
+     MatStepperModule,
      MatTableModule,
     // MatTabsModule,
      MatToolbarModule,
@@ -120,7 +120,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
      MatSlideToggleModule,
     // MatSnackBarModule,
     // MatSortModule,
-    // MatStepperModule,
+     MatStepperModule,
      MatTableModule,
     // MatTabsModule,
      MatToolbarModule,

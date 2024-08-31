@@ -43,6 +43,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   isOrderItemsChanged: boolean = false; //менялся ли состав заказа
   isDeliveryChanged: boolean = false; //менялась ли доставка
 
+  isMainButtonHidden = true;
+
   FormControlsFlags: any = [
     { controlName: 'delivery', visible: true, enabled: true },
     { controlName: 'clientAddress', visible: true, enabled: true },
@@ -235,6 +237,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           item.controlName == 'clientTgChatId' ||
           item.controlName == 'correctionReason' ||
           item.controlName == 'declineReason' ||
+          item.controlName == 'description' ||
           item.controlName == 'button_items_add' ||
           item.controlName == 'button_items_remove' ||
           item.controlName == 'button_items_replace' ||
@@ -252,6 +255,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           item.controlName == 'clientTgChatId' ||
           item.controlName == 'correctionReason' ||
           item.controlName == 'declineReason' ||
+          item.controlName == 'description' ||
           item.controlName == 'button_items_add' ||
           item.controlName == 'button_items_remove' ||
           item.controlName == 'button_items_replace' ||
@@ -271,6 +275,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         if (
           item.controlName == 'correctionReason' ||
           item.controlName == 'declineReason' ||
+          item.controlName == 'description' ||
           item.controlName == 'button_items_add' ||
           item.controlName == 'button_items_remove' ||
           item.controlName == 'button_items_replace' ||
@@ -292,6 +297,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         if (
           item.controlName == 'correctionReason' ||
           item.controlName == 'declineReason' ||
+          item.controlName == 'description' ||
           item.controlName == 'clientTgName' ||
           item.controlName == 'clientTgChatId' ||
           item.controlName == 'button_items_add' ||
@@ -539,6 +545,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.telegramService.BackButton.hide();
     this.telegramService.BackButton.offClick(this.goBack);
     this.telegramService.MainButton.hide();
+    this.isMainButtonHidden = true;
+
 
     //this.destroy$.next();
   }
@@ -550,15 +558,18 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     ) {
       //this.telegramService.MainButton.enable();
       this.telegramService.MainButton.show();
+      this.isMainButtonHidden = false;
     } else {
       //this.telegramService.MainButton.disable();
       this.telegramService.MainButton.hide();
+      this.isMainButtonHidden = true;
     }
 
     // if (this.telegramService.IsTelegramWebAppOpened && !this.telegramService.isAdmin && this.order.id > 0)
     //   {
     //     //в режиме не админ кнопка будет закрывать форму и должна отображаться
     //     this.telegramService.MainButton.show();
+    //     this.isMainButtonHidden = false;
     //   }
   }
 
@@ -583,6 +594,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     ) {
       //если заказ переводится в "Готов к оплате", но была коррекция необходимо подтверждение
       if (this.isOrderItemsChanged || this.isDeliveryChanged) {
+       
         const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
           ConfirmDialogDemoComponent,
           {
@@ -596,6 +608,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           },
         );
         dialogRef.afterClosed().subscribe((result) => {
+          
           if (result == true) {
             this.order.isAccepted = true;
             this.order.acceptDate = new Date();
@@ -618,6 +631,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       !this.getEnabled('button_decline')
     )
       return;
+
+    
     const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
       ConfirmDialogDemoComponent,
       {
@@ -633,6 +648,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       },
     );
     dialogRef.afterClosed().subscribe((result) => {
+      
       if (result == true) {
         this.order.isDeclined = true;
         this.order.declineDate = new Date();
@@ -650,6 +666,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       !this.getEnabled('button_complete')
     )
       return;
+      
+    
     const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
       ConfirmDialogDemoComponent,
       {
@@ -661,6 +679,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       },
     );
     dialogRef.afterClosed().subscribe((result) => {
+      
       if (result == true) {
         this.order.isCompleted = true;
         this.order.completeDate = new Date();
@@ -688,6 +707,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //   this.form.valid
     // )
     if (
+      this.order.id == 0 &&
       this.getVisible('button_submit') &&
       this.getEnabled('button_submit') &&
       this.form.valid
@@ -756,9 +776,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
               );
               dialogRef.afterClosed().subscribe((result) => {
                 if (result == true) {
-                  this.order.isCompleted = true;
-                  this.order.completeDate = new Date();
-                  this.sendData();
+                  
                 } else return;
               });
             }
@@ -1114,6 +1132,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     )
       return;
 
+    if (!this.isMainButtonHidden) this.telegramService.MainButton.hide();
     const dialogRef = this.dialog.open<ProductSearchComponent>(
       ProductSearchComponent,
       {
@@ -1129,6 +1148,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       },
     );
     dialogRef.afterClosed().subscribe((result) => {
+    if (!this.isMainButtonHidden) this.telegramService.MainButton.show();
       if (result && result.flag) {
         let isItemChanged = false;
         const newCartItem = result.cartItem as ICartItem;
@@ -1274,6 +1294,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     )
       return;
 
+    if (!this.isMainButtonHidden) this.telegramService.MainButton.hide();
     const dialogRef = this.dialog.open<ProductSearchComponent>(
       ProductSearchComponent,
       {
@@ -1293,6 +1314,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       },
     );
     dialogRef.afterClosed().subscribe((result) => {
+    if (!this.isMainButtonHidden) this.telegramService.MainButton.show();
       //console.log(result);
       if (result && result.flag) {
         let isItemChanged = false;
