@@ -121,6 +121,13 @@ $prokrasotu-dark-theme: mat.define-dark-theme(
       mat.get-color-from-palette($prokrasotu-palette-dark-primary);
   }
 
+  .product-image-host {
+    
+    button {
+      color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
+  }
+  }
+
   // a {
   //   text-decoration: none;
   //   color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);

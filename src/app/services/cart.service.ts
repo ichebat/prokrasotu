@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { IProduct } from './products.service';
+import { IProduct, ProductClass } from './products.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TelegramService } from './telegram.service';
 import { BehaviorSubject, Observable, Subject, map, switchMap , of} from 'rxjs';
@@ -11,10 +11,30 @@ export interface ICartItem {
   checked: boolean;
 }
 
+export class CartItemClass implements ICartItem {
+  product: IProduct = new ProductClass(null);
+  quantity: number = 0;
+  checked: boolean = false;
+  
+  constructor(obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
+}
+
 export interface IShoppingCart {
   items: ICartItem[];
   totalAmount: number;
   totalCount: number;
+}
+
+export class ShoppingCartClass implements IShoppingCart {
+  items: ICartItem[] = [] as CartItemClass[];
+  totalAmount: number = 0;
+  totalCount: number = 0;
+  
+  constructor(obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
 }
 
 @Injectable({
@@ -169,8 +189,8 @@ export class CartService {
         gsDataJSON = JSON.parse(gsDataJSON);
         // console.log(gsDataJSON);
 
-        this.$cart.set(gsDataJSON);
-        return gsDataJSON;
+        this.$cart.set(new ShoppingCartClass(gsDataJSON));
+        return new ShoppingCartClass(gsDataJSON);
       }),
     );
   }

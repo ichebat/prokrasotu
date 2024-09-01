@@ -21,15 +21,18 @@
         Оформить заказ в PROКРАСОТУ
       </button>
   </div>
+
+  
 }
  
+<mat-chip-listbox>
+  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+</mat-chip-listbox>
+
 
 }
 
 @if (cartService.$cart()!.totalCount == 0) {
   <h3 class="mb">Ваша корзина пуста</h3>
+  
 }
-
-<mat-chip-listbox>
-  <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
-</mat-chip-listbox>

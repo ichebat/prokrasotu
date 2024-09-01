@@ -25,7 +25,7 @@
       @if (order.clientPhone) {
         <mat-card-subtitle
           >тел.покупателя:
-          <a mat-button href="{{ 'tel:+7' + order.clientPhone }}"
+          <a mat-button href="{{ 'tel:+7' + order.clientPhone }}" target="_blank"
             >+7{{ order.clientPhone }}</a
           ></mat-card-subtitle
         >
@@ -33,7 +33,7 @@
       @if (order.clientTgName) {
         <mat-card-subtitle
           >связаться через Telegram:
-          <a mat-button href="{{ 'https://t.me/' + order.clientTgName }}">{{
+          <a mat-button href="{{ 'https://t.me/' + order.clientTgName }}" target="_blank">{{
             "@" + order.clientTgName
           }}</a></mat-card-subtitle
         >
@@ -333,7 +333,7 @@
     </mat-error>
   </mat-form-field>
 
-  @if (isDeliveryRequired()) {
+  @if (order.delivery.isAddressRequired) {
     <mat-form-field appearance="outline">
       <mat-label>Введите адрес доставки</mat-label>
       <textarea
@@ -344,7 +344,7 @@
         #clientAddress
         maxlength="500"
         placeholder="Введите адрес доставки"
-        [required]="isDeliveryRequired()"
+        
         [matAutocomplete]="autoClientAddress"
         (ngModelChange)="clientAddressChanging(clientAddress.value)"
       ></textarea>

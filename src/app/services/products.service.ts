@@ -37,6 +37,27 @@ export interface IProduct {
   translit: string;
 }
 
+export class ProductClass implements IProduct {
+  id: string = '';
+  url: string = '';
+  artikul: string = '';
+  category: string = '';
+  type: string = '';
+  brand: string = '';
+  name: string = '';
+  description: string = '';
+  dopolnitelno: string = '';
+  imageUrl: string = '';
+  price: number = 0;
+  discount: number = 0;
+  isNew: boolean = false;
+  translit: string = '';
+  
+  constructor(obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
+}
+
 export interface IProductCategory {
   name: string;
   translit: string;
@@ -368,7 +389,7 @@ export class ProductsService {
         let gsDataJSON = JSON.parse(res.substring(47, res.length - 2));
         //console.log(gsDataJSON);
         return gsDataJSON.table.rows.map(function (row: any): IProduct {
-          return {
+          return new ProductClass({
             id: row.c[ProductColumns.colId]
               ? row.c[ProductColumns.colId].v
               : '',
@@ -411,7 +432,7 @@ export class ProductsService {
             translit: transliterate(row.c[ProductColumns.colName]
               ? row.c[ProductColumns.colName].v
               : ''),
-          };
+          });
         });
       }),
     );

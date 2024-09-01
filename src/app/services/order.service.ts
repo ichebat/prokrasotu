@@ -13,7 +13,25 @@ export interface IDelivery {
   amount: number;
   freeAmount: number;
   isActive: boolean;
+  isAddressRequired: boolean;
   dadataFilter: string;
+  clientMessage: string;
+}
+
+export class DeliveryClass implements IDelivery {
+  id: number = 0;
+  name: string = '';
+  description: string = '';
+  amount: number = 0;
+  freeAmount: number = 0;
+  isActive: boolean = false;
+  isAddressRequired: boolean = false;
+  dadataFilter: string = '';
+  clientMessage: string = '';
+  
+  constructor(obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
 }
 
 export interface IOrder {
@@ -39,6 +57,35 @@ export interface IOrder {
   correctionDate: Date;
   correctionReason: string;
   description: string;
+}
+
+export class OrderClass implements IOrder {
+  id: number = 0;
+  items: ICartItem[] = [];
+  totalAmount: number = 0;
+  totalCount: number = 0;
+  clientName: string = '';
+  clientTgName: string = '';
+  clientTgChatId: string = '';
+  clientPhone: string = '';
+  clientAddress: string = '';
+  delivery: IDelivery = new DeliveryClass(null);
+  orderDate: Date = new Date();
+  isAccepted: boolean = false;
+  acceptDate: Date = new Date();
+  isCompleted: boolean = false;
+  completeDate: Date = new Date();
+  isDeclined: boolean = false;
+  declineDate: Date = new Date();
+  declineReason: string = '';
+  isCorrected: boolean = false;
+  correctionDate: Date = new Date();
+  correctionReason: string = '';
+  description: string = '';
+  
+  constructor(obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
 }
 
 @Injectable({
@@ -105,6 +152,8 @@ export class OrderService {
             freeAmount: 0,
             isActive: true,
             dadataFilter: '',
+            isAddressRequired: false,
+            clientMessage: '',
           },
           orderDate: new Date(),
           isAccepted: false,
@@ -276,9 +325,10 @@ export class OrderService {
         //console.log(gsDataJSON);
         return gsDataJSON.table.rows.map(function (row: any): IDelivery {
           //console.log(row.c[5] ? row.c[5].v : '');
-          // console.log(row.c[6].v);
+          // console.log(row.c[8].v);
           // console.log(row.c[6].v.toString()=='1' ? true : false);
           return {
+            
             id: row.c[0] ? row.c[0].v : '',
             name: row.c[1] ? row.c[1].v : '',
             description: row.c[2] ? row.c[2].v : '',
@@ -286,21 +336,24 @@ export class OrderService {
             freeAmount: row.c[4] ? row.c[4].v : '',
             dadataFilter: row.c[5] ? row.c[5].v : '',
             isActive: row.c[6] ? row.c[6].v.toString() == '1' : false,
+            isAddressRequired: row.c[7] ? row.c[7].v.toString() == '1' : false,
+            clientMessage: row.c[8] ? row.c[8].v : '',
+            
           };
         });
       }),
     );
   }
 
-  //проверка требуется ли указывать адрес для данного вида доставки
-  isDeliveryRequired(delivery: IDelivery){
-    let flag = true;
-    if (!delivery || delivery == undefined) flag = false;
-    if (delivery.id<=0) flag = false;
-    if (delivery?.name?.toLowerCase() == "самовывоз") flag = false;
+  // //проверка требуется ли указывать адрес для данного вида доставки
+  // isDeliveryRequired(delivery: IDelivery){
+  //   let flag = true;
+  //   if (!delivery || delivery == undefined) flag = false;
+  //   if (delivery.id<=0) flag = false;
+  //   if (delivery?.name?.toLowerCase() == "самовывоз") flag = false;
 
-    return flag;
-  }
+  //   return flag;
+  // }
 
   getOrders(chat_id: string): Observable<IOrder[]> {
     //console.log('Start get orders by chat_id: '+chat_id);
@@ -311,12 +364,49 @@ export class OrderService {
         // console.log('chat_id: ' + chat_id);
         // console.log(res);
         // console.log(gsDataJSON);
-        gsDataJSON = gsDataJSON.map((p) => JSON.parse(p));
+        //gsDataJSON = gsDataJSON.map((p) => JSON.parse(p));
+        gsDataJSON = gsDataJSON.map(function (p) {
+          p = JSON.parse(p)
+          p.delivery = new DeliveryClass(p.delivery);
+          return new OrderClass(p);
+        });
+
+        //console.log(gsDataJSON);
+        
+
+        //  let OrdersArray = [] as OrderClass[];
+        // gsDataJSON.forEach(element => {
+        //   element.delivery = new DeliveryClass(element.delivery);
+        //   OrdersArray.push(new OrderClass(element));
+        // });
+
+        //console.log(OrdersArray);
+        //Object.assign({}, OrdersArray = gsDataJSON as OrderClass[]);
+        // Object.assign(OrdersArray, gsDataJSON);
+        // OrdersArray.forEach(order =>{
+        //   let deliveryAPI = new DeliveryClass();
+        //   Object.assign(deliveryAPI, order.delivery);
+        //   Object.assign(order.delivery, deliveryAPI);
+        // });
+
+        
+        // Object.assign(OrdersArray, gsDataJSON);
+        
+
+        // gsDataJSON.forEach(orderApi => {
+        //   let deliveryValue = new DeliveryClass();
+        //   Object.assign(deliveryValue, orderApi.delivery);
+          
+        //   //console.log(deliveryValue)
+        //   orderApi.delivery = deliveryValue;
+        // });
+        // console.log(gsDataJSON);
+        //gsDataJSON.delivery = deliveryValue;
         //gsDataJSON = gsDataJSON.map(p => p.delivery = JSON.parse(p.delivery))
         //gsDataJSON = JSON.parse(gsDataJSON);
-        //console.log(gsDataJSON);
-
+        
         //this.$orders.set(gsDataJSON);
+        //return gsDataJSON;
         return gsDataJSON;
       }),
     );
@@ -327,10 +417,11 @@ export class OrderService {
     let result = "";
     if (order.isAccepted) 
     {
-      if (!this.isDeliveryRequired(order.delivery))
-        result = "Заказ готов к выдаче ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
-      else
-        result = "Заказ направлен в доставку ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
+      // if (!order.delivery.isAddressRequired)
+      //   result = "Заказ готов к выдаче ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
+      // else
+      //   result = "Заказ направлен в доставку ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
+      result = order.delivery.clientMessage+" "+new Date(order.acceptDate).toLocaleDateString();;
     }
     else
     if (order.isCompleted) result = "Заказ выполнен. "+new Date(order.completeDate).toLocaleDateString();

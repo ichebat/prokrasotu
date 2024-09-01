@@ -158,7 +158,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       ],
       clientAddress: [
         this.order?.clientAddress,
-        [Validators.maxLength(500), Validators.required],
+        [Validators.maxLength(500)],
       ],
       isAgeePersonalData: [
         this.isUserAgreePersonalData,
@@ -195,7 +195,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   clientAddressValidator(
     control: FormControl,
   ): { [s: string]: boolean } | null {
-    if (control.value && control.value === '' && this.isDeliveryRequired()) {
+    if (control.value && control.value === '' && this.order.delivery.isAddressRequired) {
       return { clientAddress: true };
     }
     return null;
@@ -217,6 +217,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     );
     this.form.controls['declineReason'].setValue(this.order?.declineReason);
     this.form.controls['description'].setValue(this.order?.description);
+
+    console.log(this.order);
 
     this.dataSource = new MatTableDataSource(this.order.items);
 
@@ -525,7 +527,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         // this.isFormValid()
         // })
       });
-    //this.form.updateValueAndValidity();
+    this.form.updateValueAndValidity();
 
     //this.formControlValueChanged() // Note if you are doing an edit/fetching data from an observer this must be called only after your form is properly initialized otherwise you will get error.
 
@@ -535,6 +537,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.onHandleUpdate();
   }
 
+  
   //   formControlValueChanged(): void {
   //     this.form.valueChanges.subscribe(value => {
   //         console.log('value changed', value)
@@ -734,7 +737,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             clientTgName: this.form.controls['clientTgName'].value,
             clientTgChatId: this.form.controls['clientTgChatId'].value,
             clientPhone: this.form.controls['clientPhone'].value,
-            clientAddress: this.isDeliveryRequired()
+            clientAddress: this.order.delivery.isAddressRequired
               ? this.form.controls['clientAddress'].value
               : '',
             delivery: this.form.controls['delivery'].value as IDelivery,
@@ -891,7 +894,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             clientTgName: this.order?.clientTgName,
             clientTgChatId: this.order?.clientTgChatId,
             clientPhone: this.form.controls['clientPhone'].value,
-            clientAddress: this.isDeliveryRequired()
+            clientAddress: this.order.delivery.isAddressRequired
               ? this.form.controls['clientAddress'].value
               : '',
             delivery: this.form.controls['delivery'].value as IDelivery,
@@ -1038,6 +1041,21 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //   ]);
     // }
 
+    
+    this.order.delivery = item;
+    if (this.order.delivery.isAddressRequired)
+    {
+      this.form.controls['clientAddress'].clearValidators();
+      this.form.controls['clientAddress'].setValidators([
+            Validators.required,
+            Validators.maxLength(500),
+          ]);
+    }else
+    {
+      this.form.controls['clientAddress'].setValidators([
+        Validators.maxLength(500),
+      ]);
+    }
     this.form.controls['clientAddress'].updateValueAndValidity();
 
     this.totalAmountOrder =
@@ -1047,49 +1065,73 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   onClientNameClear() {
     if (!this.form.controls['clientName'].disabled)
-      this.form.controls['clientName'].setValue('');
+      {
+        this.order.clientName = '';
+        this.form.controls['clientName'].setValue(this.order.clientName,);
+      }
   }
 
   onClientTgNameClear() {
     if (!this.form.controls['clientTgName'].disabled)
-      this.form.controls['clientTgName'].setValue('');
+      {
+        this.order.clientTgName = '';
+        this.form.controls['clientTgName'].setValue(this.order.clientTgName,);
+      }
   }
   onClientTgChatIdClear() {
     if (!this.form.controls['clientTgChatId'].disabled)
-      this.form.controls['clientTgChatId'].setValue('');
+      {
+        this.order.clientTgChatId = '';
+        this.form.controls['clientTgChatId'].setValue(this.order.clientTgChatId,);
+      }
   }
   onClientPhoneClear() {
     if (!this.form.controls['clientPhone'].disabled)
-      this.form.controls['clientPhone'].setValue('');
+      {
+        this.order.clientPhone = '';
+        this.form.controls['clientPhone'].setValue(this.order.clientPhone,);
+      }
   }
   onClientAddressClear() {
     if (!this.form.controls['clientAddress'].disabled)
-      this.form.controls['clientAddress'].setValue('');
+      {
+        this.order.clientAddress = '';
+        this.form.controls['clientAddress'].setValue(this.order.clientAddress,);
+      }
   }
   onDeclineReasonClear() {
     if (!this.form.controls['declineReason'].disabled)
-      this.form.controls['declineReason'].setValue('');
+      {
+        this.order.declineReason = '';
+        this.form.controls['declineReason'].setValue(this.order.declineReason,);
+      }
   }
   onCorrectionReasonClear() {
     if (!this.form.controls['correctionReason'].disabled)
-      this.form.controls['correctionReason'].setValue('');
+    {
+      this.order.correctionReason = '';
+      this.form.controls['correctionReason'].setValue(this.order.correctionReason,);
+    }
   }
   onDescriptionClear() {
     if (!this.form.controls['description'].disabled)
-      this.form.controls['description'].setValue('');
+      {
+        this.order.description = '';
+        this.form.controls['description'].setValue(this.order.description,);
+      }
   }
 
-  isDeliveryRequired() {
-    const flag = this.orderService.isDeliveryRequired(
-      this.form.controls['delivery'].value as IDelivery,
-    );
+  // isDeliveryRequired() {
+  //   const flag = this.orderService.isDeliveryRequired(
+  //     this.form.controls['delivery'].value as IDelivery,
+  //   );
 
-    if (!flag) this.form.controls['clientAddress'].setErrors(null);
+  //   if (!flag) this.form.controls['clientAddress'].setErrors(null);
 
-    return flag;
+  //   return flag;
 
-    //return (mydelivery != null && mydelivery!.amount>0);
-  }
+  //   //return (mydelivery != null && mydelivery!.amount>0);
+  // }
 
   orderStatus() {
     return this.orderService.getOrderStatus(this.order);
@@ -1098,6 +1140,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   clientAddressChanging(query: string) {
     var additionalQuery: string = '';
     const mydelivery = this.form.controls['delivery'].value as IDelivery;
+    
     var dadataFilterString = '';
     if (mydelivery != null && mydelivery!.dadataFilter)
       dadataFilterString = mydelivery!.dadataFilter;
