@@ -8,6 +8,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogDemoComponent } from '../../components/confirm-dialog-demo/confirm-dialog-demo.component';
 import { ProductSearchComponent } from '../../components/product-search/product-search.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-order',
@@ -15,18 +16,26 @@ import { ProductSearchComponent } from '../../components/product-search/product-
   styleUrl: './order.component.scss',
 })
 export class OrderComponent implements OnInit, OnDestroy {
-  
   //idParam;
 
   disableButton: boolean = false;
 
-  @Input() set id(id: string) { 
+  @Input() set id(id: string) {
     this.orderService.updateId(id);
+
     //обновляем только если не загружен список и id >0 (редактирование заказа)
-    if (parseInt(id)>0 && (!this.orderService.$orders() || this.orderService.$orders().length == 0)) this.orderService.updateOrdersApi();
+    if (
+      parseInt(id) > 0 &&
+      (!this.orderService.$orders() || this.orderService.$orders().length == 0)
+    )
+      this.orderService.updateOrdersApi();
+
+    if (!id && environment.maxOrders>0) {
+      this.orderService.updateId(-1);
+      this.orderService.updateOrdersApi(); //обновляем список заказов с сервера для проверки
+    }
   }
 
-  
   /**
    *
    */
@@ -42,14 +51,24 @@ export class OrderComponent implements OnInit, OnDestroy {
   ) {
     //const idParam = this.route.snapshot.paramMap.get('id');
     //this.idParam = this.route.snapshot.paramMap.get('id');
-    
-    this.orderService.updateId(this.id);
 
-   
+    this.orderService.updateId(this.id);
 
     this.goBack = this.goBack.bind(this);
   }
+
+  getMaxOrdersParam() {
+    return environment.maxOrders;
+  }
+
   ngOnInit(): void {
+    //  console.log(this.id)
+    //  //если надо учитывать ограничение то проверяем для нового заказа
+    //  if (!this.id && this.telegramService.Id && environment.maxOrders>0){
+    //   this.orderService.updateId(-1);
+    //   this.orderService.updateOrdersApi();//обновляем список заказов с сервера для проверки
+    // }
+
     this.telegramService.BackButton.show();
     this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
   }
@@ -62,8 +81,6 @@ export class OrderComponent implements OnInit, OnDestroy {
     //this.location.back();
     this.navigation.back();
   }
-
-  
 
   submit() {
     this.disableButton = true;
@@ -78,10 +95,6 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.disableButton = false;
   }
 
-  openForEdit(userId: string) {
-    this.router.navigate(['/admin/user/edit/' + userId]);
-  }
-
   // onDeleteItem(id: string, itemName:string) {
   //   const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(ConfirmDialogDemoComponent, {
   //     data: {
@@ -94,12 +107,10 @@ export class OrderComponent implements OnInit, OnDestroy {
   //     {
   //       // this.service.deleteUser(id).then(res => {
   //       //   this.refreshList();
-  //       //   this.toastr.warning("Пользователь удален", "CheckIn7 - Запись онлайн");          
+  //       //   this.toastr.warning("Пользователь удален", "CheckIn7 - Запись онлайн");
   //       // });
-        
-  //     }      
+
+  //     }
   //   });
   // }
-
-  
 }

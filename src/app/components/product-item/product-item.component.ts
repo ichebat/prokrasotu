@@ -10,6 +10,9 @@ import {
 import { IProduct } from '../../services/products.service';
 import { CartService, ICartItem } from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
+import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
+import { environment } from '../../../environments/environment';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-product-item',
@@ -78,6 +81,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   constructor(
     private cartService: CartService,
     private telegramService: TelegramService,
+    public dialog: MatDialog,
   ) {
     // this.sendData = this.sendData.bind(this);
 
@@ -224,6 +228,43 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       quantity: 1,
       checked: true,
     };
+    if(this.cartService.checkMaxCartItemPosition(newItem))
+    {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: "Достигнуто ограничение",
+            description:
+              'Нельзя добавить более '+environment.maxCartItemPosition.toString()+' шт. одного товара в корзину.',
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          
+        } else return;
+      });
+    }
+    if(this.cartService.checkMaxCartItems(newItem))
+    {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: "Достигнуто ограничение",
+            description:
+              'Нельзя добавить более '+environment.maxCartItems.toString()+' разных товаров в корзину.',
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          
+        } else return;
+      });
+    }
+    else
     this.cartService.addItem(newItem);
     
     

@@ -704,6 +704,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     if (!this.getVisible('button_submit') || !this.getEnabled('button_submit'))
       return;
 
+    
+
     // if (
     //   (this.telegramService.Id || !environment.useOnlyTgOrders) &&
     //   this.order.id == 0 &&
@@ -715,6 +717,30 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       this.getEnabled('button_submit') &&
       this.form.valid
     ) {
+
+      
+      //проверка не более maxOrders заказов в работе на аккаунт tg
+    
+    if(this.orderService.checkMaxOrders())
+    {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: "Невозможно создать заказ",
+            description:
+              'Нельзя создать более '+environment.maxOrders.toString()+' заказов в работе. Пожалуйста дождитесь выполнения или отмените имеющиеся заказы и попробуйте снова.',
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          
+        } else return;
+      });
+      return;
+    }
+
       this.disableButton = true;
       this.telegramService.MainButton.setText('Отправка...');
       this.telegramService.MainButton.disable();

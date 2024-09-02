@@ -3,6 +3,9 @@ import { CartService, ICartItem } from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
 import { Location } from '@angular/common';
 import { IProduct } from '../../services/products.service';
+import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
+import { MatDialog } from '@angular/material/dialog';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-cart-item',
@@ -16,7 +19,8 @@ export class CartItemComponent implements OnInit, OnDestroy {
 
   constructor(private location: Location,
     private cartService: CartService,
-    private telegramService: TelegramService,) {
+    private telegramService: TelegramService,
+    public dialog: MatDialog,) {
 
     this.goBack = this.goBack.bind(this);
 
@@ -98,6 +102,7 @@ export class CartItemComponent implements OnInit, OnDestroy {
   }
 
   addItem() {
+    
     console.log('Add to cart');
     
     const newItem: ICartItem = {
@@ -105,6 +110,43 @@ export class CartItemComponent implements OnInit, OnDestroy {
       quantity: 1,
       checked: this.cartItem.checked,
     };
+    if(this.cartService.checkMaxCartItemPosition(newItem))
+    {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: "Достигнуто ограничение",
+            description:
+              'Нельзя добавить более '+environment.maxCartItemPosition.toString()+' шт. одного товара в корзину.',
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          
+        } else return;
+      });
+    }
+    if(this.cartService.checkMaxCartItems(newItem))
+    {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: "Достигнуто ограничение",
+            description:
+              'Нельзя добавить более '+environment.maxCartItems.toString()+' разных товаров в корзину.',
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          
+        } else return;
+      });
+    }
+    else
     this.cartService.addItem(newItem);
     
     

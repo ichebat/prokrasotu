@@ -516,7 +516,7 @@
       #clientPhone
       placeholder="Номер сотового телефона (10 цифр)"
       [dropSpecialCharacters]="true"
-      mask="(000) 000-00-00"
+      mask="+7 (000) 000-00-00"
       [readonly]="!getEnabled('clientPhone')"
     />
     @if (clientPhone.value) {

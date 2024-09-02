@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TelegramService } from './telegram.service';
 import { BehaviorSubject, Observable, Subject, map, switchMap , of} from 'rxjs';
 import { IOrder } from './order.service';
+import { environment } from '../../environments/environment';
 
 export interface ICartItem {
   product: IProduct;
@@ -70,12 +71,53 @@ export class CartService {
     return items.reduce((count, item) => count + item.quantity, 0);
   }
 
+  public checkMaxCartItemPosition(item: ICartItem):boolean{
+    let existingItem = this.$cart().items.find(
+      (i) => i.product.id === item.product.id,
+    );
+
+    if (!this.telegram.isAdmin)
+      {
+        //ограничения на количество единиц одного товара в корзине
+        if(existingItem && existingItem.quantity >= environment.maxCartItemPosition && environment.maxCartItemPosition>0) return true;        
+      }
+
+    return false;
+  }
+
+  public checkMaxCartItems(item: ICartItem):boolean{
+    let existingItem = this.$cart().items.find(
+      (i) => i.product.id === item.product.id,
+    );
+
+    if (!this.telegram.isAdmin)
+      {
+        //ограничения на количество разного товара в корзине
+        if(!existingItem && this.$cart().items.length >= environment.maxCartItems && environment.maxCartItems>0) return true;
+      }
+
+    return false;
+  }
+
   addItem(item: ICartItem) {
     this.$cart.update((currentCart) => {
       let existingItem = currentCart.items.find(
         (i) => i.product.id === item.product.id,
       );
+
+      
+      if (!this.telegram.isAdmin)
+      {
+        //ограничения на количество единиц одного товара в корзине
+        if(existingItem && existingItem.quantity+item.quantity > environment.maxCartItemPosition && environment.maxCartItemPosition>0) return currentCart;
+        if(!existingItem && item.quantity > environment.maxCartItemPosition && environment.maxCartItemPosition>0) item.quantity = environment.maxCartItemPosition;
+
+        //ограничения на количество разного товара в корзине
+        if(!existingItem && currentCart.items.length >= environment.maxCartItems && environment.maxCartItems>0) return currentCart;
+      }
+
       if (existingItem) {
+        
         existingItem.quantity += item.quantity;
       } else {
         currentCart.items.push(item);

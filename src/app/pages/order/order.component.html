@@ -16,12 +16,29 @@
         <p>{{item.name}}</p>
       }
   } -->
-@if ((orderService.$order()?.items)!.length > 0) {
-  <app-order-item [order]="orderService.$order()!" />
-  
-  <mat-chip-listbox>
-    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
-  </mat-chip-listbox>
+@if (!orderService.checkMaxOrders()) {
+  @if ((orderService.$order()?.items)!.length > 0 ) {
+    <app-order-item [order]="orderService.$order()!" />
+    
+    <mat-chip-listbox>
+      <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+    </mat-chip-listbox>
+  }
+}
+
+
+@if (orderService.checkMaxOrders()) {
+  <h3 class="mb">Невозможно создать заказ</h3>
+  <h4 class="mb">Нельзя создать более {{getMaxOrdersParam()}} заказов в работе. Пожалуйста дождитесь выполнения или отмените имеющиеся заказы и попробуйте снова.</h4>
+  <p>
+    Свои заказы можно посмотреть по ссылке: 
+    <a mat-button routerLink="/orders">
+      <span class="entry">
+        <mat-icon>history</mat-icon>
+        <span>История заказов</span>
+      </span>
+    </a>
+  </p>
 }
 
 <!-- <form [formGroup]="form" (ngSubmit)="submit()">

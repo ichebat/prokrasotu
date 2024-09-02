@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { CartService, ICartItem } from './cart.service';
+import { CartItemClass, CartService, ICartItem } from './cart.service';
 import { TelegramService } from './telegram.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, asyncScheduler, map, of, scheduled, switchMap } from 'rxjs';
@@ -61,7 +61,7 @@ export interface IOrder {
 
 export class OrderClass implements IOrder {
   id: number = 0;
-  items: ICartItem[] = [];
+  items: ICartItem[] = [] as CartItemClass[];
   totalAmount: number = 0;
   totalCount: number = 0;
   clientName: string = '';
@@ -107,6 +107,7 @@ export class OrderService {
   //   initialValue: null,
   // });
   private $orderId = signal<string>('');
+  
 
   //обновляется по выполнении this.ordersResponseChanged.next(), при выполнении updateId()
   //если $orderId не установлен, то заказы с таблицы не тянутся
@@ -194,7 +195,6 @@ export class OrderService {
 
   $orders = computed(() => {
     const ordersAPIValue = this.$ordersAPI();
-
     //console.log(ordersAPIValue);
 
     if (ordersAPIValue == undefined) {
@@ -205,6 +205,34 @@ export class OrderService {
       });
     }
   });
+
+  $activeOrdersCount = computed(() => {
+    const ordersAPIValue = this.$ordersAPI();
+    const orderIdValue = this.$orderId();
+
+    if (ordersAPIValue == undefined) {
+      return 0;
+    } else 
+    if (orderIdValue == undefined || parseInt(orderIdValue) > 0) {
+      return 0;
+    } else 
+    if (parseInt(orderIdValue) <= 0){
+      return ordersAPIValue.filter((p) => !p.isCompleted && !p.isDeclined).length;
+    }
+    else return 0;
+  });
+
+  public checkMaxOrders():boolean{
+    
+    if (!this.telegram.isAdmin && this.telegram.Id)
+      {
+        //console.log(this.$activeOrdersCount() );
+        //ограничения на количество разного товара в корзине
+        if(this.$activeOrdersCount() >= environment.maxOrders && environment.maxOrders>0) return true;
+      }
+
+    return false;
+  }
 
   public calculateTotalAmount(items: ICartItem[]): number {
     const amount = items.reduce(
@@ -356,7 +384,7 @@ export class OrderService {
   // }
 
   getOrders(chat_id: string): Observable<IOrder[]> {
-    //console.log('Start get orders by chat_id: '+chat_id);
+    // console.log('Start get orders by chat_id: '+chat_id);
     if (!chat_id) return scheduled<IOrder[]>([], asyncScheduler);
     return this.telegram.getOrdersFromGoogleAppsScript(chat_id).pipe(
       map((res: any) => {
@@ -473,6 +501,7 @@ export class OrderService {
   }
 
   updateOrdersApi(){
+    
     this.ordersResponseChanged.next();
   }
 
