@@ -18,7 +18,7 @@
   } -->
 @if (!orderService.checkMaxOrders()) {
   @if ((orderService.$order()?.items)!.length > 0 ) {
-    <app-order-item [order]="orderService.$order()!" />
+    <app-order-item [order]="orderService.$order()!" [action]="orderAction"/>
     
     <mat-chip-listbox>
       <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
@@ -33,10 +33,9 @@
   <p>
     Свои заказы можно посмотреть по ссылке: 
     <a mat-button routerLink="/orders">
-      <span class="entry">
+      
         <mat-icon>history</mat-icon>
         <span>История заказов</span>
-      </span>
     </a>
   </p>
 }

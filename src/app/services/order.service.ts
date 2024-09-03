@@ -50,9 +50,9 @@ export interface IOrder {
   acceptDate: Date;
   isCompleted: boolean;
   completeDate: Date;
-  isDeclined: boolean;
-  declineDate: Date;
-  declineReason: string;
+  isCancelled: boolean;
+  cancellationDate: Date;
+  cancellationReason: string;
   isCorrected: boolean;
   correctionDate: Date;
   correctionReason: string;
@@ -75,9 +75,9 @@ export class OrderClass implements IOrder {
   acceptDate: Date = new Date();
   isCompleted: boolean = false;
   completeDate: Date = new Date();
-  isDeclined: boolean = false;
-  declineDate: Date = new Date();
-  declineReason: string = '';
+  isCancelled: boolean = false;
+  cancellationDate: Date = new Date();
+  cancellationReason: string = '';
   isCorrected: boolean = false;
   correctionDate: Date = new Date();
   correctionReason: string = '';
@@ -161,9 +161,9 @@ export class OrderService {
           acceptDate: new Date(),
           isCompleted: false,
           completeDate: new Date(),
-          isDeclined: false,
-          declineDate: new Date(),
-          declineReason: '',
+          isCancelled: false,
+          cancellationDate: new Date(),
+          cancellationReason: '',
           isCorrected: false,
           correctionDate: new Date(),
           correctionReason: '',
@@ -217,7 +217,7 @@ export class OrderService {
       return 0;
     } else 
     if (parseInt(orderIdValue) <= 0){
-      return ordersAPIValue.filter((p) => !p.isCompleted && !p.isDeclined).length;
+      return ordersAPIValue.filter((p) => !p.isCompleted && !p.isCancelled).length;
     }
     else return 0;
   });
@@ -454,7 +454,7 @@ export class OrderService {
     else
     if (order.isCompleted) result = "Заказ выполнен. "+new Date(order.completeDate).toLocaleDateString();
     else
-    if (order.isDeclined) result = "Заказ отклонен. "+new Date(order.declineDate).toLocaleDateString()+(order.declineReason ? " Причина: "+order.declineReason:"");
+    if (order.isCancelled) result = "Заказ отклонен. "+new Date(order.cancellationDate).toLocaleDateString()+(order.cancellationReason ? " Причина: "+order.cancellationReason:"");
     else
     //result = "Заказ в обработке ["+moment(order.acceptDate).format('DD.MM.YYYY HH:mm:ss SSS')+"]";
     result = "Заказ в обработке у продавца. "+new Date(order.orderDate).toLocaleDateString();
@@ -475,6 +475,20 @@ export class OrderService {
       userName: userName,
       action: actionName,
       order: order,
+    });
+  }
+
+  public cancelOrderByIdToGoogleAppsScript(
+    chat_id: string,
+    userName: string,
+    actionName: string,
+    data: any,
+  ): Observable<any> {
+    return this.telegram.sendToGoogleAppsScript({
+      chat_id: chat_id,
+      userName: userName,
+      action: actionName,
+      data: data,
     });
   }
   // private sendOrderToGoogleAppsScript(

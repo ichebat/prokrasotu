@@ -74,7 +74,7 @@ export class TelegramService {
 
   get IsTelegramWebAppOpened(): boolean {
     //if (!environment.production) return false;
-    //if (!environment.production) return true;
+    if (!environment.production) return true;
     if (!this.FIO && !this.Id && !this.UserName) return false;
     return true;
   }

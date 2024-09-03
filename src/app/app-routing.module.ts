@@ -23,6 +23,7 @@ const routes: Routes = [
   { path: 'orders', component: OrdersComponent },
   { path: 'order', component: OrderComponent },
   { path: 'order/:id', component: OrderComponent },
+  { path: 'order/:id/:action', component: OrderComponent },
 
   { path: 'company/privacy', component: PrivacyComponent },
 

@@ -36,6 +36,27 @@ export class OrderComponent implements OnInit, OnDestroy {
     }
   }
 
+  @Input() set action(action: string){
+
+    //можно открыть заказ (order-item.component) с вариантами /order/:id/:action:
+    // /order/:id/cancel - будут скрыты поля и доступна кнопка отмены заказа
+    // /order/:id/accept - будут скрыты поля и доступна кнопка принятия заказа
+    // /order/:id/complete - будут скрыты поля и доступна кнопка завершения заказа
+    // /order/:id/edit - будут показаны поля и доступна кнопка обновить заказ
+    // /order/:id/complete - будут показаны поля и доступна кнопка закрыть для выхода из просмотра заказа
+    // в этих вариантах кнопка "Назад" в телеграм должна закрывать приложение Web App
+    if (action && (
+      action!.toString().toLocaleLowerCase() == "cancel" || 
+      action!.toString().toLocaleLowerCase() == "accept" || 
+      action!.toString().toLocaleLowerCase() == "complete" || 
+      action!.toString().toLocaleLowerCase() == "edit" || 
+      action!.toString().toLocaleLowerCase() == "view"
+      )) this.orderAction = action;
+    //console.log(action+" - "+this.orderAction);
+  }
+
+  orderAction: string = "";
+
   /**
    *
    */
