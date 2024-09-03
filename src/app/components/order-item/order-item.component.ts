@@ -85,6 +85,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     private navigation: NavigationService,
     private fb: FormBuilder,
   ) {
+    //console.log("constructor order item");
     //биндим функции, чтобы от них потом корректно отписаться
     this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
     this.sendData = this.sendData.bind(this); //функция для главной MainButton кнопки телеграм
@@ -242,7 +243,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     );
     this.form.controls['description'].setValue(this.order?.description);
 
-    console.log(this.order);
+    //console.log(this.order);
 
     //обновляем источник данных для таблицы
     this.dataSource = new MatTableDataSource(this.order.items);
@@ -513,6 +514,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //по выходу может оказаться несколько активных кнопок
     //если запрос осуществлялся с action то отключаем лишние
     //должна остаться только одна кнопка с visible и enabled true из пяти
+
+    
     if (this.action == 'view' || this.action == '') {
       this.FormControlsFlags.find((p) => p.controlName == 'button_submit')!.enabled = false;
       this.FormControlsFlags.find((p) => p.controlName == 'button_submit')!.visible = false;
@@ -1298,7 +1301,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
           //если такого продукта не было то добавляем
           isItemChanged = true;
-          console.log(newCartItem);
+          //console.log(newCartItem);
           this.order.items.push(newCartItem);
 
           this.order.totalAmount = this.orderService.calculateTotalAmount(

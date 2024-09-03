@@ -21,13 +21,11 @@ export class OrderComponent implements OnInit, OnDestroy {
   disableButton: boolean = false;
 
   @Input() set id(id: string) {
+    //if (!id) this.orderService.updateId('');
     this.orderService.updateId(id);
 
     //обновляем только если не загружен список и id >0 (редактирование заказа)
-    if (
-      parseInt(id) > 0 &&
-      (!this.orderService.$orders() || this.orderService.$orders().length == 0)
-    )
+    if (parseInt(id) > 0 && (!this.orderService.$orders() || this.orderService.$orders().length == 0))
       this.orderService.updateOrdersApi();
 
     if (!id && environment.maxOrders>0) {

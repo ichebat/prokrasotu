@@ -17,7 +17,8 @@
       }
   } -->
 @if (!orderService.checkMaxOrders()) {
-  @if ((orderService.$order()?.items)!.length > 0 ) {
+ 
+  @if ((orderService.$order()?.items)!.length>0) {
     <app-order-item [order]="orderService.$order()!" [action]="orderAction"/>
     
     <mat-chip-listbox>
