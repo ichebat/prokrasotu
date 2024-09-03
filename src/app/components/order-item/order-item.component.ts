@@ -803,9 +803,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //функция отправки данных (id ==0 для нового заказа, id>0 для редактирования)
   sendData() {
-    //добавление нового заказа
-    if (!this.getVisible('button_submit') || !this.getEnabled('button_submit'))
-      return;
+    //добавление нового заказа делается кнопкой submit
+    
 
     if (
       this.order.id == 0 &&
@@ -974,14 +973,21 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     }
 
     if (
-      this.getVisible('button_submit') &&
-      this.getEnabled('button_submit') &&
+      (
+        (this.getVisible('button_submit') && this.getEnabled('button_submit')) ||
+        (this.getVisible('button_accept') && this.getEnabled('button_accept')) ||
+        (this.getVisible('button_cancel') && this.getEnabled('button_cancel')) ||
+        (this.getVisible('button_complete') && this.getEnabled('button_complete'))
+      )
+      &&
       this.form.valid &&
       this.order.id > 0
     ) {
       this.disableButton = true;
       this.telegramService.MainButton.setText('Отправка...');
       this.telegramService.MainButton.disable();
+
+      console.log(this.order);
 
       this.orderService
         .sendOrderToGoogleAppsScript(
@@ -1012,7 +1018,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             completeDate: this.order?.completeDate,
             isCancelled: this.order?.isCancelled,
             cancellationDate: this.order?.cancellationDate,
-            cancellationReason: this.form.controls['cancellationReason'].value,
+            cancellationReason: this.order?.cancellationReason,
             isCorrected:
               this.order?.isCorrected ||
               this.isDeliveryChanged ||

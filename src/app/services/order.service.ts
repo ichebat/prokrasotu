@@ -450,13 +450,14 @@ export class OrderService {
 
   getOrderStatus(order: IOrder) {
     let result = '';
-    if (order.isAccepted) {
+    if (order.isAccepted && !order.isCompleted && !order.isCancelled) {
+      const status = "Продавец завершил обработку заказа"
       // if (!order.delivery.isAddressRequired)
       //   result = "Заказ готов к выдаче ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
       // else
       //   result = "Заказ направлен в доставку ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
       result =
-        order.delivery.clientMessage +
+        (order.delivery.clientMessage?order.delivery.clientMessage:status) +
         ' ' +
         new Date(order.acceptDate).toLocaleDateString();
     } else if (order.isCompleted)

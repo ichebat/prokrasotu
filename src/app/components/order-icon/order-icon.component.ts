@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { IOrder, OrderService } from '../../services/order.service';
+import { TelegramService } from '../../services/telegram.service';
 
 @Component({
   selector: 'app-order-icon',
@@ -10,7 +11,8 @@ export class OrderIconComponent {
   @Input() order!: IOrder;
 
   constructor(
-    public orderService: OrderService,){
+    public orderService: OrderService,
+  public telegramService: TelegramService){
       
     }
 

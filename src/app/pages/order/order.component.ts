@@ -49,7 +49,7 @@ export class OrderComponent implements OnInit, OnDestroy {
       action!.toString().toLocaleLowerCase() == "complete" || 
       action!.toString().toLocaleLowerCase() == "edit" || 
       action!.toString().toLocaleLowerCase() == "view"
-      )) this.orderAction = action;
+      )) this.orderAction = action!.toString().toLocaleLowerCase();
     //console.log(action+" - "+this.orderAction);
   }
 

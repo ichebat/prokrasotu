@@ -1,6 +1,6 @@
 <mat-card
   class="order-icon mat-elevation-z5"
-  [routerLink]="'/order/' + order!.id"
+ 
 >
   <mat-card-header>
     <mat-card-title
@@ -14,4 +14,39 @@
       {{ order.totalAmount | currency: "RUB" : "symbol-narrow" }}
     </p>
   </mat-card-content>
+  <!-- <mat-card-actions>
+    @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
+      <button mat-button>Подтвердить</button>
+    }
+    @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
+      <button mat-button>Изменить</button>
+    }
+    
+      <button mat-button>Посмотреть</button>
+    
+    @if(telegramService.isAdmin && order.isAccepted && !order.isCompleted  && !order.isCancelled){
+      <button mat-button>Завершить</button>
+    }
+    @if(!order.isCompleted  && !order.isCancelled){
+      <button mat-button>Отменить</button>
+    }
+    <button mat-button>SHARE</button>
+  </mat-card-actions> -->
+  <mat-card-footer class="example-card-footer">
+    <mat-chip-set aria-label="Chihuahua traits">
+      @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
+        <mat-chip highlighted color="primary" [routerLink]="'/order/' + order!.id+'/accept'">Подтвердить</mat-chip>
+      }
+      @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
+        <mat-chip highlighted color="primary" [routerLink]="'/order/' + order!.id+'/edit'">Изменить</mat-chip>
+      }
+      <mat-chip highlighted color="accent" [routerLink]="'/order/' + order!.id+'/view'">Посмотреть</mat-chip>
+      @if(telegramService.isAdmin && order.isAccepted && !order.isCompleted  && !order.isCancelled){
+        <mat-chip highlighted color="accent" [routerLink]="'/order/' + order!.id+'/complete'">Завершить</mat-chip>
+      }
+      @if(!order.isCompleted  && !order.isCancelled){
+        <mat-chip highlighted color="warn" [routerLink]="'/order/' + order!.id+'/cancel'">Отменить</mat-chip>
+      }
+    </mat-chip-set>
+  </mat-card-footer>
 </mat-card>
