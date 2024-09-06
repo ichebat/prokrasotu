@@ -10,14 +10,11 @@ import { NavigationService } from '../../services/navigation.service';
 @Component({
   selector: 'app-product',
   templateUrl: './product.component.html',
-  styleUrl: './product.component.scss'
+  styleUrl: './product.component.scss',
 })
 export class ProductComponent implements OnInit, OnDestroy {
-
-  
-
   // subscription: Subscription;
-  
+
   // product!: IProduct;
   /**
    *
@@ -31,11 +28,16 @@ export class ProductComponent implements OnInit, OnDestroy {
     private router: Router,
     private location: Location,
   ) {
-
     const id = this.route.snapshot.paramMap.get('id');
     this.productsService.updateId(id);
 
+    //console.log(this.router.url);
+
     this.goBack = this.goBack.bind(this);
+  }
+
+  getUrl(){
+    return this.router.url;
   }
   ngOnDestroy(): void {
     this.telegramService.BackButton.hide();
@@ -50,7 +52,5 @@ export class ProductComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.telegramService.BackButton.show();
     this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
-
-    
   }
 }

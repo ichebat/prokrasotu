@@ -1,11 +1,14 @@
 import {
   Component,
+  ElementRef,
   Input,
   OnDestroy,
   OnInit,
   Signal,
+  ViewChild,
   booleanAttribute,
   effect,
+  NgZone,
 } from '@angular/core';
 import { IDelivery, IOrder, OrderService } from '../../services/order.service';
 import { TelegramService } from '../../services/telegram.service';
@@ -17,7 +20,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
+import { ConfirmDialogDemoComponent, DialogData } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { CartService, ICartItem } from '../../services/cart.service';
 import { NavigationService } from '../../services/navigation.service';
 import { distinctUntilChanged, filter, takeUntil } from 'rxjs';
@@ -84,6 +87,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private navigation: NavigationService,
     private fb: FormBuilder,
+    private zone: NgZone ,
   ) {
     //console.log("constructor order item");
     //биндим функции, чтобы от них потом корректно отписаться
@@ -294,7 +298,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         ) {
           item.enabled = false;
         }
-      }
+      } else
 
       //2. ******************************************* */
       //если создается новый заказ ЧЕРЕЗ телеграм бота (НЕ через сайт)
@@ -315,10 +319,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           item.visible = false;
         }
         if (item.controlName == 'clientTgName') {
-          item.visible = true && this.telegramService.UserName;
+          item.visible = true && this.telegramService.isAdmin;
         }
         if (item.controlName == 'clientTgChatId') {
-          item.visible = true && this.telegramService.Id;
+          item.visible = true && this.telegramService.isAdmin;
         }
 
         //возможность редактирования следующих контролов будет изменена
@@ -338,11 +342,11 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         ) {
           item.enabled = false;
         }
-      }
+      } else
 
       //3. ******************************************* */
       //если заказ редактируется ЧЕРЕЗ телеграм бота (НЕ через сайт)
-      if (this.telegramService.IsTelegramWebAppOpened && this.order?.id > 0) {
+      if ((this.telegramService.IsTelegramWebAppOpened || this.telegramService.isAdmin) && this.order?.id > 0) {
         if (item.controlName == 'clientName') {
           item.visible =
             true && this.order?.clientName && this.telegramService.isAdmin;
@@ -354,6 +358,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         if (item.controlName == 'delivery') {
           item.visible =
             true && this.order?.delivery && this.telegramService.isAdmin;
+        }
+        if (item.controlName == 'clientAddress') {
+          item.visible =
+            true && this.order?.delivery.isAddressRequired && this.telegramService.isAdmin;
         }
         if (item.controlName == 'clientTgName') {
           item.visible =
@@ -391,7 +399,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             this.telegramService.isAdmin &&
             !this.order?.isAccepted &&
             !this.order?.isCancelled &&
-            !this.order?.isCompleted;
+            !this.order?.isCompleted;            
         }
         if (item.controlName == 'button_complete') {
           item.visible =
@@ -434,6 +442,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         if (item.controlName == 'delivery') {
           item.enabled =
             true && this.telegramService.isAdmin && this.action == 'edit';
+        }
+        if (item.controlName == 'clientAddress') {
+          item.enabled =
+            true && this.telegramService.isAdmin && this.order.delivery.isAddressRequired && this.action == 'edit';
         }
         if (item.controlName == 'correctionReason') {
           item.enabled =
@@ -483,6 +495,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           item.enabled =
             true &&
             this.telegramService.isAdmin &&
+            !this.order?.isAccepted &&
             !this.order?.isCancelled &&
             !this.order?.isCompleted;
         }
@@ -494,7 +507,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         //       this.order?.isCompleted);
         //
         // }
-      }
+      } else
 
       //4. ******************************************* */
       //если заказ редактируется не через телеграм бота (через сайт)
@@ -514,8 +527,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //по выходу может оказаться несколько активных кнопок
     //если запрос осуществлялся с action то отключаем лишние
     //должна остаться только одна кнопка с visible и enabled true из пяти
-
-    
+    //вся эта логика работает только на редактирование существующего заказа, при создании - нет
+    if (this.order?.id > 0)
+    {
     if (this.action == 'view' || this.action == '') {
       this.FormControlsFlags.find((p) => p.controlName == 'button_submit')!.enabled = false;
       this.FormControlsFlags.find((p) => p.controlName == 'button_submit')!.visible = false;
@@ -540,7 +554,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       //если редактировать нельзя
       if (!this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.visible)
       {
-        if (!this.telegramService.isAdmin && !this.order.isAccepted) this.MainButtonText = "Вы не можете изменить данный заказ, так как он находится в обработке у продавца"
+        if (!this.order.isAccepted) this.MainButtonText = "Вы не можете изменить данный заказ, так как он находится в обработке у продавца"
         if (this.order.isAccepted) this.MainButtonText = "Вы не можете изменить данный заказ, так как он уже подтвержден продавцом";
         if (this.order.isCompleted) this.MainButtonText = "Вы не можете изменить данный заказ, так как он уже завершен";
         if (this.order.isCancelled) this.MainButtonText = "Вы не можете изменить данный заказ, так как он отменен";
@@ -556,6 +570,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
     if (this.action == "accept")
     {
+      //console.log("accept | "+this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.visible)
       this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.enabled = false;
       this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.visible = false;
       this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.enabled = false;
@@ -624,6 +639,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = false;
         this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = false;
       }
+    }
     }
   }
 
@@ -706,6 +722,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     ) {
       //если заказ переводится в "Готов к оплате", но была коррекция необходимо подтверждение
       if (this.isOrderItemsChanged || this.isDeliveryChanged) {
+        //if (!this.telegramService.IsTelegramWebAppOpened)
+        this.zone.run(() => 
+        {
         const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
           ConfirmDialogDemoComponent,
           {
@@ -725,6 +744,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             this.sendData();
           } else return;
         });
+        });
       } else {
         this.order.isAccepted = true;
         this.order.acceptDate = new Date();
@@ -735,10 +755,14 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //функция отмены заказа
   cancelOrder() {
+    
     //отклонить можно если не отклонялся ранее
     if (!this.getVisible('button_cancel') || !this.getEnabled('button_cancel'))
       return;
-
+    
+    //if (!this.telegramService.IsTelegramWebAppOpened)
+    this.zone.run(() => 
+    {
     const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
       ConfirmDialogDemoComponent,
       {
@@ -762,6 +786,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         this.sendData();
       } else return;
     });
+    });
+
+
   }
 
   //функция завершения заказа
@@ -772,8 +799,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       !this.getEnabled('button_complete')
     )
       return;
-
-    const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+    //if (!this.telegramService.IsTelegramWebAppOpened)
+    this.zone.run(() => 
+    {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
       ConfirmDialogDemoComponent,
       {
         data: {
@@ -782,22 +811,28 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             'Заказ считается выполненным и будет завершен. После этого он будет помещен в архив. Если все устраивает - подтвердите действие.',
         },
       },
-    );
-    dialogRef.afterClosed().subscribe((result) => {
+      );
+      dialogRef.afterClosed().subscribe((result) => {
       if (result == true) {
         this.order.isCompleted = true;
         this.order.completeDate = new Date();
         this.sendData();
       } else return;
+      });
     });
+
+    
   }
 
   //функция закрытия окна
   closeForm() {
     if (!this.getVisible('button_close') || !this.getEnabled('button_close'))
       return;
-    this.router.navigate(['/']);
-    if (this.telegramService.IsTelegramWebAppOpened)
+    
+    this.goBack();
+    //закрываем tg если редактировали заказ
+    //или если мы открыли страницу с кнопкой закрыть и истории ранее нету, то закрывает телеграм
+    if (this.telegramService.IsTelegramWebAppOpened && (this.action == "edit" || this.action == "complete" || this.action == "cancel" || this.action == "accept" || !this.navigation.isHistoryAvailable))
       this.telegramService.tg.close();
   }
 
@@ -814,7 +849,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     ) {
       //проверка не более maxOrders заказов в работе на аккаунт tg
 
-      if (this.orderService.checkMaxOrders()) {
+      if (this.orderService.checkMaxOrders()) 
+      this.zone.run(() => 
+      {
         const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
           ConfirmDialogDemoComponent,
           {
@@ -832,7 +869,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           } else return;
         });
         return;
-      }
+      });
 
       this.disableButton = true;
       this.telegramService.MainButton.setText('Отправка...');
@@ -872,6 +909,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             correctionDate: new Date(),
             correctionReason: '',
             description: this.form.controls['description'].value,
+            isClientPay: false,
+            clientPayDate: new Date(),
+            clientPayInfo: '',
           },
         )
         .subscribe({
@@ -884,7 +924,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
               addOrder_response?.status == 'success' &&
               addOrder_response?.data?.action.toString().toLowerCase() ==
                 'addorder'
-            ) {
+            ) 
+            this.zone.run(() => 
+            {
               const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
                 ConfirmDialogDemoComponent,
                 {
@@ -901,7 +943,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 if (result == true) {
                 } else return;
               });
-            }
+            });
           },
           error: (err) => {
             this.onHandleUpdate();
@@ -1029,6 +1071,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 : this.order?.correctionDate,
             correctionReason: this.form.controls['correctionReason'].value,
             description: this.form.controls['description'].value,
+            isClientPay: this.order?.isClientPay,
+            clientPayDate: this.order?.clientPayDate,
+            clientPayInfo: this.order?.clientPayInfo,
           },
         )
         .subscribe({
@@ -1337,6 +1382,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       return;
     //нельзя удалить последнюю позицию
     if (this.order.items.length <= 1) return;
+    this.zone.run(() => {
     const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
       ConfirmDialogDemoComponent,
       {
@@ -1371,6 +1417,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           );
         }
       }
+    });
     });
   }
 

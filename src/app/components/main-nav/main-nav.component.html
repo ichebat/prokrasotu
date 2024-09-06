@@ -207,10 +207,24 @@
       </mat-nav-list>
     }
     <mat-nav-list>
+      <a mat-list-item (click)="toggleMenu()" routerLink="/contacts">
+        <span class="entry">
+          <mat-icon>contacts</mat-icon>
+          <span>Контактная информация</span>
+        </span>
+      </a>
+
       <a mat-list-item (click)="toggleMenu()" routerLink="/orders">
         <span class="entry">
           <mat-icon>history</mat-icon>
           <span>История заказов</span>
+        </span>
+      </a>
+      
+      <a mat-list-item (click)="toggleMenu()" routerLink="/feedback">
+        <span class="entry">
+          <mat-icon>message</mat-icon>
+          <span>Связь с PROКРАСОТУ</span>
         </span>
       </a>
     </mat-nav-list>

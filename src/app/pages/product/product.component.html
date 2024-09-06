@@ -3,6 +3,8 @@
 </mat-chip-listbox>
 
 @if (productsService.$product()) {
+  <app-share-buttons [url]="getUrl()" [title]="productsService.$product()!.name" [description]="productsService.$product()!.description"></app-share-buttons>
+
   <app-product-item [product]="productsService.$product()!" />
 
   <mat-chip-listbox>

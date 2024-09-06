@@ -65,6 +65,9 @@ export interface IOrder {
   correctionDate: Date;
   correctionReason: string;
   description: string;
+  isClientPay: boolean;
+  clientPayDate: Date;
+  clientPayInfo: string;
 }
 
 export class OrderClass implements IOrder {
@@ -90,6 +93,9 @@ export class OrderClass implements IOrder {
   correctionDate: Date = new Date();
   correctionReason: string = '';
   description: string = '';
+  isClientPay: boolean = false;
+  clientPayDate: Date = new Date();
+  clientPayInfo: string = '';
 
   constructor(obj) {
     for (var prop in obj) this[prop] = obj[prop];
@@ -180,6 +186,9 @@ export class OrderService {
           correctionDate: new Date(),
           correctionReason: '',
           description: '',
+          isClientPay: false,
+          clientPayDate: new Date(),
+          clientPayInfo: ''
         };
       } else {
         //console.log(ordersAPIValue);
@@ -459,17 +468,17 @@ export class OrderService {
       result =
         (order.delivery.clientMessage?order.delivery.clientMessage:status) +
         ' ' +
-        new Date(order.acceptDate).toLocaleDateString();
+        new Date(order.acceptDate).toLocaleDateString()+((order.isClientPay)?(" [Оплачено online]"):(""));
     } else if (order.isCompleted)
       result =
-        'Заказ выполнен. ' + new Date(order.completeDate).toLocaleDateString();
+        'Заказ выполнен. ' + new Date(order.completeDate).toLocaleDateString()+((order.isClientPay)?(" [Оплачено online]"):(""));
     else if (order.isCancelled)
       result =
         'Заказ отклонен. ' +
         new Date(order.cancellationDate).toLocaleDateString() +
         (order.cancellationReason
           ? ' Причина: ' + order.cancellationReason
-          : '');
+          : '')+((order.isClientPay)?(" [Оплачено online]"):(""));
     //result = "Заказ в обработке ["+moment(order.acceptDate).format('DD.MM.YYYY HH:mm:ss SSS')+"]";
     else
       result =

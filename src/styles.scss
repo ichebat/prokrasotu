@@ -49,6 +49,13 @@ hr {
   align-items: center;
 }
 
+/* The div container */
+.qrcodeImage {
+  display: flex;
+  flex: 1;
+}
+
+
 .form {
   height: 70vh;
   justify-content: center;
@@ -169,9 +176,9 @@ mat-form-field {
   //   animation: spin 2s linear infinite;
 }
 
-.hide{
+.hide {
   display: none;
-  
+
   // display: block;
   // visibility: hidden;
   // height: 0;
@@ -185,6 +192,28 @@ mat-form-field {
 .mat-option-text.mat-option-text {
   white-space: normal;
 }
+
+.mat-mdc-list-item-title {
+  white-space: normal;
+}
+
+.no-wrap {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+.mat-list-item-autoheight { 
+  height:initial!important; 
+}
+
+
+// .mat-list-item.mat-list-item-word-wrap{
+//   height: initial !important;
+// }
+
+// .mat-list-item-word-wrap .mat-line{
+//   word-wrap: break-word !important;
+//   white-space: pre-wrap !important;
+// }
 
 //   .line-clamp {
 //     display: -webkit-box;

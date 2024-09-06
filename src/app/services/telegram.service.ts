@@ -23,6 +23,7 @@ export class TelegramService {
   private window;
   tg;
   private url = environment.sendDataToTelegramUrl;
+  public isRedirectedByStartParam; //проверяем считывался ли стартовый маршрут при запуске webAPp через DirectLink, чтобы роутинг был только первый раз
 
   constructor(
     @Inject(DOCUMENT) private _document,
@@ -30,6 +31,7 @@ export class TelegramService {
   ) {
     this.window = this._document.defaultView;
     this.tg = this.window.Telegram.WebApp;
+    this.isRedirectedByStartParam = false;
   }
 
   // updateId(id) {
@@ -61,6 +63,7 @@ export class TelegramService {
 
   get Id(): string {
     //if (!environment.production) return '619864883';
+    //if (!environment.production) return '1628082195';
     if (!environment.production) return '1376405450';
     
     const id = this.tg.initDataUnsafe?.user?.id;
@@ -74,9 +77,17 @@ export class TelegramService {
 
   get IsTelegramWebAppOpened(): boolean {
     //if (!environment.production) return false;
-    if (!environment.production) return true;
+    //if (!environment.production) return true;
     if (!this.FIO && !this.Id && !this.UserName) return false;
     return true;
+  }
+
+  get StartParam(): string {
+    //console.log("this.isStartParamLoaded: "+this.isRedirectedByStartParam);
+    let start_param = ((!this.isRedirectedByStartParam)?(this.tg.initDataUnsafe?.start_param):(""));
+    //if (!environment.production) start_param = ((!this.isRedirectedByStartParam)?('product!9!gel-dlya-britya-estel-alpha-pro'):(""));    
+    
+    return (!start_param)?(""):(start_param);
   }
 
   //метод работает только если webapp приложение было запущено при помощи встроенной keyboard (кнопка "отправить сообщение" внизу)

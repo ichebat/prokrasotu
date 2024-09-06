@@ -22,6 +22,8 @@ import { MatDialog } from '@angular/material/dialog';
 export class ProductItemComponent implements OnInit, OnDestroy {
   @Input() product!: IProduct;
 
+  
+
   // cartItems = this.cartService.$cart().items;
   // totalAmount = this.cartService.$cart().totalAmount;
   //quantity = 0;//this.cartService.$cart().items.find(p=>p.product.id === this.product.id)?.quantity;
@@ -209,6 +211,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     
     
   // }
+
+  
 
   isInCart(product:IProduct)
   {

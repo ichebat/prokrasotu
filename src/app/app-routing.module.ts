@@ -8,11 +8,13 @@ import { CartComponent } from './pages/cart/cart.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { OrderComponent } from './pages/order/order.component';
 import { PrivacyComponent } from './pages/company/privacy/privacy.component';
+import { ContactsMarketComponent } from './pages/contacts-market/contacts-market.component';
 
 const routes: Routes = [
   { path: '', component: ShopComponent },
   { path: 'feedback', component: FeedbackComponent },
   { path: 'cart', component: CartComponent },
+  { path: 'contacts', component: ContactsMarketComponent },
 
   { path: 'shop', component: ShopComponent },
   { path: 'shop/:category', component: ShopComponent },

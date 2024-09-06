@@ -42,7 +42,11 @@
             ],
             "scripts": [
                "src/assets/scripts/telegram-web-app.js"
-            ]
+            ], 
+            "allowedCommonJsDependencies": [
+              "angularx-qrcode",
+              "qrcode"
+           ]
           },
           "configurations": {
             "production": {

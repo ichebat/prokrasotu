@@ -36,6 +36,11 @@ import { ConfirmDialogDemoComponent } from './components/confirm-dialog-demo/con
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { PrivacyComponent } from './pages/company/privacy/privacy.component';
 import { ProductSearchComponent } from './components/product-search/product-search.component';
+import { ContactsComponent } from './components/contacts/contacts.component';
+import { ShareButtonDirective } from 'ngx-sharebuttons';
+import { ShareButtonsComponent } from './components/share-buttons/share-buttons.component';
+import { ContactsMarketComponent } from './pages/contacts-market/contacts-market.component';
+import { QRCodeModule } from 'angularx-qrcode';
 
 @NgModule({
   declarations: [
@@ -65,6 +70,9 @@ import { ProductSearchComponent } from './components/product-search/product-sear
     ConfirmDialogDemoComponent,
     PrivacyComponent,
     ProductSearchComponent,
+    ContactsComponent,
+    ShareButtonsComponent,
+    ContactsMarketComponent,
   ],
   imports: [
     MaterialModule,
@@ -76,6 +84,8 @@ import { ProductSearchComponent } from './components/product-search/product-sear
     HttpClientModule,
     NgxMaskDirective,
     NgxMaskPipe,
+    ShareButtonDirective,
+    QRCodeModule,
   ],
   providers: [
     TelegramService,

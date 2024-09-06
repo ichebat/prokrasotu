@@ -1,18 +1,34 @@
-<mat-card
-  class="order-icon mat-elevation-z5"
- 
->
+<mat-card class="order-icon mat-elevation-z5">
   <mat-card-header>
     <mat-card-title
-      >№{{ order.id }} от {{ order.orderDate | date: "dd.MM" }}</mat-card-title
+      >№{{ order.id }} от {{ order.orderDate | date: 'dd.MM':'+05:00' }}</mat-card-title
     >
     <mat-card-subtitle>{{ orderStatus() }} </mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
-    <p>
+    <!-- <p>
       {{ order.totalCount }} шт. на
       {{ order.totalAmount | currency: "RUB" : "symbol-narrow" }}
     </p>
+    <p>
+      <b>{{ order.clientName }}</b>
+    </p>
+    <p>
+      <a mat-button href="{{ 'tel:+7' + order.clientPhone }}" target="_blank">+7{{ order.clientPhone }}</a>
+    </p> -->
+
+    <mat-nav-list>
+      <a mat-list-item>
+        <!-- {{ order.totalCount }} шт. на {{ order.totalAmount | currency: "RUB" : "symbol-narrow" }} -->
+        <span matListItemTitle>{{ order.totalCount }} шт.</span>
+        <span matListItemLine>на {{ order.totalAmount | currency: "RUB" : "symbol-narrow" }}</span>
+      </a>  
+      <a mat-list-item href="{{ 'tel:+7' + order.clientPhone }}" target="_blank">
+        <span matListItemTitle>{{ order.clientName }}</span>
+        <span matListItemLine>+7{{ order.clientPhone }}</span>
+      </a>   
+        
+    </mat-nav-list>
   </mat-card-content>
   <!-- <mat-card-actions>
     @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
@@ -32,7 +48,7 @@
     }
     <button mat-button>SHARE</button>
   </mat-card-actions> -->
-  <mat-card-footer class="example-card-footer">
+  <mat-card-actions class="example-card-actions">
     <mat-chip-set aria-label="Chihuahua traits">
       @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
         <mat-chip highlighted color="primary" [routerLink]="'/order/' + order!.id+'/accept'">Подтвердить</mat-chip>
@@ -48,5 +64,5 @@
         <mat-chip highlighted color="warn" [routerLink]="'/order/' + order!.id+'/cancel'">Отменить</mat-chip>
       }
     </mat-chip-set>
-  </mat-card-footer>
+  </mat-card-actions>
 </mat-card>

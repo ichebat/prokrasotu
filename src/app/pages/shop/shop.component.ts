@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit, computed, inject } from '@angular/
 import { TelegramService } from '../../services/telegram.service';
 import { IProduct, ProductsService } from '../../services/products.service';
 import { Subscription } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { NavigationService } from '../../services/navigation.service';
@@ -72,7 +72,20 @@ export class ShopComponent implements OnInit, OnDestroy {
     private telegramService: TelegramService,    
     private location: Location,
     private route:ActivatedRoute,
+    private router: Router,
   ) {
+
+    //если запустили телеграм бота по webAppDirectLink с параметром https://t.me/botusername/appname?startapp=someParamValue
+    //то считываем someParamValue и парсим для перехода
+    if (this.telegramService.StartParam && !this.telegramService.isRedirectedByStartParam){
+      let routeUrl="";
+      this.telegramService.StartParam.split('!').forEach(p=>{
+        if (p) routeUrl+="/"+p;
+      });
+      console.log("Redirecting to "+routeUrl);
+      this.telegramService.isRedirectedByStartParam = true;
+      this.router.navigate([routeUrl]);
+    }
     
     //console.log("Constructor Shop");
 

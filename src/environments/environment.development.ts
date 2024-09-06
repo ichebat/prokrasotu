@@ -15,4 +15,5 @@ export const environment = {
   maxOrders: 3,
   maxCartItems: 10,
   maxCartItemPosition: 10,
+  webAppDirectLink: "https://t.me/prokrasotubot/market",
 };

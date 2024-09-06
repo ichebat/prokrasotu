@@ -26,4 +26,8 @@ export class NavigationService {
         this.router.navigateByUrl('/');
       }
     }
+
+    isHistoryAvailable(){
+      return this.history.length <=0;
+    }
 }
