@@ -33,6 +33,16 @@ export class ShopComponent implements OnInit, OnDestroy {
     this.productsService.updateSelectedBrandTranslit(brand); 
     if (brand) this.telegramService.BackButton.show();
   }
+  @Input() set brandLine(brandLine: string) { 
+    
+    this.productsService.updateSelectedBrandLineTranslit(brandLine); 
+    if (brandLine) this.telegramService.BackButton.show();
+  }
+  @Input() set brandSeries(brandSeries: string) { 
+    //console.log("brandSeries: "+brandSeries);
+    this.productsService.updateSelectedBrandSeriesTranslit(brandSeries); 
+    if (brandSeries) this.telegramService.BackButton.show();
+  }
   // @Input('type') typeFromRoute = '';
   // @Input('brand') brandFromRoute = '';
 
@@ -77,11 +87,9 @@ export class ShopComponent implements OnInit, OnDestroy {
 
     //если запустили телеграм бота по webAppDirectLink с параметром https://t.me/botusername/appname?startapp=someParamValue
     //то считываем someParamValue и парсим для перехода
-    if (this.telegramService.StartParam && !this.telegramService.isRedirectedByStartParam){
-      let routeUrl="";
-      this.telegramService.StartParam.split('!').forEach(p=>{
-        if (p) routeUrl+="/"+p;
-      });
+    if (!this.telegramService.isRedirectedByStartParam)
+    if (this.telegramService.StartParam){
+      let routeUrl=this.telegramService.StartParam;
       console.log("Redirecting to "+routeUrl);
       this.telegramService.isRedirectedByStartParam = true;
       this.router.navigate([routeUrl]);
@@ -229,5 +237,13 @@ export class ShopComponent implements OnInit, OnDestroy {
     //this.router.navigate(['']);
     //this.location.back();
     this.navigation.back();
+  }
+
+  btnClick(){
+    console.log("productBrandLines");
+    console.log(this.productsService.$productBrandLines());
+    
+    console.log("productBrandSeriesList");
+    console.log(this.productsService.$productBrandSeriesList());
   }
 }

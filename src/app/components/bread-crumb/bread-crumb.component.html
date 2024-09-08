@@ -4,7 +4,9 @@
 @if (
   productsService.$productCategory()?.name ||
   productsService.$productType()?.name ||
-  productsService.$productBrand()?.name
+  productsService.$productBrand()?.name ||
+  productsService.$productBrandLine()?.name ||
+  productsService.$productBrandSeries()?.name
 ) {
   <!-- <mat-nav-list class="list-horizontal">
     <a mat-list-item routerLink="/">Главная</a>
@@ -50,6 +52,25 @@
         productsService.$productBrand()?.name | uppercase
       }}
       <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit">
+        <mat-icon>cancel</mat-icon>
+      </button>
+      </mat-chip>
+    }
+    @if (productsService.$productBrandLine()?.name) {
+      <mat-chip highlighted color="primary" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit">{{
+        productsService.$productBrandLine()?.name | uppercase
+      }}
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit">
+        <mat-icon>cancel</mat-icon>
+      </button>
+      </mat-chip>
+    }
+    
+    @if (productsService.$productBrandSeries()?.name) {
+      <mat-chip highlighted color="primary" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit">{{
+        productsService.$productBrandSeries()?.name | uppercase
+      }}
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit">
         <mat-icon>cancel</mat-icon>
       </button>
       </mat-chip>

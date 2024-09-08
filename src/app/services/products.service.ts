@@ -11,13 +11,15 @@ export enum ProductColumns {
   colCategory = 3,
   colType = 4,
   colBrand = 5,
-  colName = 6,
-  colDescription = 7,
-  colDopolnitelno = 8,
-  colImageUrl = 9,
-  colPrice = 10,
-  colDiscount = 11,
-  colIsNew = 12,
+  colBrandLine = 6,
+  colBrandSeries = 7,
+  colName = 8,
+  colDescription = 9,
+  colDopolnitelno = 10,
+  colImageUrl = 11,
+  colPrice = 12,
+  colDiscount = 13,
+  colIsNew = 14,
 }
 
 export interface IProduct {
@@ -27,6 +29,8 @@ export interface IProduct {
   category: string;
   type: string;
   brand: string;
+  brandLine: string;
+  brandSeries: string;
   name: string;
   description: string;
   dopolnitelno: string;
@@ -44,6 +48,8 @@ export class ProductClass implements IProduct {
   category: string = '';
   type: string = '';
   brand: string = '';
+  brandLine: string = '';
+  brandSeries: string = '';
   name: string = '';
   description: string = '';
   dopolnitelno: string = '';
@@ -73,6 +79,18 @@ export interface IProductBrand {
   name: string;
   translit: string;
   types: IProductType[];
+}
+
+export interface IProductBrandLine {
+  name: string;
+  translit: string;
+  brands: IProductBrand[];
+}
+
+export interface IProductBrandSeries {
+  name: string;
+  translit: string;
+  brandLines: IProductBrandLine[];
 }
 
 export function transliterate(word):string {
@@ -147,6 +165,8 @@ export class ProductsService {
   private $selectedCategoryTranslit = signal<string>('');
   private $selectedTypeTranslit = signal<string>('');
   private $selectedBrandTranslit = signal<string>('');
+  private $selectedBrandLineTranslit = signal<string>('');
+  private $selectedBrandSeriesTranslit = signal<string>('');
 
   private $productsAPI = toSignal<IProduct[]>(this.getProducts());
 
@@ -157,6 +177,8 @@ export class ProductsService {
     const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
     const selectedTypeTranslitValue = this.$selectedTypeTranslit();
     const selectedBrandTranslitValue = this.$selectedBrandTranslit();
+    const selectedBrandLineTranslitValue = this.$selectedBrandLineTranslit();
+    const selectedBrandSeriesTranslitValue = this.$selectedBrandSeriesTranslit();
 
     if (productsAPIValue == undefined) {
       return [] as IProduct[];
@@ -167,6 +189,8 @@ export class ProductsService {
           && (transliterate(p.category).toString().toLowerCase() === selectedCategoryTranslitValue.toString().toLowerCase() || !selectedCategoryTranslitValue)
           && (transliterate(p.type).toString().toLowerCase() === selectedTypeTranslitValue.toString().toLowerCase() || !selectedTypeTranslitValue)
           && (transliterate(p.brand).toString().toLowerCase() === selectedBrandTranslitValue.toString().toLowerCase() || !selectedBrandTranslitValue)
+          && (transliterate(p.brandLine).toString().toLowerCase() === selectedBrandLineTranslitValue.toString().toLowerCase() || !selectedBrandLineTranslitValue)
+          && (transliterate(p.brandSeries).toString().toLowerCase() === selectedBrandSeriesTranslitValue.toString().toLowerCase() || !selectedBrandSeriesTranslitValue)
         );
       });
       //если пользуемся поиском без выбора типа то выводим первые 10 продуктов
@@ -177,7 +201,7 @@ export class ProductsService {
 
   //получаем список категорий из списка продуктов
   $productCategories = computed(() => {
-    const productsAPIValue = this.$productsAPI();
+    const productsAPIValue = this.$products().filter(p=>p.category);
     if (productsAPIValue == undefined) {
       return [] as IProductCategory[];
     } else {
@@ -196,7 +220,7 @@ export class ProductsService {
 
   //получаем список подкатегорий из списка продуктов
   $productTypes = computed(() => {
-    const productsAPIValue = this.$productsAPI();
+    const productsAPIValue = this.$products().filter(p=>p.type);//this.$productsAPI();
     if (productsAPIValue == undefined) {
       return [] as IProductType[];
     } else {
@@ -224,7 +248,7 @@ export class ProductsService {
 
   //получаем список брендов из списка продуктов
   $productBrands = computed(() => {
-    const productsAPIValue = this.$productsAPI();
+    const productsAPIValue = this.$products().filter(p=>p.brand);//this.$productsAPI();
     if (productsAPIValue == undefined) {
       return [] as IProductBrand[];
     } else {
@@ -266,6 +290,95 @@ export class ProductsService {
       }, [] as IProductBrand[]);
     }
   });
+
+  //получаем список линеек брендов из списка продуктов
+  $productBrandLines = computed(() => {
+    const productsAPIValue = this.$products().filter(p=>p.brandLine);//this.$productsAPI();
+    if (productsAPIValue == undefined) {
+      return [] as IProductBrandLine[];
+    } else {
+      return productsAPIValue.reduce((group, prod) => {
+        if (!group) group = [] as IProductBrandLine[];
+        if (!group.find((item) => item.name == prod.brandLine)) {
+
+          const newBrandLineItem = {
+            name: prod.brandLine,
+            translit: transliterate(prod.brandLine),
+            brands: [] as IProductBrand[],
+          };
+
+          newBrandLineItem.brands = productsAPIValue.filter(p => p.brandLine && p.brandLine == prod.brandLine).reduce((group2, prod2) => {
+            if (
+              !group2.find(
+                (item) => item.name == prod2.brand,
+              )
+            ) {
+              group2.push({
+                name: prod2.brand,
+                translit: transliterate(prod2.brand),
+                types: [] as IProductType[],
+              });
+            }
+            return group2;
+          }, [] as IProductBrand[]);
+
+          group.push({
+            name: prod.brandLine,
+            translit: transliterate(prod.brandLine),
+            brands: newBrandLineItem.brands
+          });
+        }
+
+        
+        return group.sort((a, b) => a.name.localeCompare(b.name));
+      }, [] as IProductBrandLine[]);
+    }
+  });
+  
+    //получаем список серий для линеек брендов из списка продуктов
+  $productBrandSeriesList = computed(() => {
+      const productsAPIValue = this.$products().filter(p=>p.brandSeries);//this.$productsAPI();
+      if (productsAPIValue == undefined) {
+        return [] as IProductBrandSeries[];
+      } else {
+        return productsAPIValue.reduce((group, prod) => {
+          if (!group) group = [] as IProductBrandSeries[];
+          if (!group.find((item) => item.name == prod.brandSeries )) {
+            
+            const newBrandSeriesItem = {
+              name: prod.brandSeries,
+              translit: transliterate(prod.brandSeries),
+              brandLines: [] as IProductBrandLine[],
+            };
+
+            newBrandSeriesItem.brandLines = productsAPIValue.filter(p => p.brandSeries == prod.brandSeries).reduce((group2, prod2) => {
+              if (
+                !group2.find(
+                  (item) => item.name == prod2.brandLine,
+                )
+              ) {
+                group2.push({
+                  name: prod2.brandLine,
+                  translit: transliterate(prod2.brandLine),
+                  brands: [] as IProductBrand[],
+                });
+              }
+              return group2;
+            }, [] as IProductBrandLine[]);
+
+            group.push({
+              name: prod.brandSeries,
+              translit: transliterate(prod.brandSeries),
+              brandLines: newBrandSeriesItem.brandLines
+            });
+  
+          }
+          return group.sort((a, b) => a.name.localeCompare(b.name));
+        }, [] as IProductBrandSeries[]);
+      }
+    });
+    
+  
 
   //выбранный продукт при переходе по маршруту /product/:id
   $product = computed(() => {
@@ -341,6 +454,53 @@ export class ProductsService {
     }
   });
 
+  //выбранная линейка бренда при переходе по маршруту /shop/:category/:type/:brand/:brandLine
+  $productBrandLine = computed(() => {
+    const brandLinesValue = this.$productBrandLines();
+    const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
+    const selectedTypeTranslitValue = this.$selectedTypeTranslit(); 
+    const selectedBrandTranslitValue = this.$selectedBrandTranslit();       
+    const selectedBrandLineTranslitValue = this.$selectedBrandLineTranslit(); 
+
+    //console.log(selectedBrandTranslitValue);
+
+    if (brandLinesValue == undefined) {
+      return null;
+    } else {
+      return brandLinesValue.find((p) => {
+        return (
+          p.translit.toString().toLowerCase() === selectedBrandLineTranslitValue.toString().toLowerCase()          
+          &&
+          p.brands.findIndex(t => t.translit.toString().toLowerCase() === selectedBrandTranslitValue.toString().toLowerCase())>=0
+        );
+      });
+    }
+  });
+
+  //выбранная линейка бренда при переходе по маршруту /shop/:category/:type/:brand/:brandLine/:brandSeries
+  $productBrandSeries = computed(() => {
+    const brandSeriesListValue = this.$productBrandSeriesList();
+    const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
+    const selectedTypeTranslitValue = this.$selectedTypeTranslit(); 
+    const selectedBrandTranslitValue = this.$selectedBrandTranslit();       
+    const selectedBrandLineTranslitValue = this.$selectedBrandLineTranslit();     
+    const selectedBrandSeriesTranslitValue = this.$selectedBrandSeriesTranslit(); 
+
+    if (brandSeriesListValue == undefined) {
+      return null;
+    } else {
+      return brandSeriesListValue.find((p) => {
+        return (
+          p.translit.toString().toLowerCase() === selectedBrandSeriesTranslitValue.toString().toLowerCase()
+          // &&
+          // p.brandLine.brand.translit.toString().toLowerCase() === selectedBrandTranslitValue.toString().toLowerCase()
+          &&
+          p.brandLines.findIndex(t => t.translit.toString().toLowerCase() === selectedBrandLineTranslitValue.toString().toLowerCase())>=0
+        );
+      });
+    }
+  });
+
   updateFilter(filter: string) {
     const filterValue = filter.length > 3 ? filter : '';
     this.$searchFilter.set(filterValue);
@@ -380,6 +540,24 @@ export class ProductsService {
     // this.$selectedBrandName.set(this.$productBrands().find(p => p.translit == brandNameTranslit)!.name);
   }
 
+  updateSelectedBrandLineTranslit(brandLineNameTranslit) {
+    const brandLineNameTranslitValue = brandLineNameTranslit ? brandLineNameTranslit : '';
+    this.$selectedBrandLineTranslit.set(brandLineNameTranslitValue);
+    // console.log('try set brand by '+brandNameTranslit);
+    // if (!brandNameTranslit || this.$productBrands().length ==0) this.$selectedBrandName.set('');
+    // else
+    // this.$selectedBrandName.set(this.$productBrands().find(p => p.translit == brandNameTranslit)!.name);
+  }
+
+  updateSelectedBrandSeriesTranslit(brandSeriesNameTranslit) {
+    const brandSeriesNameTranslitValue = brandSeriesNameTranslit ? brandSeriesNameTranslit : '';
+    this.$selectedBrandSeriesTranslit.set(brandSeriesNameTranslitValue);
+    // console.log('try set brand by '+brandNameTranslit);
+    // if (!brandNameTranslit || this.$productBrands().length ==0) this.$selectedBrandName.set('');
+    // else
+    // this.$selectedBrandName.set(this.$productBrands().find(p => p.translit == brandNameTranslit)!.name);
+  }
+
   constructor(private _http: HttpClient) {}
 
   getProducts(): Observable<IProduct[]> {
@@ -407,6 +585,12 @@ export class ProductsService {
               : '',
             brand: row.c[ProductColumns.colBrand]
               ? row.c[ProductColumns.colBrand].v
+              : '',
+            brandLine: row.c[ProductColumns.colBrandLine]
+              ? row.c[ProductColumns.colBrandLine].v
+              : '',
+            brandSeries: row.c[ProductColumns.colBrandSeries]
+              ? row.c[ProductColumns.colBrandSeries].v
               : '',
             name: row.c[ProductColumns.colName]
               ? row.c[ProductColumns.colName].v

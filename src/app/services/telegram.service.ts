@@ -83,10 +83,16 @@ export class TelegramService {
   }
 
   get StartParam(): string {
-    //console.log("this.isStartParamLoaded: "+this.isRedirectedByStartParam);
+
     let start_param = ((!this.isRedirectedByStartParam)?(this.tg.initDataUnsafe?.start_param):(""));
-    //if (!environment.production) start_param = ((!this.isRedirectedByStartParam)?('product!9!gel-dlya-britya-estel-alpha-pro'):(""));    
+    //if (!environment.production) start_param = ((!this.isRedirectedByStartParam)?('product_9_gel-dlya-britya-estel-alpha-pro'):(""));    
     
+    if (start_param) start_param = start_param.replaceAll('_','/');
+    if (start_param && start_param.indexOf('/')>0) start_param = '/'+start_param;
+
+    if (!start_param) this.isRedirectedByStartParam = true;
+    
+    //console.log("this.isStartParamLoaded: "+this.isRedirectedByStartParam+" "+start_param);
     return (!start_param)?(""):(start_param);
   }
 

@@ -42,6 +42,11 @@ import { ShareButtonsComponent } from './components/share-buttons/share-buttons.
 import { ContactsMarketComponent } from './pages/contacts-market/contacts-market.component';
 import { QRCodeModule } from 'angularx-qrcode';
 
+import { BrandLineListComponent } from './components/brand-line-list/brand-line-list.component';
+import { BrandLineIconComponent } from './components/brand-line-icon/brand-line-icon.component';
+import { BrandSeriesListComponent } from './components/brand-series-list/brand-series-list.component';
+import { BrandSeriesIconComponent } from './components/brand-series-icon/brand-series-icon.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -73,6 +78,10 @@ import { QRCodeModule } from 'angularx-qrcode';
     ContactsComponent,
     ShareButtonsComponent,
     ContactsMarketComponent,
+    BrandLineIconComponent,
+    BrandSeriesListComponent,
+    BrandSeriesIconComponent,
+    BrandLineListComponent,
   ],
   imports: [
     MaterialModule,

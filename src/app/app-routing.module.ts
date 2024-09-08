@@ -20,6 +20,8 @@ const routes: Routes = [
   { path: 'shop/:category', component: ShopComponent },
   { path: 'shop/:category/:type', component: ShopComponent },
   { path: 'shop/:category/:type/:brand', component: ShopComponent },
+  { path: 'shop/:category/:type/:brand/:brandLine', component: ShopComponent },
+  { path: 'shop/:category/:type/:brand/:brandLine/:brandSeries', component: ShopComponent },
   { path: 'product/:id', component: ProductComponent },
   { path: 'product/:id/:product-name', component: ProductComponent },
   { path: 'orders', component: OrdersComponent },

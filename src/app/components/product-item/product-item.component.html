@@ -69,13 +69,15 @@
         <p>{{ product.name }}</p>
       } -->
       @if (product.description != "") {
-        <p>{{ product.description }}</p>
+        <p class="pre-line">{{ product.description }}</p>
+              
       }
       @if (product.dopolnitelno != "") {
-        <p>{{ product.dopolnitelno }}</p>
+        <p class="pre-line">{{ product.dopolnitelno }}</p>
       }
 
       @if (product.url) {
+        <hr>
         <a [href]="product.url" target="_blank">Ссылка на сайт производителя</a>
       }
 

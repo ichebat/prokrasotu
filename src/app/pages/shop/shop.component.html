@@ -12,7 +12,7 @@
 
 
 
-@if(!productsService.$productCategory()){
+@if(!productsService.$productCategory() && productsService.$productCategories().length>0){
   <app-category-list
     titleList="Выберите категорию товара"
     subtitleList=""
@@ -20,7 +20,7 @@
   />
 }
 
-@if(!productsService.$productType()){
+@if(!productsService.$productType() && productsService.$productTypes().length>0){
   @if (productsService.$productCategory()){
   <app-type-list
     titleList="Выберите тип товара"
@@ -30,7 +30,7 @@
   />}
 }
 
-@if(!productsService.$productBrand()){
+@if(!productsService.$productBrand() && productsService.$productBrands().length>0){
   @if (productsService.$productCategory() && productsService.$productType()){
   <app-brand-list
     titleList="Выберите бренд (если необходимо)"
@@ -39,7 +39,35 @@
     [categoryName]="productsService.$productCategory()!.translit"
     [typeName]="productsService.$productType()!.translit"
   />}
+}
 
+
+
+@if(!productsService.$productBrandLine() && productsService.$productBrandLines().length>0){
+  @if (productsService.$productCategory() && productsService.$productType() && productsService.$productBrand()){
+  <app-brand-line-list
+    titleList="Выберите линейку бренда (если необходимо)"
+    subtitleList=""
+    [brandLines]="productsService.$productBrandLines()!"
+    [categoryName]="productsService.$productCategory()!.translit"
+    [typeName]="productsService.$productType()!.translit"
+    [brandName]="productsService.$productBrand()!.translit"
+  />}
+}
+
+
+
+@if(!productsService.$productBrandSeries() && productsService.$productBrandSeriesList().length>0){
+  @if (productsService.$productCategory() && productsService.$productType() && productsService.$productBrand() && productsService.$productBrandLine()){
+  <app-brand-series-list
+    titleList="Выберите серию (если необходимо)"
+    subtitleList=""
+    [brandSeriesList]="productsService.$productBrandSeriesList()!"
+    [categoryName]="productsService.$productCategory()!.translit"
+    [typeName]="productsService.$productType()!.translit"
+    [brandName]="productsService.$productBrand()!.translit"
+    [brandLine]="productsService.$productBrandLine()!.translit"
+  />}
 }
 
 <!-- @if(!productsService.$productType()){
@@ -104,5 +132,7 @@
 
 
   }
+
+  <button mat-button (click)="btnClick()" type="button">CLICK</button>
   <!-- <p>chat_id is: {{telegram.Id}}</p>
   <p>Tg is: {{tgString}}</p> -->

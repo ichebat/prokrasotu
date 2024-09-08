@@ -14,7 +14,7 @@ export class ShareButtonsComponent {
   getUrlForTelegram(){
     //https://t.me/botusername/appname?startapp=someParamValue
     if (this.url) 
-      return environment.webAppDirectLink+"?startapp="+this.url.replace('/','!');
+      return environment.webAppDirectLink+"?startapp="+this.url.replaceAll('/','_');
     else 
       return environment.webAppDirectLink;
   }
