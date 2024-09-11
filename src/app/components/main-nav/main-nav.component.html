@@ -130,7 +130,7 @@
     @if (!isCollapsed) {
       <mat-accordion>
         @for (
-          category of productsService.$productCategories();
+          category of productsService.$productCategoriesMenuTree();
           track $index
         ) {
           <mat-expansion-panel
@@ -145,7 +145,7 @@
             </mat-expansion-panel-header>
             <mat-nav-list>
               @for (
-                typeProduct of productsService.$productTypes();
+                typeProduct of productsService.$productTypesMenuTree();
                 track $index
               ) {
                 @if (typeProduct.category.translit == category.translit) {

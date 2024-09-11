@@ -38,7 +38,7 @@ const routes: Routes = [
 @NgModule({
   imports: [
     RouterModule.forRoot(routes, {
-      scrollPositionRestoration: 'enabled',
+      scrollPositionRestoration: 'top',
       bindToComponentInputs: true,
       //useHash: true, //ошибка 404 на github pages пока не добавил хеши
     }),

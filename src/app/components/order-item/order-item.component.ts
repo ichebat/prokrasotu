@@ -946,7 +946,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 if (!existingItem) {
                   return currentCart;
                 } else {
-                  if (existingItem.quantity - item.quantity < 0) {
+                  if (existingItem.quantity - item.quantity <= 0) {
                     item.quantity = existingItem.quantity;
                   }
                   existingItem.quantity -= item.quantity;
@@ -954,7 +954,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 }
 
                 currentCart.items = currentCart.items.filter(
-                  (p) => p.quantity > 0,
+                  p => p.quantity > 0,
                 );
 
                 currentCart.totalCount = this.cartService.calculateTotalCount(
@@ -982,6 +982,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                     console.log('removeCart data', data);
                   },
                   error: (err) => {
+                    this.onHandleUpdate();
                     console.log('removeCart error', err);
                   },
                   complete: () => {

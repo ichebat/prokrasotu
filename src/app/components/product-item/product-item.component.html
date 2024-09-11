@@ -31,6 +31,7 @@
 
     <mat-card-content>
       @if (product.price! > 0) {
+        <p>Цена действительна только для интернет-магазина и может отличаться от цен в розничных магазинах</p>
         <div class="buy-button pb">
           @if (product.discount == 0) {
             <button mat-flat-button (click)="addItem()" color="primary">
@@ -65,7 +66,7 @@
         <p class="pre-line">{{ product.dopolnitelno }}</p>
       }
 
-      @if (product.url) {
+      @if (product.url && telegramService.isAdmin) {
         <a [href]="product.url" target="_blank">Ссылка на сайт производителя</a>
       }
       <mat-divider></mat-divider>

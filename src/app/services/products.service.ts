@@ -202,6 +202,53 @@ export class ProductsService {
     }
   });
 
+  //получаем список категорий из большого списка продуктов необходимо для MenuTree
+  $productCategoriesMenuTree = computed(() => {
+    const productsAPIValue = this.$productsAPI()?.filter(p=>p.category);
+    if (productsAPIValue == undefined) {
+      return [] as IProductCategory[];
+    } else {
+      return productsAPIValue.reduce((group, prod) => {
+        if (!group) group = [] as IProductCategory[];
+        if (!group.find((item) => item.name == prod.category)) {
+          group.push({
+            name: prod.category,
+            translit: transliterate(prod.category),
+          });
+        }
+        return group.sort((a, b) => a.name.localeCompare(b.name));
+      }, [] as IProductCategory[]);
+    }
+  });
+
+  //получаем список подкатегорий из большого списка продуктов необходимо для MenuTree
+  $productTypesMenuTree = computed(() => {
+    const productsAPIValue = this.$productsAPI()?.filter(p=>p.type);//this.$productsAPI();
+    if (productsAPIValue == undefined) {
+      return [] as IProductType[];
+    } else {
+      return productsAPIValue.reduce((group, prod) => {
+        if (!group) group = [] as IProductType[];
+        if (
+          !group.find(
+            (item) =>
+              item.name == prod.type && item.category.name == prod.category,
+          )
+        ) {
+          group.push({
+            category: {
+              name: prod.category,
+              translit: transliterate(prod.category),
+            },
+            name: prod.type,
+            translit: transliterate(prod.type),
+          });
+        }
+        return group.sort((a, b) => a.name.localeCompare(b.name));
+      }, [] as IProductType[]);
+    }
+  });
+
   //получаем список категорий из списка продуктов
   $productCategories = computed(() => {
     const productsAPIValue = this.$products().filter(p=>p.category);

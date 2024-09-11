@@ -402,7 +402,7 @@
       #autoClientAddress="matAutocomplete"
       (optionSelected)="clientAddressChanged()"
     >
-      @for (option of ClientAddressOptionsJSON; track option) {
+      @for (option of ClientAddressOptionsJSON; track $index) {
         <mat-option [value]="option.value">{{ option.value }}</mat-option>
       }
       <!-- <mat-option
@@ -763,7 +763,7 @@
     <p>{{ MainButtonText }}</p>
   }
 
-  @if (!telegramService.IsTelegramWebAppOpened) {
+  <!-- @if (!telegramService.IsTelegramWebAppOpened) { -->
     <div class="buy-button pb">
       <!-- @if (order.id == 0 || telegramService.isAdmin) { -->
 
@@ -846,5 +846,5 @@
         </button>
       }
     </div>
-  }
+  <!-- } -->
 </form>
