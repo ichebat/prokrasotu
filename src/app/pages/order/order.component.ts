@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, Signal, signal } from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
 import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
@@ -20,6 +20,9 @@ export class OrderComponent implements OnInit, OnDestroy {
 
   disableButton: boolean = false;
 
+  $checkMaxSignal = signal<boolean>(false);
+  
+
   @Input() set id(id: string) {
     //if (!id) this.orderService.updateId('');
     this.orderService.updateId(id);
@@ -27,11 +30,7 @@ export class OrderComponent implements OnInit, OnDestroy {
     //обновляем только если не загружен список и id >0 (редактирование заказа)
     if (parseInt(id) > 0 && (!this.orderService.$orders() || this.orderService.$orders().length == 0))
       this.orderService.updateOrdersApi();
-
-    if (!id && environment.maxOrders>0) {
-      this.orderService.updateId(-1);
-      this.orderService.updateOrdersApi(); //обновляем список заказов с сервера для проверки
-    }
+    
   }
 
   @Input() set action(action: string){
@@ -74,10 +73,6 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderService.updateId(this.id);
 
     this.goBack = this.goBack.bind(this);
-  }
-
-  getMaxOrdersParam() {
-    return environment.maxOrders;
   }
 
   ngOnInit(): void {

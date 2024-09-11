@@ -7,6 +7,7 @@ import { Location } from '@angular/common';
 import { CartService } from '../../services/cart.service';
 import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
+import { DeliveryService } from '../../services/delivery.service';
 
 @Component({
   selector: 'app-shop',
@@ -77,6 +78,7 @@ export class ShopComponent implements OnInit, OnDestroy {
 
   constructor(
     public productsService: ProductsService,
+    public deliveryService: DeliveryService,
     private cartService: CartService,
     //private orderService: OrderService,
     private telegramService: TelegramService,    

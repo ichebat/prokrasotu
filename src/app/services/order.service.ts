@@ -13,34 +13,9 @@ import {
 } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { DeliveryClass, IDelivery } from './delivery.service';
 
-export interface IDelivery {
-  id: number;
-  name: string;
-  description: string;
-  amount: number;
-  freeAmount: number;
-  isActive: boolean;
-  isAddressRequired: boolean;
-  dadataFilter: string;
-  clientMessage: string;
-}
 
-export class DeliveryClass implements IDelivery {
-  id: number = 0;
-  name: string = '';
-  description: string = '';
-  amount: number = 0;
-  freeAmount: number = 0;
-  isActive: boolean = false;
-  isAddressRequired: boolean = false;
-  dadataFilter: string = '';
-  clientMessage: string = '';
-
-  constructor(obj) {
-    for (var prop in obj) this[prop] = obj[prop];
-  }
-}
 
 export interface IOrder {
   id: number;
@@ -108,13 +83,13 @@ export class OrderClass implements IOrder {
 export class OrderService {
   sheetId = environment.sheetId;
   sheetGid = environment.sheetDeliveryGid;
-  urlDelivery = environment.getDeliveryFromGoogleAsJSONUrl;
+  
 
   telegram = inject(TelegramService);
 
   url = environment.sendDataToTelegramUrl;
 
-  private $deliveryAPI = toSignal<IDelivery[]>(this.getDelivery());
+  
 
   ordersResponseChanged = new BehaviorSubject<void>(undefined);
   // private $ordersAPI = toSignal<IOrder[]>(this.getOrders(this.telegram.Id), {
@@ -203,18 +178,7 @@ export class OrderService {
     }
   });
 
-  $delivery = computed(() => {
-    const deliveryAPIValue = this.$deliveryAPI();
-    const orderIdValue = this.$orderId();
-    //console.log(deliveryAPIValue);
-
-    if (deliveryAPIValue == undefined) {
-      return [] as IDelivery[];
-    } else {
-      return deliveryAPIValue;
-    }
-  });
-
+  
   $orders = computed(() => {
     const ordersAPIValue = this.$ordersAPI();
     //console.log(ordersAPIValue);
@@ -242,20 +206,7 @@ export class OrderService {
     } else return 0;
   });
 
-  public checkMaxOrders(): boolean {
-    if (!this.telegram.isAdmin && this.telegram.Id) {
-      //console.log(this.$activeOrdersCount());
-      //ограничения на количество разного товара в корзине
-      if (
-        this.$activeOrdersCount() >= environment.maxOrders &&
-        environment.maxOrders > 0
-      )
-        return true;
-    }
-
-    return false;
-  }
-
+  
   public calculateTotalAmount(items: ICartItem[]): number {
     const amount = items.reduce(
       (total, item) =>
@@ -367,31 +318,7 @@ export class OrderService {
 
   // }
 
-  getDelivery(): Observable<IDelivery[]> {
-    console.log('Start get delivery');
-    return this._http.get(this.urlDelivery, { responseType: 'text' }).pipe(
-      map((res: any) => {
-        let gsDataJSON = JSON.parse(res.substring(47, res.length - 2));
-        //console.log(gsDataJSON);
-        return gsDataJSON.table.rows.map(function (row: any): IDelivery {
-          //console.log(row.c[5] ? row.c[5].v : '');
-          // console.log(row.c[8].v);
-          // console.log(row.c[6].v.toString()=='1' ? true : false);
-          return {
-            id: row.c[0] ? row.c[0].v : '',
-            name: row.c[1] ? row.c[1].v : '',
-            description: row.c[2] ? row.c[2].v : '',
-            amount: row.c[3] ? row.c[3].v : '',
-            freeAmount: row.c[4] ? row.c[4].v : '',
-            dadataFilter: row.c[5] ? row.c[5].v : '',
-            isActive: row.c[6] ? row.c[6].v.toString() == '1' : false,
-            isAddressRequired: row.c[7] ? row.c[7].v.toString() == '1' : false,
-            clientMessage: row.c[8] ? row.c[8].v : '',
-          };
-        });
-      }),
-    );
-  }
+  
 
   // //проверка требуется ли указывать адрес для данного вида доставки
   // isDeliveryRequired(delivery: IDelivery){

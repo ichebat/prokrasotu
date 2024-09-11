@@ -12,7 +12,6 @@ export const environment = {
   DADATA_API_KEY: '926246ffe4c68fa80f0db30f27edae6a7ac9cf0b',
   masterChatId: '1376405450',
   masterUserName: 'chebatz',
-  maxOrders: 3,
   maxCartItems: 10,
   maxCartItemPosition: 10,
   webAppDirectLink: "https://t.me/prokrasotubot/market",

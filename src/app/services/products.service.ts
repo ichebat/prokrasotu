@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../../environments/environment.development';
+import { TelegramService } from './telegram.service';
 
 export enum ProductColumns {
   colId = 0,
@@ -23,7 +24,7 @@ export enum ProductColumns {
 }
 
 export interface IProduct {
-  id: string;
+  id: number;
   url: string;
   artikul: string;
   category: string;
@@ -42,7 +43,7 @@ export interface IProduct {
 }
 
 export class ProductClass implements IProduct {
-  id: string = '';
+  id: number = 0;
   url: string = '';
   artikul: string = '';
   category: string = '';
@@ -169,6 +170,8 @@ export class ProductsService {
   private $selectedBrandSeriesTranslit = signal<string>('');
 
   private $productsAPI = toSignal<IProduct[]>(this.getProducts());
+
+  telegram = inject(TelegramService);
 
   //получаем список продуктов с фильтром
   $products = computed(() => {
@@ -640,6 +643,20 @@ export class ProductsService {
       group[prod.category].push(prod);
       return group;
     }, {});
+  }
+
+  public sendProductToGoogleAppsScript(
+    chat_id: string,
+    userName: string,
+    actionName: string,
+    product: IProduct,
+  ): Observable<any> {
+    return this.telegram.sendToGoogleAppsScript({
+      chat_id: chat_id,
+      userName: userName,
+      action: actionName,
+      product: product,
+    });
   }
 
   // transliterate(word):string {

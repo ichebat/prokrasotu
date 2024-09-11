@@ -131,7 +131,7 @@
       <mat-accordion>
         @for (
           category of productsService.$productCategories();
-          track category
+          track $index
         ) {
           <mat-expansion-panel
             [expanded]="step() === $index"
@@ -146,7 +146,7 @@
             <mat-nav-list>
               @for (
                 typeProduct of productsService.$productTypes();
-                track typeProduct.name
+                track $index
               ) {
                 @if (typeProduct.category.translit == category.translit) {
                   <a

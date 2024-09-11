@@ -335,7 +335,7 @@
       *ngIf="getVisible('delivery')"
     >
       <mat-option
-        *ngFor="let delivery of orderService.$delivery()"
+        *ngFor="let delivery of deliveryService.$delivery()"
         [value]="delivery"
         [disabled]="!delivery.isActive"
       >

@@ -48,7 +48,7 @@ export class TelegramService {
 
   get UserName(): string {
     //if (!environment.production) return '';
-    //if (!environment.production) return 'chebatz';
+    if (!environment.production) return 'chebatz';
     const username = this.tg.initDataUnsafe?.user?.username;
     return (!username)?(""):(username);
   }
@@ -71,12 +71,22 @@ export class TelegramService {
   }
 
   get isAdmin(): boolean{
-    
-    return this.UserName == environment.masterUserName || this.Id == environment.masterChatId
+    let flag: boolean = false;
+
+    environment.masterUserName.split(";").forEach(p=>{
+      if (p.toString().toLowerCase()==this.UserName.toString().toLowerCase()) flag = true;
+    })
+
+    environment.masterChatId.split(";").forEach(p=>{
+      if (p==this.Id) flag = true;
+    })
+    //console.log("isadmin: "+flag);
+    //return this.UserName == environment.masterUserName || this.Id == environment.masterChatId
+    return flag;
   }
 
   get IsTelegramWebAppOpened(): boolean {
-    //if (!environment.production) return false;
+    if (!environment.production) return false;
     //if (!environment.production) return true;
     if (!this.FIO && !this.Id && !this.UserName) return false;
     return true;

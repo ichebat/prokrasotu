@@ -10,7 +10,7 @@ import {
   effect,
   NgZone,
 } from '@angular/core';
-import { IDelivery, IOrder, OrderService } from '../../services/order.service';
+import { IOrder, OrderService } from '../../services/order.service';
 import { TelegramService } from '../../services/telegram.service';
 import {
   FormBuilder,
@@ -23,10 +23,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogDemoComponent, DialogData } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { CartService, ICartItem } from '../../services/cart.service';
 import { NavigationService } from '../../services/navigation.service';
-import { distinctUntilChanged, filter, takeUntil } from 'rxjs';
+import { Subscription, distinctUntilChanged, filter, takeUntil } from 'rxjs';
 import { ProductSearchComponent } from '../product-search/product-search.component';
 import { MatTableDataSource } from '@angular/material/table';
 import { environment } from '../../../environments/environment';
+import { DeliveryService, IDelivery } from '../../services/delivery.service';
 
 @Component({
   selector: 'app-order-item',
@@ -38,6 +39,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   @Input() action: string = ''; //действие по которому строится контрол (accept, cancel, complete)
 
   form: FormGroup = new FormGroup({}); //реактивная форма
+  private subscr_form: Subscription = Subscription.EMPTY;
+  
   dataSource: MatTableDataSource<ICartItem>; //dataSource для mat-table на форме
 
   displayedColumns: string[] = ['imageUrl', 'description', 'ActionBar']; //список колонок для отображения
@@ -80,6 +83,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   constructor(
     public orderService: OrderService,
+    public deliveryService: DeliveryService,
     public cartService: CartService,
     public telegramService: TelegramService,
     private route: ActivatedRoute,
@@ -93,6 +97,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //биндим функции, чтобы от них потом корректно отписаться
     this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
     this.sendData = this.sendData.bind(this); //функция для главной MainButton кнопки телеграм
+
+    
+    
 
     //ниже привязка действия к MainButton телеграм
     //если существующий заказ просматривает не админ, то его можно только отменить
@@ -669,9 +676,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setInitialValue();
-
+    
     //подписываемся на изменения формы, для скрытия/отображения MainButton
-    this.form.statusChanges.pipe(distinctUntilChanged()).subscribe(() => {
+    this.subscr_form = this.form.statusChanges.pipe(distinctUntilChanged()).subscribe(() => {
       console.log(this.form.status);
       this.isFormValid();
     });
@@ -685,6 +692,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //отвязываем кнопки
   ngOnDestroy(): void {
+    this.subscr_form.unsubscribe();
     this.telegramService.BackButton.hide();
     this.telegramService.BackButton.offClick(this.goBack);
     this.telegramService.MainButton.hide();
@@ -849,28 +857,6 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     ) {
       //проверка не более maxOrders заказов в работе на аккаунт tg
 
-      if (this.orderService.checkMaxOrders()) 
-      this.zone.run(() => 
-      {
-        const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-          ConfirmDialogDemoComponent,
-          {
-            data: {
-              message: 'Невозможно создать заказ',
-              description:
-                'Нельзя создать более ' +
-                environment.maxOrders.toString() +
-                ' заказов в работе. Пожалуйста дождитесь выполнения или отмените имеющиеся заказы и попробуйте снова.',
-            },
-          },
-        );
-        dialogRef.afterClosed().subscribe((result) => {
-          if (result == true) {
-          } else return;
-        });
-        return;
-      });
-
       this.disableButton = true;
       this.telegramService.MainButton.setText('Отправка...');
       this.telegramService.MainButton.disable();
@@ -1029,7 +1015,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       this.telegramService.MainButton.setText('Отправка...');
       this.telegramService.MainButton.disable();
 
-      console.log(this.order);
+      //console.log(this.order);
 
       this.orderService
         .sendOrderToGoogleAppsScript(
