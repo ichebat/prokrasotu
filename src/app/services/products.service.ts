@@ -188,7 +188,7 @@ export class ProductsService {
     } else {
       const filteredArray = productsAPIValue.filter((p) => {
         return (
-          p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
+          (p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0 || p.artikul.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0)
           && (transliterate(p.category).toString().toLowerCase() === selectedCategoryTranslitValue.toString().toLowerCase() || !selectedCategoryTranslitValue)
           && (transliterate(p.type).toString().toLowerCase() === selectedTypeTranslitValue.toString().toLowerCase() || !selectedTypeTranslitValue)
           && (transliterate(p.brand).toString().toLowerCase() === selectedBrandTranslitValue.toString().toLowerCase() || !selectedBrandTranslitValue)
@@ -552,7 +552,7 @@ export class ProductsService {
   });
 
   updateFilter(filter: string) {
-    const filterValue = filter.length > 3 ? filter : '';
+    const filterValue = filter.length >= 3 ? filter : '';
     this.$searchFilter.set(filterValue);
   }
 

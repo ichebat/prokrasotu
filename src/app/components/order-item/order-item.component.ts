@@ -381,7 +381,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         if (item.controlName == 'cancellationReason') {
           item.visible =
             true &&
-            (this.order?.correctionReason || this.telegramService.isAdmin);
+            (this.order?.cancellationReason || this.telegramService.isAdmin || this.action == 'cancel');
         }
         if (item.controlName == 'correctionReason') {
           item.visible =
@@ -459,7 +459,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             true && this.telegramService.isAdmin && this.action == 'edit';
         }
         if (item.controlName == 'cancellationReason') {
-          item.enabled = true && this.action == 'edit';
+          item.enabled = true && this.action == 'cancel';
         }
         if (item.controlName == 'description') {
           item.enabled =

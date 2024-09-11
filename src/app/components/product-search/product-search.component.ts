@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { IProduct, ProductsService } from '../../services/products.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ICartItem } from '../../services/cart.service';
 
@@ -36,7 +36,7 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {
     this.form = fb.group({
-      product: [null, [Validators.required]],
+      product: [null, [Validators.required, this.productValidator]],
       quantity: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
     });
     // this.form1 = fb.group({
@@ -45,6 +45,17 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     // this.form2 = fb.group({
     //   quantity: [1, [Validators.required, Validators.min(1), Validators.max(50)]],
     // });
+  }
+  // валидатор выбранного продукта
+  productValidator(control: FormControl): { [s: string]: boolean } | null {
+
+    
+    if (control.value && typeof(control.value)== 'string')  {
+      //console.log("true"+control.value);
+      return { product: true };
+    }
+    //console.log("false"+control.value);
+    return null;
   }
 
   setInitialValue() {
@@ -58,11 +69,19 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
     // this.form2.controls['quantity'].setValue(this.data.cartItem.quantity);
   }
 
-  public displayFn(product?: IProduct): string {
+  public displayFn(product?: IProduct): string  {
     return product
-      ? (product.artikul ? 'арт.' + product.artikul + ': ' : '') + product.name
-      : '';
+      ? (product.artikul ? 'арт.' + product.artikul + ': ' : '') + 
+      product.name
+      : "";
   }
+
+  // displayFn(FilteredProducts: IProduct[]): (val: IProduct) => string {
+  //   return (val: IProduct) => { 
+  //     const correspondingOption = Array.isArray(FilteredProducts) ? FilteredProducts.find(product => product.id === val.id) : null;
+  //     return correspondingOption ? (correspondingOption.artikul ? 'арт.' + correspondingOption.artikul + ': ' : '') + correspondingOption.name : '';
+  //   }
+  // }
 
   compareFunction(o1: any, o2: any) {
     if (o1 == null || o2 == null) return false;

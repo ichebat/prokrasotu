@@ -48,7 +48,7 @@ export class TelegramService {
 
   get UserName(): string {
     //if (!environment.production) return '';
-    if (!environment.production) return 'chebatz';
+    //if (!environment.production) return 'chebatz';
     const username = this.tg.initDataUnsafe?.user?.username;
     return (!username)?(""):(username);
   }
