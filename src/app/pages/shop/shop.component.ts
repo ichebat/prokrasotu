@@ -27,12 +27,13 @@ export class ShopComponent implements OnInit, OnDestroy {
   //@Input('category') categoryFromRoute = '';
   @Input() set category(category: string) {
     this.productsService.updateSelectedCategoryTranslit(category);
-    if (category)
+    if (category){
       if (this.telegramService.IsTelegramWebAppOpened) {
         this.telegramService.BackButton.show();
-      } else if (this.telegramService.IsTelegramWebAppOpened) {
+      } 
+    }else 
         this.telegramService.BackButton.hide();
-      }
+      
   }
   @Input() set type(type: string) {
     this.productsService.updateSelectedTypeTranslit(type);
@@ -167,7 +168,6 @@ export class ShopComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.show();
       this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
     }
 

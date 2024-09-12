@@ -765,7 +765,7 @@
     <p>{{ MainButtonText }}</p>
   }
 
-  <!-- @if (!telegramService.IsTelegramWebAppOpened) { -->
+  @if (!telegramService.IsTelegramWebAppOpened) {
   <div class="buy-button pb">
     <!-- @if (order.id == 0 || telegramService.isAdmin) { -->
 
@@ -848,5 +848,5 @@
       </button>
     }
   </div>
-  <!-- } -->
+  }
 </form>
