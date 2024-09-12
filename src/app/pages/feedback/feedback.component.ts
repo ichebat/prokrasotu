@@ -91,9 +91,10 @@ export class FeedbackComponent implements OnInit, OnDestroy {
     this.telegramService.MainButton.hide();
     this.telegramService.MainButton.onClick(this.sendData);
 
-    
-    this.telegramService.BackButton.show();
-    this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    }
 
     this.onHandleUpdate();
 
@@ -157,9 +158,10 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.telegramService.MainButton.offClick(this.sendData); //при передаче параметра this теряется, поэтому забандить его в конструкторе
 
-    
-    this.telegramService.BackButton.hide();
-    this.telegramService.BackButton.offClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.hide();
+      this.telegramService.BackButton.offClick(this.goBack);
+    }
     
     this.isMainButtonHidden = true;
   }

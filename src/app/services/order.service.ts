@@ -6,16 +6,16 @@ import {
   BehaviorSubject,
   Observable,
   asyncScheduler,
+  catchError,
   map,
   of,
   scheduled,
   switchMap,
+  tap,
 } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DeliveryClass, IDelivery } from './delivery.service';
-
-
 
 export interface IOrder {
   id: number;
@@ -83,13 +83,10 @@ export class OrderClass implements IOrder {
 export class OrderService {
   sheetId = environment.sheetId;
   sheetGid = environment.sheetDeliveryGid;
-  
 
   telegram = inject(TelegramService);
 
   url = environment.sendDataToTelegramUrl;
-
-  
 
   ordersResponseChanged = new BehaviorSubject<void>(undefined);
   // private $ordersAPI = toSignal<IOrder[]>(this.getOrders(this.telegram.Id), {
@@ -118,12 +115,10 @@ export class OrderService {
     const ordersAPIValue = this.$orders();
     const orderIdValue = this.$orderId();
 
-    
-    
     if (ordersAPIValue == undefined || cartValue == undefined) {
       return null;
     } else {
-      if ((!orderIdValue || parseInt(orderIdValue)<=0) && cartValue) {
+      if ((!orderIdValue || parseInt(orderIdValue) <= 0) && cartValue) {
         return {
           id: 0,
           items: cartValue.items.filter((p) => p.checked),
@@ -163,7 +158,7 @@ export class OrderService {
           description: '',
           isClientPay: false,
           clientPayDate: new Date(),
-          clientPayInfo: ''
+          clientPayInfo: '',
         };
       } else {
         //console.log(ordersAPIValue);
@@ -178,7 +173,6 @@ export class OrderService {
     }
   });
 
-  
   $orders = computed(() => {
     const ordersAPIValue = this.$ordersAPI();
     //console.log(ordersAPIValue);
@@ -206,7 +200,6 @@ export class OrderService {
     } else return 0;
   });
 
-  
   public calculateTotalAmount(items: ICartItem[]): number {
     const amount = items.reduce(
       (total, item) =>
@@ -318,8 +311,6 @@ export class OrderService {
 
   // }
 
-  
-
   // //проверка требуется ли указывать адрес для данного вида доставки
   // isDeliveryRequired(delivery: IDelivery){
   //   let flag = true;
@@ -330,6 +321,19 @@ export class OrderService {
   //   return flag;
   // }
 
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      console.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
+  }
+
   getOrders(chat_id: string): Observable<IOrder[]> {
     // console.log('Start get orders by chat_id: '+chat_id);
     if (!chat_id) return scheduled<IOrder[]>([], asyncScheduler);
@@ -337,7 +341,7 @@ export class OrderService {
       map((res: any) => {
         let gsDataJSON = JSON.parse(res);
         // console.log('chat_id: ' + chat_id);
-        // console.log(res);
+        //console.log(res);
         // console.log(gsDataJSON);
         //gsDataJSON = gsDataJSON.map((p) => JSON.parse(p));
         gsDataJSON = gsDataJSON.map(function (p) {
@@ -381,31 +385,36 @@ export class OrderService {
         //return gsDataJSON;
         return gsDataJSON;
       }),
+      catchError(this.handleError<IOrder[]>('getOrders', [])),
     );
   }
 
   getOrderStatus(order: IOrder) {
     let result = '';
     if (order.isAccepted && !order.isCompleted && !order.isCancelled) {
-      const status = "Продавец завершил обработку заказа"
+      const status = 'Продавец завершил обработку заказа';
       // if (!order.delivery.isAddressRequired)
       //   result = "Заказ готов к выдаче ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
       // else
       //   result = "Заказ направлен в доставку ("+order.delivery.description+"). "+new Date(order.acceptDate).toLocaleDateString();
       result =
-        (order.delivery.clientMessage?order.delivery.clientMessage:status) +
+        (order.delivery.clientMessage ? order.delivery.clientMessage : status) +
         ' ' +
-        new Date(order.acceptDate).toLocaleDateString()+((order.isClientPay)?(" [Оплачено online]"):(""));
+        new Date(order.acceptDate).toLocaleDateString() +
+        (order.isClientPay ? ' [Оплачено online]' : '');
     } else if (order.isCompleted)
       result =
-        'Заказ выполнен. ' + new Date(order.completeDate).toLocaleDateString()+((order.isClientPay)?(" [Оплачено online]"):(""));
+        'Заказ выполнен. ' +
+        new Date(order.completeDate).toLocaleDateString() +
+        (order.isClientPay ? ' [Оплачено online]' : '');
     else if (order.isCancelled)
       result =
         'Заказ отклонен. ' +
         new Date(order.cancellationDate).toLocaleDateString() +
         (order.cancellationReason
           ? ' Причина: ' + order.cancellationReason
-          : '')+((order.isClientPay)?(" [Оплачено online]"):(""));
+          : '') +
+        (order.isClientPay ? ' [Оплачено online]' : '');
     //result = "Заказ в обработке ["+moment(order.acceptDate).format('DD.MM.YYYY HH:mm:ss SSS')+"]";
     else
       result =

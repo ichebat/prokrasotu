@@ -121,7 +121,11 @@ export class ProductSearchComponent implements OnInit, OnDestroy {
   }
 
   updateFilter(filter: string) {
-    this.productsService.updateFilter(filter);
+    filter = filter.replace('арт.','');
+    if (filter.indexOf(':')>=0)
+      this.productsService.updateFilter(filter.split(':')[1].trim());
+    else
+      this.productsService.updateFilter(filter);
     this.FilteredProducts = this.productsService.$products();
   }
 

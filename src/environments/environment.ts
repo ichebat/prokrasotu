@@ -11,6 +11,6 @@ export const environment = {
     masterUserName:"chebatz;NatrishaChe",
     maxCartItems: 10,
     maxCartItemPosition: 10,
-    webAppDirectLink: "https://t.me/prokrasotubot/market",
+    webAppDirectLink: "https://t.me/prokrasotubot",
 
 };

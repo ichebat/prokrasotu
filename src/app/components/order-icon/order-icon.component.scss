@@ -12,3 +12,7 @@
     display: flex;
     // margin: 16px;
   }
+
+  .flex-fill {
+    flex: 1 1 auto !important;
+  }

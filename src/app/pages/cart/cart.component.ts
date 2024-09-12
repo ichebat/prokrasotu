@@ -64,16 +64,20 @@ export class CartComponent implements OnInit, OnDestroy {
   
 
   ngOnInit(): void {
-    this.telegramService.BackButton.show();
-    this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    }
 
     this.telegramService.MainButton.setText('Оформить заказ в PROКРАСОТУ');
     //this.telegramService.MainButton.show();
   }
 
   ngOnDestroy(): void {
-    this.telegramService.BackButton.hide();
-    this.telegramService.BackButton.offClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.hide();
+      this.telegramService.BackButton.offClick(this.goBack);
+    }
     this.telegramService.MainButton.hide();
   }
 

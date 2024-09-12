@@ -65,14 +65,26 @@
     <button mat-icon-button (click)="removeItem()">
         <mat-icon>remove</mat-icon>
       </button>
-      <button mat-icon-button routerLink="/cart">
+
+      @if(quantityInCart(cartItem.product) > 0){
+        <mat-icon
+          [attr.aria-hidden]="false" aria-hidden="false"
+          matBadgeColor="accent"
+          [matBadge]="quantityInCart(cartItem.product)"
+          >shopping_cart</mat-icon>
+      }
+      @if(quantityInCart(cartItem.product) == 0){
+        <mat-icon>shopping_cart</mat-icon>
+      }
+
+      <!-- <button mat-icon-button routerLink="/cart">
         <mat-icon
           matBadgeColor="accent"
           [matBadgeHidden]="quantityInCart(cartItem.product) == 0"
           [matBadge]="quantityInCart(cartItem.product)"
           >shopping_cart</mat-icon
         >
-      </button>
+      </button> -->
       <button mat-icon-button color="accent" (click)="addItem()">
         <mat-icon>add</mat-icon>
       </button>

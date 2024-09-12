@@ -82,13 +82,16 @@ export class OrderComponent implements OnInit, OnDestroy {
     //   this.orderService.updateId(-1);
     //   this.orderService.updateOrdersApi();//обновляем список заказов с сервера для проверки
     // }
-
-    this.telegramService.BackButton.show();
-    this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    }
   }
   ngOnDestroy(): void {
-    this.telegramService.BackButton.hide();
-    this.telegramService.BackButton.offClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.hide();
+      this.telegramService.BackButton.offClick(this.goBack);
+    }
   }
 
   goBack() {

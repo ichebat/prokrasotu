@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, of, tap } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '../../environments/environment.development';
 import { TelegramService } from './telegram.service';
@@ -610,6 +610,19 @@ export class ProductsService {
 
   constructor(private _http: HttpClient) {}
 
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      // TODO: send the error to remote logging infrastructure
+      console.error(error); // log to console instead
+
+      // TODO: better job of transforming error for user consumption
+      console.log(`${operation} failed: ${error.message}`);
+
+      // Let the app keep running by returning an empty result.
+      return of(result as T);
+    };
+  }
+
   getProducts(): Observable<IProduct[]> {
     console.log('Start get products');
     return this._http.get(this.url, { responseType: 'text' }).pipe(
@@ -669,6 +682,7 @@ export class ProductsService {
           });
         });
       }),
+      catchError(this.handleError<IProduct[]>('getProducts', [])),
     );
   }
 

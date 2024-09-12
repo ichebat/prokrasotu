@@ -14,12 +14,17 @@
   <span class="spacer"></span>
 
   <button mat-icon-button routerLink="/cart">
-    <mat-icon
-      matBadgeColor="accent"
-      [matBadgeHidden]="cartService.$cart()!.totalCount == 0"
-      [matBadge]="cartService.$cart()!.totalCount"
-      >shopping_cart</mat-icon
-    >
+    @if(cartService.$cart()!.totalCount > 0){
+      <mat-icon
+        [attr.aria-hidden]="false" aria-hidden="false"
+        matBadgeColor="accent"
+        [matBadge]="cartService.$cart()!.totalCount"
+        >shopping_cart</mat-icon>
+    }
+    
+    @if(cartService.$cart()!.totalCount == 0){
+      <mat-icon>shopping_cart</mat-icon>
+    }
   </button>
 
   <button mat-icon-button (click)="onThemeChange($event)">
@@ -151,7 +156,6 @@
                 @if (typeProduct.category.translit == category.translit) {
                   <a
                     mat-list-item
-                    
                     [routerLink]="
                       '/shop/' +
                       typeProduct.category.translit +
@@ -220,7 +224,7 @@
           <span>История заказов</span>
         </span>
       </a>
-      
+
       <a mat-list-item (click)="toggleMenu()" routerLink="/feedback">
         <span class="entry">
           <mat-icon>message</mat-icon>

@@ -147,6 +147,7 @@ export class TelegramService {
   ready() {
     this.tg.ready();
     this.tg.expand();
+    this.tg.disableVerticalSwipes();
     //   if (this.tg.initDataUnsafe?.user?.id){
     //   // if (!environment.production)
     //     this.updateId("1376405452");

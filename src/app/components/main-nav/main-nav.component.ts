@@ -11,26 +11,26 @@ import { CartService } from '../../services/cart.service';
   templateUrl: './main-nav.component.html',
   styleUrl: './main-nav.component.scss',
 })
-export class MainNavComponent  implements OnInit{
+export class MainNavComponent implements OnInit {
   @ViewChild(MatSidenav) sidenav!: MatSidenav;
   isMobile = true;
   isCollapsed = true;
 
-  
   expandHeight = '42px';
   collapseHeight = '42px';
 
   step = signal(-1);
-  
 
-  constructor(private observer: BreakpointObserver,
-    public readonly _themeSwitchService: ThemeSwitchService, 
-    public productsService: ProductsService,     
+  constructor(
+    private observer: BreakpointObserver,
+    public readonly _themeSwitchService: ThemeSwitchService,
+    public productsService: ProductsService,
     public cartService: CartService,
-    private router: Router) {}
+    private router: Router,
+  ) {}
   ngOnInit(): void {
     this.observer.observe(['(max-width: 800px)']).subscribe((screenSize) => {
-      if(screenSize.matches){
+      if (screenSize.matches) {
         this.isMobile = true;
       } else {
         this.isMobile = false;
@@ -38,11 +38,10 @@ export class MainNavComponent  implements OnInit{
     });
   }
 
-  toggleMenu() {    
-
+  toggleMenu() {
     // if(this.isMobile){
-      this.sidenav.toggle();
-      this.isCollapsed = false; // On mobile, the menu can never be collapsed
+    this.sidenav.toggle();
+    this.isCollapsed = false; // On mobile, the menu can never be collapsed
     // } else {
     //   this.sidenav.open(); // On desktop/tablet, the menu can never be fully closed
     //   this.isCollapsed = !this.isCollapsed;
@@ -51,26 +50,26 @@ export class MainNavComponent  implements OnInit{
     this.setStep(-1);
   }
 
-  onThemeChange(event){
+  onThemeChange(event) {
     // alert (event.checked)
-     //this._themeSwitchService.OnThemeSwitch.next(event.checked);
-     //this._themeSwitchService.OnThemeSwitch.next(event.checked);
-     let isDark = !this._themeSwitchService.isDarkThemeActive.value;
-     this._themeSwitchService.OnThemeSwitch.next(isDark);
-     //window.localStorage.setItem("isDarkThemeActive", event.checked);
-     window.localStorage.setItem("isDarkThemeActive", isDark.toString());
-   }
+    //this._themeSwitchService.OnThemeSwitch.next(event.checked);
+    //this._themeSwitchService.OnThemeSwitch.next(event.checked);
+    let isDark = !this._themeSwitchService.isDarkThemeActive.value;
+    this._themeSwitchService.OnThemeSwitch.next(isDark);
+    //window.localStorage.setItem("isDarkThemeActive", event.checked);
+    window.localStorage.setItem('isDarkThemeActive', isDark.toString());
+  }
 
-   setStep(index: number) {
+  setStep(index: number) {
     this.step.set(index);
   }
 
   nextStep() {
-    this.step.update(i => i + 1);
+    this.step.update((i) => i + 1);
   }
 
   prevStep() {
-    this.step.update(i => i - 1);
+    this.step.update((i) => i - 1);
   }
 
   isProductView() {

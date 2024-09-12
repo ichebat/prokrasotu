@@ -14,10 +14,16 @@ export class OrdersComponent  implements OnInit, OnDestroy {
 
  
   ngOnInit(): void {  
-    this.telegramService.BackButton.onClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened){       
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack);
+    }
   }
   ngOnDestroy(): void {
-    this.telegramService.BackButton.offClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened){     
+      this.telegramService.BackButton.hide();     
+      this.telegramService.BackButton.offClick(this.goBack);
+    }    
   }
 
   /**

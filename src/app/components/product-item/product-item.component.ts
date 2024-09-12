@@ -316,8 +316,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.telegramService.BackButton.show();
-    this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    }
 
     if (!this.telegramService.isAdmin) return;
     this.setInitialValue();
@@ -410,8 +412,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
   //отвязываем кнопки
   ngOnDestroy(): void {
-    this.telegramService.BackButton.hide();
-    this.telegramService.BackButton.offClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.hide();
+      this.telegramService.BackButton.offClick(this.goBack);
+    }
 
     this.subscr_form.unsubscribe();
     this.subscr_id.unsubscribe();
@@ -671,6 +675,13 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
   //кнопка назад в WebApp telegram
   goBack() {
+    // //закрываем tg если смотрели товар
+    // //или если мы открыли страницу с кнопкой закрыть и истории ранее нету, то закрывает телеграм
+    // if (this.telegramService.IsTelegramWebAppOpened && !this.navigation.isHistoryAvailable){
+    //   console.log("Закрываем Tg");
+    //   this.telegramService.tg.close();
+    // }
+
     this.navigation.back();
   }
 

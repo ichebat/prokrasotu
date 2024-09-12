@@ -20,8 +20,12 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogDemoComponent, DialogData } from '../confirm-dialog-demo/confirm-dialog-demo.component';
+import {
+  ConfirmDialogDemoComponent,
+  DialogData,
+} from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { CartService, ICartItem } from '../../services/cart.service';
+
 import { NavigationService } from '../../services/navigation.service';
 import { Subscription, distinctUntilChanged, filter, takeUntil } from 'rxjs';
 import { ProductSearchComponent } from '../product-search/product-search.component';
@@ -40,7 +44,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   form: FormGroup = new FormGroup({}); //реактивная форма
   private subscr_form: Subscription = Subscription.EMPTY;
-  
+
   dataSource: MatTableDataSource<ICartItem>; //dataSource для mat-table на форме
 
   displayedColumns: string[] = ['imageUrl', 'description', 'ActionBar']; //список колонок для отображения
@@ -91,15 +95,12 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     public dialog: MatDialog,
     private navigation: NavigationService,
     private fb: FormBuilder,
-    private zone: NgZone ,
+    private zone: NgZone,
   ) {
     //console.log("constructor order item");
     //биндим функции, чтобы от них потом корректно отписаться
     this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
     this.sendData = this.sendData.bind(this); //функция для главной MainButton кнопки телеграм
-
-    
-    
 
     //ниже привязка действия к MainButton телеграм
     //если существующий заказ просматривает не админ, то его можно только отменить
@@ -305,11 +306,14 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         ) {
           item.enabled = false;
         }
-      } else
+      }
 
       //2. ******************************************* */
       //если создается новый заказ ЧЕРЕЗ телеграм бота (НЕ через сайт)
-      if (this.telegramService.IsTelegramWebAppOpened && this.order?.id == 0) {
+      else if (
+        this.telegramService.IsTelegramWebAppOpened &&
+        this.order?.id == 0
+      ) {
         //отображение следующих контролов будет изменено
         if (
           item.controlName == 'correctionReason' ||
@@ -349,11 +353,15 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         ) {
           item.enabled = false;
         }
-      } else
+      }
 
       //3. ******************************************* */
       //если заказ редактируется ЧЕРЕЗ телеграм бота (НЕ через сайт)
-      if ((this.telegramService.IsTelegramWebAppOpened || this.telegramService.isAdmin) && this.order?.id > 0) {
+      else if (
+        (this.telegramService.IsTelegramWebAppOpened ||
+          this.telegramService.isAdmin) &&
+        this.order?.id > 0
+      ) {
         if (item.controlName == 'clientName') {
           item.visible =
             true && this.order?.clientName && this.telegramService.isAdmin;
@@ -368,7 +376,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         }
         if (item.controlName == 'clientAddress') {
           item.visible =
-            true && this.order?.delivery.isAddressRequired && this.telegramService.isAdmin;
+            true &&
+            this.order?.delivery.isAddressRequired &&
+            this.telegramService.isAdmin;
         }
         if (item.controlName == 'clientTgName') {
           item.visible =
@@ -381,7 +391,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         if (item.controlName == 'cancellationReason') {
           item.visible =
             true &&
-            (this.order?.cancellationReason || this.telegramService.isAdmin || this.action == 'cancel');
+            (this.order?.cancellationReason ||
+              this.telegramService.isAdmin ||
+              this.action == 'cancel');
         }
         if (item.controlName == 'correctionReason') {
           item.visible =
@@ -406,7 +418,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             this.telegramService.isAdmin &&
             !this.order?.isAccepted &&
             !this.order?.isCancelled &&
-            !this.order?.isCompleted;            
+            !this.order?.isCompleted;
         }
         if (item.controlName == 'button_complete') {
           item.visible =
@@ -452,7 +464,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         }
         if (item.controlName == 'clientAddress') {
           item.enabled =
-            true && this.telegramService.isAdmin && this.order.delivery.isAddressRequired && this.action == 'edit';
+            true &&
+            this.telegramService.isAdmin &&
+            this.order.delivery.isAddressRequired &&
+            this.action == 'edit';
         }
         if (item.controlName == 'correctionReason') {
           item.enabled =
@@ -514,11 +529,14 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         //       this.order?.isCompleted);
         //
         // }
-      } else
+      }
 
       //4. ******************************************* */
       //если заказ редактируется не через телеграм бота (через сайт)
-      if (!this.telegramService.IsTelegramWebAppOpened && this.order?.id > 0) {
+      else if (
+        !this.telegramService.IsTelegramWebAppOpened &&
+        this.order?.id > 0
+      ) {
         //такое запрещено, все скрываем и не редактируем
         item.visible = false;
         item.enabled = false;
@@ -535,118 +553,239 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //если запрос осуществлялся с action то отключаем лишние
     //должна остаться только одна кнопка с visible и enabled true из пяти
     //вся эта логика работает только на редактирование существующего заказа, при создании - нет
-    if (this.order?.id > 0)
-    {
-    if (this.action == 'view' || this.action == '') {
-      this.FormControlsFlags.find((p) => p.controlName == 'button_submit')!.enabled = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_submit')!.visible = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_accept')!.enabled = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_accept')!.visible = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_cancel')!.enabled = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_cancel')!.visible = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_complete')!.enabled = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_complete')!.visible = false;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_close')!.enabled = true;
-      this.FormControlsFlags.find((p) => p.controlName == 'button_close')!.visible = true;
-    }
+    if (this.order?.id > 0) {
+      if (this.action == 'view' || this.action == '') {
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_close',
+        )!.enabled = true;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_close',
+        )!.visible = true;
+      }
 
-    if (this.action == "edit")
-    {
-      this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_complete')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_complete')!.visible = false;
-      //если редактировать нельзя
-      if (!this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.visible)
-      {
-        if (!this.order.isAccepted) this.MainButtonText = "Вы не можете изменить данный заказ, так как он находится в обработке у продавца"
-        if (this.order.isAccepted) this.MainButtonText = "Вы не можете изменить данный заказ, так как он уже подтвержден продавцом";
-        if (this.order.isCompleted) this.MainButtonText = "Вы не можете изменить данный заказ, так как он уже завершен";
-        if (this.order.isCancelled) this.MainButtonText = "Вы не можете изменить данный заказ, так как он отменен";
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = true;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = true;
+      if (this.action == 'edit') {
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.visible = false;
+        //если редактировать нельзя
+        if (
+          !this.FormControlsFlags.find((p) => p.controlName == 'button_submit')!
+            .visible
+        ) {
+          if (!this.order.isAccepted)
+            this.MainButtonText =
+              'Вы не можете изменить данный заказ, так как он находится в обработке у продавца';
+          if (this.order.isAccepted)
+            this.MainButtonText =
+              'Вы не можете изменить данный заказ, так как он уже подтвержден продавцом';
+          if (this.order.isCompleted)
+            this.MainButtonText =
+              'Вы не можете изменить данный заказ, так как он уже завершен';
+          if (this.order.isCancelled)
+            this.MainButtonText =
+              'Вы не можете изменить данный заказ, так как он отменен';
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = true;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = true;
+        } else {
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = false;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = false;
+        }
       }
-      else
-      {
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = false;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = false;
-      }
-    }
 
-    if (this.action == "accept")
-    {
-      //console.log("accept | "+this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.visible)
-      this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_complete')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_complete')!.visible = false;
-      //если подтвердить нельзя
-      if (!this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.visible)
-      {
-        if (!this.telegramService.isAdmin) this.MainButtonText = "Вы не можете подтвердить заказ"        
-        if (this.order.isAccepted) this.MainButtonText = "Вы не можете подтвердить данный заказ, так как он уже подтвержден продавцом";
-        if (this.order.isCompleted) this.MainButtonText = "Вы не можете подтвердить данный заказ, так как он уже завершен";
-        if (this.order.isCancelled) this.MainButtonText = "Вы не можете подтвердить данный заказ, так как он уже отменен";
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = true;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = true;
+      if (this.action == 'accept') {
+        //console.log("accept | "+this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.visible)
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.visible = false;
+        //если подтвердить нельзя
+        if (
+          !this.FormControlsFlags.find((p) => p.controlName == 'button_accept')!
+            .visible
+        ) {
+          if (!this.telegramService.isAdmin)
+            this.MainButtonText = 'Вы не можете подтвердить заказ';
+          if (this.order.isAccepted)
+            this.MainButtonText =
+              'Вы не можете подтвердить данный заказ, так как он уже подтвержден продавцом';
+          if (this.order.isCompleted)
+            this.MainButtonText =
+              'Вы не можете подтвердить данный заказ, так как он уже завершен';
+          if (this.order.isCancelled)
+            this.MainButtonText =
+              'Вы не можете подтвердить данный заказ, так как он уже отменен';
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = true;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = true;
+        } else {
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = false;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = false;
+        }
       }
-      else
-      {
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = false;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = false;
-      }
-    }
 
-    if (this.action == "cancel")
-    {
-      this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_complete')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_complete')!.visible = false;
-      //если подтвердить нельзя
-      if (!this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.visible)
-      {
-        if (this.order.isCompleted) this.MainButtonText = "Вы не можете отменить данный заказ, так как он уже завершен";
-        if (this.order.isCancelled) this.MainButtonText = "Вы не можете отменить данный заказ, так как он уже отменен";
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = true;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = true;
+      if (this.action == 'cancel') {
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_complete',
+        )!.visible = false;
+        //если подтвердить нельзя
+        if (
+          !this.FormControlsFlags.find((p) => p.controlName == 'button_cancel')!
+            .visible
+        ) {
+          if (this.order.isCompleted)
+            this.MainButtonText =
+              'Вы не можете отменить данный заказ, так как он уже завершен';
+          if (this.order.isCancelled)
+            this.MainButtonText =
+              'Вы не можете отменить данный заказ, так как он уже отменен';
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = true;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = true;
+        } else {
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = false;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = false;
+        }
       }
-      else
-      {
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = false;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = false;
-      }
-    }
 
-    if (this.action == "complete")
-    {
-      this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_submit')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_accept')!.visible = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.enabled = false;
-      this.FormControlsFlags.find(p=>p.controlName == 'button_cancel')!.visible = false;
-      //если подтвердить нельзя
-      if (!this.FormControlsFlags.find(p=>p.controlName == 'button_complete')!.visible)
-      {
-        if (!this.order.isAccepted) this.MainButtonText = "Вы не можете завершить данный заказ, так как он находится в обработке у продавца"
-        if (this.order.isCompleted) this.MainButtonText = "Вы не можете завершить данный заказ, так как он уже завершен";
-        if (this.order.isCancelled) this.MainButtonText = "Вы не можете завершить данный заказ, так как он уже отменен";
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = true;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = true;
+      if (this.action == 'complete') {
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_submit',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_accept',
+        )!.visible = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.enabled = false;
+        this.FormControlsFlags.find(
+          (p) => p.controlName == 'button_cancel',
+        )!.visible = false;
+        //если подтвердить нельзя
+        if (
+          !this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_complete',
+          )!.visible
+        ) {
+          if (!this.order.isAccepted)
+            this.MainButtonText =
+              'Вы не можете завершить данный заказ, так как он находится в обработке у продавца';
+          if (this.order.isCompleted)
+            this.MainButtonText =
+              'Вы не можете завершить данный заказ, так как он уже завершен';
+          if (this.order.isCancelled)
+            this.MainButtonText =
+              'Вы не можете завершить данный заказ, так как он уже отменен';
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = true;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = true;
+        } else {
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.enabled = false;
+          this.FormControlsFlags.find(
+            (p) => p.controlName == 'button_close',
+          )!.visible = false;
+        }
       }
-      else
-      {
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.enabled = false;
-        this.FormControlsFlags.find(p=>p.controlName == 'button_close')!.visible = false;
-      }
-    }
     }
   }
 
@@ -676,16 +815,20 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setInitialValue();
-    
+
     //подписываемся на изменения формы, для скрытия/отображения MainButton
-    this.subscr_form = this.form.statusChanges.pipe(distinctUntilChanged()).subscribe(() => {
-      console.log(this.form.status);
-      this.isFormValid();
-    });
+    this.subscr_form = this.form.statusChanges
+      .pipe(distinctUntilChanged())
+      .subscribe(() => {
+        console.log(this.form.status);
+        this.isFormValid();
+      });
     this.form.updateValueAndValidity(); //обновляем статус формы
 
-    this.telegramService.BackButton.show();
-    this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    if (this.telegramService.IsTelegramWebAppOpened) {
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    }
 
     this.onHandleUpdate();
   }
@@ -693,8 +836,10 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   //отвязываем кнопки
   ngOnDestroy(): void {
     this.subscr_form.unsubscribe();
-    this.telegramService.BackButton.hide();
-    this.telegramService.BackButton.offClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened) {
+      this.telegramService.BackButton.hide();
+      this.telegramService.BackButton.offClick(this.goBack);
+    }
     this.telegramService.MainButton.hide();
     this.isMainButtonHidden = true;
   }
@@ -712,6 +857,20 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //кнопка назад в WebApp telegram
   goBack() {
+    //закрываем tg если редактировали заказ
+    //или если мы открыли страницу с кнопкой закрыть и истории ранее нету, то закрывает телеграм
+    if (
+      this.telegramService.IsTelegramWebAppOpened &&
+      (this.action == 'edit' ||
+        this.action == 'complete' ||
+        this.action == 'cancel' ||
+        this.action == 'accept' ||
+        !this.navigation.isHistoryAvailable)
+    ) {
+      console.log('Закрываем Tg');
+      this.telegramService.tg.close();
+    }
+
     this.navigation.back();
   }
 
@@ -731,27 +890,26 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       //если заказ переводится в "Готов к оплате", но была коррекция необходимо подтверждение
       if (this.isOrderItemsChanged || this.isDeliveryChanged) {
         //if (!this.telegramService.IsTelegramWebAppOpened)
-        this.zone.run(() => 
-        {
-        const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-          ConfirmDialogDemoComponent,
-          {
-            data: {
-              message: 'Заказ был изменен',
-              description:
-                'Клиент получит сообщение о причине изменений: [' +
-                this.order.correctionReason +
-                '].\nМожно изменить сообщение перед отправкой. Если все устраивает - подтвердите действие.',
+        this.zone.run(() => {
+          const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+            ConfirmDialogDemoComponent,
+            {
+              data: {
+                message: 'Заказ был изменен',
+                description:
+                  'Клиент получит сообщение о причине изменений: [' +
+                  this.order.correctionReason +
+                  '].\nМожно изменить сообщение перед отправкой. Если все устраивает - подтвердите действие.',
+              },
             },
-          },
-        );
-        dialogRef.afterClosed().subscribe((result) => {
-          if (result == true) {
-            this.order.isAccepted = true;
-            this.order.acceptDate = new Date();
-            this.sendData();
-          } else return;
-        });
+          );
+          dialogRef.afterClosed().subscribe((result) => {
+            if (result == true) {
+              this.order.isAccepted = true;
+              this.order.acceptDate = new Date();
+              this.sendData();
+            } else return;
+          });
         });
       } else {
         this.order.isAccepted = true;
@@ -763,40 +921,36 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //функция отмены заказа
   cancelOrder() {
-    
     //отклонить можно если не отклонялся ранее
     if (!this.getVisible('button_cancel') || !this.getEnabled('button_cancel'))
       return;
-    
+
     //if (!this.telegramService.IsTelegramWebAppOpened)
-    this.zone.run(() => 
-    {
-    const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-      ConfirmDialogDemoComponent,
-      {
-        data: {
-          message: 'Заказ отменяется',
-          description:
-            'Причина отмены заказа: [' +
-            (this.form.controls['cancellationReason'].value
-              ? this.form.controls['cancellationReason'].value.toString()
-              : 'Не указана') +
-            ']. Можно изменить причину перед отправкой. Если все устраивает - подтвердите действие.',
+    this.zone.run(() => {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: 'Заказ отменяется',
+            description:
+              'Причина отмены заказа: [' +
+              (this.form.controls['cancellationReason'].value
+                ? this.form.controls['cancellationReason'].value.toString()
+                : 'Не указана') +
+              ']. Можно изменить причину перед отправкой. Если все устраивает - подтвердите действие.',
+          },
         },
-      },
-    );
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result == true) {
-        this.order.isCancelled = true;
-        this.order.cancellationDate = new Date();
-        this.order.cancellationReason =
-          this.form.controls['cancellationReason'].value;
-        this.sendData();
-      } else return;
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          this.order.isCancelled = true;
+          this.order.cancellationDate = new Date();
+          this.order.cancellationReason =
+            this.form.controls['cancellationReason'].value;
+          this.sendData();
+        } else return;
+      });
     });
-    });
-
-
   }
 
   //функция завершения заказа
@@ -808,46 +962,38 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     )
       return;
     //if (!this.telegramService.IsTelegramWebAppOpened)
-    this.zone.run(() => 
-    {
+    this.zone.run(() => {
       const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-      ConfirmDialogDemoComponent,
-      {
-        data: {
-          message: 'Заказ завершается',
-          description:
-            'Заказ считается выполненным и будет завершен. После этого он будет помещен в архив. Если все устраивает - подтвердите действие.',
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: 'Заказ завершается',
+            description:
+              'Заказ считается выполненным и будет завершен. После этого он будет помещен в архив. Если все устраивает - подтвердите действие.',
+          },
         },
-      },
       );
       dialogRef.afterClosed().subscribe((result) => {
-      if (result == true) {
-        this.order.isCompleted = true;
-        this.order.completeDate = new Date();
-        this.sendData();
-      } else return;
+        if (result == true) {
+          this.order.isCompleted = true;
+          this.order.completeDate = new Date();
+          this.sendData();
+        } else return;
       });
     });
-
-    
   }
 
   //функция закрытия окна
   closeForm() {
     if (!this.getVisible('button_close') || !this.getEnabled('button_close'))
       return;
-    
+
     this.goBack();
-    //закрываем tg если редактировали заказ
-    //или если мы открыли страницу с кнопкой закрыть и истории ранее нету, то закрывает телеграм
-    if (this.telegramService.IsTelegramWebAppOpened && (this.action == "edit" || this.action == "complete" || this.action == "cancel" || this.action == "accept" || !this.navigation.isHistoryAvailable))
-      this.telegramService.tg.close();
   }
 
   //функция отправки данных (id ==0 для нового заказа, id>0 для редактирования)
   sendData() {
     //добавление нового заказа делается кнопкой submit
-    
 
     if (
       this.order.id == 0 &&
@@ -910,26 +1056,25 @@ export class OrderItemComponent implements OnInit, OnDestroy {
               addOrder_response?.status == 'success' &&
               addOrder_response?.data?.action.toString().toLowerCase() ==
                 'addorder'
-            ) 
-            this.zone.run(() => 
-            {
-              const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-                ConfirmDialogDemoComponent,
-                {
-                  data: {
-                    message: addOrder_response.message,
-                    description:
-                      'Номер вашего заказа: [' +
-                      addOrder_response.data.id +
-                      ']. Пожалуйста, запомните его. Для продолжения нажмите любую кнопку.',
+            )
+              this.zone.run(() => {
+                const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+                  ConfirmDialogDemoComponent,
+                  {
+                    data: {
+                      message: addOrder_response.message,
+                      description:
+                        'Номер вашего заказа: [' +
+                        addOrder_response.data.id +
+                        ']. Пожалуйста, запомните его. Для продолжения нажмите любую кнопку.',
+                    },
                   },
-                },
-              );
-              dialogRef.afterClosed().subscribe((result) => {
-                if (result == true) {
-                } else return;
+                );
+                dialogRef.afterClosed().subscribe((result) => {
+                  if (result == true) {
+                  } else return;
+                });
               });
-            });
           },
           error: (err) => {
             this.onHandleUpdate();
@@ -954,7 +1099,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 }
 
                 currentCart.items = currentCart.items.filter(
-                  p => p.quantity > 0,
+                  (p) => p.quantity > 0,
                 );
 
                 currentCart.totalCount = this.cartService.calculateTotalCount(
@@ -1002,13 +1147,13 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     }
 
     if (
-      (
-        (this.getVisible('button_submit') && this.getEnabled('button_submit')) ||
-        (this.getVisible('button_accept') && this.getEnabled('button_accept')) ||
-        (this.getVisible('button_cancel') && this.getEnabled('button_cancel')) ||
-        (this.getVisible('button_complete') && this.getEnabled('button_complete'))
-      )
-      &&
+      ((this.getVisible('button_submit') && this.getEnabled('button_submit')) ||
+        (this.getVisible('button_accept') &&
+          this.getEnabled('button_accept')) ||
+        (this.getVisible('button_cancel') &&
+          this.getEnabled('button_cancel')) ||
+        (this.getVisible('button_complete') &&
+          this.getEnabled('button_complete'))) &&
       this.form.valid &&
       this.order.id > 0
     ) {
@@ -1337,23 +1482,25 @@ export class OrderItemComponent implements OnInit, OnDestroy {
             }
           });
 
-          //если такого продукта не было то добавляем
-          isItemChanged = true;
-          //console.log(newCartItem);
-          this.order.items.push(newCartItem);
+          if (!isItemChanged) {
+            //если такого продукта не было то добавляем
+            isItemChanged = true;
+            //console.log(newCartItem);
+            this.order.items.push(newCartItem);
 
-          this.order.totalAmount = this.orderService.calculateTotalAmount(
-            this.order?.items,
-          );
-          this.order.totalCount = this.orderService.calculateTotalCount(
-            this.order?.items,
-          );
+            this.order.totalAmount = this.orderService.calculateTotalAmount(
+              this.order?.items,
+            );
+            this.order.totalCount = this.orderService.calculateTotalCount(
+              this.order?.items,
+            );
 
-          this.isOrderItemsChanged = true;
-          this.order.correctionReason = 'Состав заказа изменен в магазине';
-          this.form.controls['correctionReason'].setValue(
-            this.order.correctionReason,
-          );
+            this.isOrderItemsChanged = true;
+            this.order.correctionReason = 'Состав заказа изменен в магазине';
+            this.form.controls['correctionReason'].setValue(
+              this.order.correctionReason,
+            );
+          }
 
           this.dataSource = new MatTableDataSource(this.order.items);
         }
@@ -1370,41 +1517,41 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //нельзя удалить последнюю позицию
     if (this.order.items.length <= 1) return;
     this.zone.run(() => {
-    const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-      ConfirmDialogDemoComponent,
-      {
-        data: {
-          message: 'Удаление?',
-          description:
-            'Следующий товар: [' +
-            cartItem.product.name +
-            '] будет удален из заказа. Подтвердите действие.',
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: 'Удаление?',
+            description:
+              'Следующий товар: [' +
+              cartItem.product.name +
+              '] будет удален из заказа. Подтвердите действие.',
+          },
         },
-      },
-    );
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result == true) {
-        const index = this.order.items.findIndex(
-          (p) => p.product.id == cartItem.product.id,
-        );
-        if (index > -1) {
-          this.order.items.splice(index, 1);
-          this.isOrderItemsChanged = true;
-          this.order.correctionReason = 'Состав заказа изменен в магазине';
-          this.form.controls['correctionReason'].setValue(
-            this.order.correctionReason,
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          const index = this.order.items.findIndex(
+            (p) => p.product.id == cartItem.product.id,
           );
+          if (index > -1) {
+            this.order.items.splice(index, 1);
+            this.isOrderItemsChanged = true;
+            this.order.correctionReason = 'Состав заказа изменен в магазине';
+            this.form.controls['correctionReason'].setValue(
+              this.order.correctionReason,
+            );
 
-          this.dataSource = new MatTableDataSource(this.order.items);
-          this.order.totalAmount = this.orderService.calculateTotalAmount(
-            this.order?.items,
-          );
-          this.order.totalCount = this.orderService.calculateTotalCount(
-            this.order?.items,
-          );
+            this.dataSource = new MatTableDataSource(this.order.items);
+            this.order.totalAmount = this.orderService.calculateTotalAmount(
+              this.order?.items,
+            );
+            this.order.totalCount = this.orderService.calculateTotalCount(
+              this.order?.items,
+            );
+          }
         }
-      }
-    });
+      });
     });
   }
 
@@ -1435,20 +1582,24 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         },
       },
     );
+    let initialCartItem = structuredClone(cartItem);
     dialogRef.afterClosed().subscribe((result) => {
       if (!this.isMainButtonHidden) this.telegramService.MainButton.show();
-      //console.log(result);
+      console.log(result);
       if (result && result.flag) {
         let isItemChanged = false;
         const newCartItem = result.cartItem as ICartItem;
         if (newCartItem)
           this.order.items.forEach((item) => {
             if (item.product.id == cartItem.product.id) {
+              // console.log(cartItem);
+              // console.log(newCartItem);
               if (
-                cartItem.product.id != newCartItem.product.id ||
-                cartItem.quantity != newCartItem.quantity
+                initialCartItem.product.id != newCartItem.product.id ||
+                initialCartItem.quantity != newCartItem.quantity
               )
                 isItemChanged = true;
+
               item = newCartItem;
               this.order.totalAmount = this.orderService.calculateTotalAmount(
                 this.order?.items,

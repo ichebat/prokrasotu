@@ -1,48 +1,67 @@
-import { Component, Input, OnDestroy, OnInit, computed, inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+} from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
 import { IProduct, ProductsService } from '../../services/products.service';
 import { Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
-import { CartService } from '../../services/cart.service';
 import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
 import { DeliveryService } from '../../services/delivery.service';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-shop',
   templateUrl: './shop.component.html',
 })
 export class ShopComponent implements OnInit, OnDestroy {
- telegram = inject(TelegramService);
- navigation = inject(NavigationService);
-
-
+  telegram = inject(TelegramService);
+  navigation = inject(NavigationService);
 
   //@Input('category') categoryFromRoute = '';
-  @Input() set category(category: string) { 
-    this.productsService.updateSelectedCategoryTranslit(category); 
-    if (category) this.telegramService.BackButton.show();
-    else
-    this.telegramService.BackButton.hide();
+  @Input() set category(category: string) {
+    this.productsService.updateSelectedCategoryTranslit(category);
+    if (category)
+      if (this.telegramService.IsTelegramWebAppOpened) {
+        this.telegramService.BackButton.show();
+      } else if (this.telegramService.IsTelegramWebAppOpened) {
+        this.telegramService.BackButton.hide();
+      }
   }
-  @Input() set type(type: string) { 
-    this.productsService.updateSelectedTypeTranslit(type); 
-    if (type) this.telegramService.BackButton.show();
+  @Input() set type(type: string) {
+    this.productsService.updateSelectedTypeTranslit(type);
+    if (type)
+      if (this.telegramService.IsTelegramWebAppOpened) {
+        this.telegramService.BackButton.show();
+      }
   }
-  @Input() set brand(brand: string) { 
-    this.productsService.updateSelectedBrandTranslit(brand); 
-    if (brand) this.telegramService.BackButton.show();
+  @Input() set brand(brand: string) {
+    this.productsService.updateSelectedBrandTranslit(brand);
+    if (brand)
+      if (this.telegramService.IsTelegramWebAppOpened) {
+        this.telegramService.BackButton.show();
+      }
   }
-  @Input() set brandLine(brandLine: string) { 
-    
-    this.productsService.updateSelectedBrandLineTranslit(brandLine); 
-    if (brandLine) this.telegramService.BackButton.show();
+  @Input() set brandLine(brandLine: string) {
+    this.productsService.updateSelectedBrandLineTranslit(brandLine);
+    if (brandLine)
+      if (this.telegramService.IsTelegramWebAppOpened) {
+        this.telegramService.BackButton.show();
+      }
   }
-  @Input() set brandSeries(brandSeries: string) { 
+  @Input() set brandSeries(brandSeries: string) {
     //console.log("brandSeries: "+brandSeries);
-    this.productsService.updateSelectedBrandSeriesTranslit(brandSeries); 
-    if (brandSeries) this.telegramService.BackButton.show();
+    this.productsService.updateSelectedBrandSeriesTranslit(brandSeries);
+    if (brandSeries)
+      if (this.telegramService.IsTelegramWebAppOpened) {
+        this.telegramService.BackButton.show();
+      }
   }
   // @Input('type') typeFromRoute = '';
   // @Input('brand') brandFromRoute = '';
@@ -81,25 +100,22 @@ export class ShopComponent implements OnInit, OnDestroy {
     public deliveryService: DeliveryService,
     private cartService: CartService,
     //private orderService: OrderService,
-    private telegramService: TelegramService,    
+    private telegramService: TelegramService,
     private location: Location,
-    private route:ActivatedRoute,
+    private route: ActivatedRoute,
     private router: Router,
   ) {
-
     //если запустили телеграм бота по webAppDirectLink с параметром https://t.me/botusername/appname?startapp=someParamValue
     //то считываем someParamValue и парсим для перехода
     if (!this.telegramService.isRedirectedByStartParam)
-    if (this.telegramService.StartParam){
-      let routeUrl=this.telegramService.StartParam;
-      console.log("Redirecting to "+routeUrl);
-      this.telegramService.isRedirectedByStartParam = true;
-      this.router.navigate([routeUrl]);
-    }
-    
+      if (this.telegramService.StartParam) {
+        let routeUrl = this.telegramService.StartParam;
+        console.log('Redirecting to ' + routeUrl);
+        this.telegramService.isRedirectedByStartParam = true;
+        this.router.navigate([routeUrl]);
+      }
+
     //console.log("Constructor Shop");
-
-
 
     // this.category = this.route.snapshot.paramMap.get('category');
     // this.type = this.route.snapshot.paramMap.get('type');
@@ -112,8 +128,8 @@ export class ShopComponent implements OnInit, OnDestroy {
     // console.log(this.productsService.$selectedTypeName());
     // console.log(this.productsService.$selectedBrandName());
 
-    // this.productsService.updateSelectedCategoryName(this.category);    
-    // this.productsService.updateSelectedTypeName(this.type);    
+    // this.productsService.updateSelectedCategoryName(this.category);
+    // this.productsService.updateSelectedTypeName(this.type);
     // this.productsService.updateSelectedBrandName(this.brand);
 
     //this.telegram.MainButton.show();
@@ -126,7 +142,7 @@ export class ShopComponent implements OnInit, OnDestroy {
     // if (this.route.snapshot.queryParamMap.get('type')) type = this.route.snapshot.queryParamMap.get('type')!;
 
     // console.log("cat = "+category+" && type = "+type);
-    
+
     // this.productsService.updateSelectedCategory(category);
     // this.productsService.updateSelectedType(type);
     // this.subscription = this.productsService.productList$.subscribe((value) => {
@@ -139,18 +155,21 @@ export class ShopComponent implements OnInit, OnDestroy {
     // });
 
     this.goBack = this.goBack.bind(this);
-
-    
   }
 
   ngOnDestroy(): void {
-    this.telegramService.BackButton.offClick(this.goBack);
+    if (this.telegramService.IsTelegramWebAppOpened) {
+      this.telegramService.BackButton.hide();
+      this.telegramService.BackButton.offClick(this.goBack);
+    }
     //this.subscription.unsubscribe();
   }
 
-  ngOnInit(): void {    
-    this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
-
+  ngOnInit(): void {
+    if (this.telegramService.IsTelegramWebAppOpened) {
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+    }
 
     // console.log("Init Shop, routes: "+this.category+','+this.typeFromRoute+','+this.brandFromRoute);
     // if (this.category) this.productsService.updateSelectedCategoryName(this.category);
@@ -159,26 +178,24 @@ export class ShopComponent implements OnInit, OnDestroy {
     // else this.productsService.updateSelectedTypeName('');
     // if (this.brandFromRoute) this.productsService.updateSelectedBrandName(this.brandFromRoute);
     // else this.productsService.updateSelectedBrandName('');
-  //   this.route.paramMap.subscribe(paramMap => { 
-  //     console.log("subscribe param");
-  //     this.category = paramMap.get('category'); 
-  //     this.type = paramMap.get('type'); 
-  //     this.brand = paramMap.get('brand'); 
-      
-  //     this.productsService.updateSelectedCategoryName(this.category); 
-  //     //console.log("signal category is set to "+this.productsService.$selectedCategoryName());   
-  //     this.productsService.updateSelectedTypeName(this.type);    
-  //     this.productsService.updateSelectedBrandName(this.brand);
-  // });
+    //   this.route.paramMap.subscribe(paramMap => {
+    //     console.log("subscribe param");
+    //     this.category = paramMap.get('category');
+    //     this.type = paramMap.get('type');
+    //     this.brand = paramMap.get('brand');
 
-    
+    //     this.productsService.updateSelectedCategoryName(this.category);
+    //     //console.log("signal category is set to "+this.productsService.$selectedCategoryName());
+    //     this.productsService.updateSelectedTypeName(this.type);
+    //     this.productsService.updateSelectedBrandName(this.brand);
+    // });
 
-    // this.route.queryParams.subscribe( 
-    //   params => { 
-    //     this.productsService.updateSelectedCategory(params['category']!); 
-    //     this.productsService.updateSelectedType(['language']!); 
-    //   } 
-    // ) 
+    // this.route.queryParams.subscribe(
+    //   params => {
+    //     this.productsService.updateSelectedCategory(params['category']!);
+    //     this.productsService.updateSelectedType(['language']!);
+    //   }
+    // )
 
     // this.productsService.getProducts(false).subscribe(res => {
     //     //this.products =  res;
@@ -231,9 +248,8 @@ export class ShopComponent implements OnInit, OnDestroy {
   // }
 
   onSearchClear() {
-    
     this.productsService.updateFilter('');
-  };
+  }
 
   goBack() {
     //this.router.navigate(['']);
@@ -241,11 +257,11 @@ export class ShopComponent implements OnInit, OnDestroy {
     this.navigation.back();
   }
 
-  btnClick(){
-    console.log("productBrandLines");
+  btnClick() {
+    console.log('productBrandLines');
     console.log(this.productsService.$productBrandLines());
-    
-    console.log("productBrandSeriesList");
+
+    console.log('productBrandSeriesList');
     console.log(this.productsService.$productBrandSeriesList());
   }
 }

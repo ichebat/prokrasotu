@@ -44,7 +44,9 @@
         <a mat-list-item *ngIf="order.isClientPay">
           <mat-icon matListItemIcon>credit_card</mat-icon>
           <span matListItemTitle>Заказ оплачен online!</span>
-          <span matListItemLine>{{order.clientPayDate | date: 'dd.MM.YYYY HH:mm':'+05:00' }}</span>
+          <span matListItemLine>{{
+            order.clientPayDate | date: "dd.MM.YYYY HH:mm" : "+05:00"
+          }}</span>
         </a>
 
         <a
@@ -189,7 +191,7 @@
         {{ element.product?.name }}
         {{
           element.product?.artikul
-            ? " арт.:" + element.product?.artikul
+            ? "; арт.: " + element.product?.artikul
             : "" + ";"
         }}
       </p>
@@ -764,87 +766,87 @@
   }
 
   <!-- @if (!telegramService.IsTelegramWebAppOpened) { -->
-    <div class="buy-button pb">
-      <!-- @if (order.id == 0 || telegramService.isAdmin) { -->
+  <div class="buy-button pb">
+    <!-- @if (order.id == 0 || telegramService.isAdmin) { -->
 
-      @if (getVisible("button_submit")) {
-        <button
-          mat-flat-button
-          [disabled]="
-            !form.valid || disableButton || !getEnabled('button_submit')
-          "
-          color="accent"
-          type="submit"
-        >
-          @if (order.id == 0) {
-            Отправить в PROКРАСОТУ
-          }
-          @if (order.id > 0) {
-            Обновить данные
-          }
-        </button>
-      }
+    @if (getVisible("button_submit")) {
+      <button
+        mat-flat-button
+        [disabled]="
+          !form.valid || disableButton || !getEnabled('button_submit')
+        "
+        color="accent"
+        type="submit"
+      >
+        @if (order.id == 0) {
+          Отправить в PROКРАСОТУ
+        }
+        @if (order.id > 0) {
+          Обновить данные
+        }
+      </button>
+    }
 
-      <!-- @if (order.id > 0 && !telegramService.isAdmin) { -->
-      @if (getVisible("button_close")) {
-        <button
-          mat-flat-button
-          color="accent"
-          type="button"
-          (click)="closeForm()"
-          routerLink="/"
-        >
-          Закрыть
-        </button>
-      }
+    <!-- @if (order.id > 0 && !telegramService.isAdmin) { -->
+    @if (getVisible("button_close")) {
+      <button
+        mat-flat-button
+        color="accent"
+        type="button"
+        (click)="closeForm()"
+        routerLink="/"
+      >
+        Закрыть
+      </button>
+    }
 
-      @if (getVisible("button_cancel")) {
-        <button
-          mat-flat-button
-          color="warn"
-          type="button"
-          [disabled]="
-            !form.valid || disableButton || !getEnabled('button_cancel')
-          "
-          (click)="cancelOrder()"
-        >
-          <mat-icon>cancel</mat-icon> Отменить
-        </button>
-      }
+    @if (getVisible("button_cancel")) {
+      <button
+        mat-flat-button
+        color="warn"
+        type="button"
+        [disabled]="
+          !form.valid || disableButton || !getEnabled('button_cancel')
+        "
+        (click)="cancelOrder()"
+      >
+        <mat-icon>cancel</mat-icon> Отменить
+      </button>
+    }
 
-      @if (getVisible("button_accept")) {
-        <button
-          mat-flat-button
-          color="primary"
-          type="button"
-          [disabled]="
-            !form.valid || disableButton || !getEnabled('button_accept')
-          "
-          (click)="acceptOrder()"
-        >
-          <mat-icon>credit_card</mat-icon>
-          @if (order.delivery.isAddressRequired) {
-            Отправлен в доставку
-          }
-          @if (!order.delivery.isAddressRequired) {
-            Готов к выдаче
-          }
-        </button>
-      }
+    @if (getVisible("button_accept")) {
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="
+          !form.valid || disableButton || !getEnabled('button_accept')
+        "
+        (click)="acceptOrder()"
+      >
+        <mat-icon>credit_card</mat-icon>
+        @if (order.delivery.isAddressRequired) {
+          Отправлен в доставку
+        }
+        @if (!order.delivery.isAddressRequired) {
+          Готов к выдаче
+        }
+      </button>
+    }
 
-      @if (getVisible("button_complete")) {
-        <button
-          mat-button
-          color="primary"
-          type="button"
-          [disabled]="
-            !form.valid || disableButton || !getEnabled('button_complete')
-          "
-          (click)="completeOrder()"
-        >
-          <mat-icon>check_circle</mat-icon> Завершить
-        </button>
-      }
-    </div>
+    @if (getVisible("button_complete")) {
+      <button
+        mat-button
+        color="primary"
+        type="button"
+        [disabled]="
+          !form.valid || disableButton || !getEnabled('button_complete')
+        "
+        (click)="completeOrder()"
+      >
+        <mat-icon>check_circle</mat-icon> Завершить
+      </button>
+    }
+  </div>
   <!-- } -->
 </form>
