@@ -38,6 +38,15 @@ export class CartComponent implements OnInit, OnDestroy {
 
 
     effect(() => {
+      
+      if (this.cartService.$cart().totalCount > 0) {
+        // this.telegramService.MainButton.show();
+        this.telegramService.MainButton.enable();
+      } else {
+        // this.telegramService.MainButton.hide();
+        this.telegramService.MainButton.disable();
+      }
+
       this.telegramService.tg.onEvent('mainButtonClicked', sendDataToTelegram);
       return () => {
         this.telegramService.tg.offEvent(
@@ -45,12 +54,6 @@ export class CartComponent implements OnInit, OnDestroy {
           sendDataToTelegram,
         );
       };
-    });
-
-    effect(() => {
-      if (this.cartService.$cart().totalCount > 0) {
-        this.telegramService.MainButton.show();
-      } else this.telegramService.MainButton.hide();
     });
   }
 
@@ -67,9 +70,11 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.telegramService.IsTelegramWebAppOpened){      
       this.telegramService.BackButton.show();
       this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+
+      this.telegramService.MainButton.setText('Оформить заказ в PROКРАСОТУ');
     }
 
-    this.telegramService.MainButton.setText('Оформить заказ в PROКРАСОТУ');
+    
     //this.telegramService.MainButton.show();
   }
 
@@ -77,12 +82,21 @@ export class CartComponent implements OnInit, OnDestroy {
     if (this.telegramService.IsTelegramWebAppOpened){      
       this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
+
+      
+      this.telegramService.MainButton.hide();
+      this.telegramService.MainButton.disable();
     }
-    this.telegramService.MainButton.hide();
   }
 
   goBack() {
-    //this.location.back();
+    if (
+      this.telegramService.IsTelegramWebAppOpened && !this.navigation.isHistoryAvailable)
+    {
+      console.log('Закрываем Tg');
+      this.telegramService.tg.close();
+    }
+
     this.navigation.back();
   }
 

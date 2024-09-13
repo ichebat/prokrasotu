@@ -415,6 +415,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     if (this.telegramService.IsTelegramWebAppOpened){      
       this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
+
+      this.telegramService.MainButton.hide();
+      this.telegramService.MainButton.disable();
+      this.isMainButtonHidden = true;
     }
 
     this.subscr_form.unsubscribe();
@@ -435,19 +439,19 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.subscr_isNew.unsubscribe();
     this.subscr_translit.unsubscribe();
 
-    if (!this.telegramService.isAdmin) return;
-    this.telegramService.MainButton.hide();
-    this.isMainButtonHidden = true;
+    
   }
 
   //проверка валидности и скрытие/отображение главной кнопки
   private isFormValid() {
     if (this.form.valid) {
-      this.telegramService.MainButton.show();
-      this.isMainButtonHidden = false;
+      // this.telegramService.MainButton.show();
+      // this.isMainButtonHidden = false;
+      this.telegramService.MainButton.enable();
     } else {
-      this.telegramService.MainButton.hide();
-      this.isMainButtonHidden = true;
+      // this.telegramService.MainButton.hide();
+      // this.isMainButtonHidden = true;
+      this.telegramService.MainButton.disable();
     }
   }
 
@@ -681,6 +685,13 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     //   console.log("Закрываем Tg");
     //   this.telegramService.tg.close();
     // }
+
+    if (
+      this.telegramService.IsTelegramWebAppOpened && !this.navigation.isHistoryAvailable)
+    {
+      console.log('Закрываем Tg');
+      this.telegramService.tg.close();
+    }
 
     this.navigation.back();
   }

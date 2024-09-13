@@ -727,7 +727,7 @@
     >
   </mat-form-field>
 
-  <h3 *ngIf="order.id == 0">
+  <h3 *ngIf="getVisible('isAgeePersonalData') && order.id == 0">
     Ознакомиться с политикой в отношении обработки персональных данных можно
     <a target="_blank" routerLink="/company/privacy/">по ссылке</a>
   </h3>

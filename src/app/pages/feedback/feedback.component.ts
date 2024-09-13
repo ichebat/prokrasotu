@@ -76,6 +76,14 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    if (this.telegramService.IsTelegramWebAppOpened){      
+      this.telegramService.BackButton.show();
+      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+
+      this.telegramService.MainButton.setText('Отправить сообщение в PROКРАСОТУ');
+    }
+
+
     this.setInitialValue();
 
     //подписываемся на изменения формы, для скрытия/отображения MainButton
@@ -85,17 +93,6 @@ export class FeedbackComponent implements OnInit, OnDestroy {
     });
     this.form.updateValueAndValidity(); //обновляем статус формы
 
-    this.telegramService.MainButton.setText('Отправить сообщение в PROКРАСОТУ');
-    // this.telegramService.MainButton.show();
-    // this.telegramService.MainButton.disable();
-    this.telegramService.MainButton.hide();
-    this.telegramService.MainButton.onClick(this.sendData);
-
-    if (this.telegramService.IsTelegramWebAppOpened){      
-      this.telegramService.BackButton.show();
-      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
-    }
-
     this.onHandleUpdate();
 
   }
@@ -103,11 +100,13 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   //проверка валидности и скрытие/отображение главной кнопки
   private isFormValid() {
     if (this.form.valid) {
-      this.telegramService.MainButton.show();
-      this.isMainButtonHidden = false;
+      // this.telegramService.MainButton.show();
+      // this.isMainButtonHidden = false;
+      this.telegramService.MainButton.enable();
     } else {
-      this.telegramService.MainButton.hide();
-      this.isMainButtonHidden = true;
+      // this.telegramService.MainButton.hide();
+      // this.isMainButtonHidden = true;
+      this.telegramService.MainButton.disable();
     }
   }
 
@@ -156,11 +155,12 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.telegramService.MainButton.offClick(this.sendData); //при передаче параметра this теряется, поэтому забандить его в конструкторе
-
     if (this.telegramService.IsTelegramWebAppOpened){      
       this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
+
+      this.telegramService.MainButton.hide();
+      this.telegramService.MainButton.disable();
     }
     
     this.isMainButtonHidden = true;
@@ -174,8 +174,15 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    //this.location.back();
+    if (
+      this.telegramService.IsTelegramWebAppOpened && !this.navigation.isHistoryAvailable)
+    {
+      console.log('Закрываем Tg');
+      this.telegramService.tg.close();
+    }
+
     this.navigation.back();
+    
   }
 
   onClientPhoneClear() {

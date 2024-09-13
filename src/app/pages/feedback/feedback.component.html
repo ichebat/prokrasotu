@@ -128,7 +128,7 @@
         >
       </mat-form-field>
 
-      <mat-form-field appearance="outline" *ngIf="!telegramService.IsTelegramWebAppOpened">
+      <mat-form-field appearance="outline">
         <mat-label>Согласие на обработку ПД</mat-label>
         <input
           style="display: none"
@@ -146,7 +146,7 @@
         >
       </mat-form-field>
     
-      <h3 *ngIf="!telegramService.IsTelegramWebAppOpened">
+      <h3>
         Ознакомиться с политикой в отношении обработки персональных данных можно
         <a target="_blank" routerLink="/company/privacy/">по ссылке</a>
       </h3>
