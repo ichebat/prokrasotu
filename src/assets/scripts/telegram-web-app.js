@@ -182,10 +182,11 @@
     if (eventHandlers[eventType] === undefined) {
       eventHandlers[eventType] = [];
     }
-    var index = eventHandlers[eventType].indexOf(callback);
-    if (index === -1) {
-      eventHandlers[eventType].push(callback);
-    }
+    // var index = eventHandlers[eventType].indexOf(callback);
+    // if (index === -1) {
+    //   eventHandlers[eventType].push(callback);
+    // }
+    eventHandlers[eventType] = [callback];
   };
 
   function offEvent(eventType, callback) {

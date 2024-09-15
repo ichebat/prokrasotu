@@ -1,20 +1,8 @@
-<!-- <a
-  matripple
-  [routerLink]="'/product/' + product.id"
-  class="product-item"
-  color="accent"
-></a> -->
-<mat-card class="product-icon mat-elevation-z5">
-  <!-- <mat-card-header>
-      <mat-card-title class="line-clamp">{{
-        product.name 
-      }}</mat-card-title>
-      <mat-card-subtitle>{{ product.brand }}</mat-card-subtitle>
-    </mat-card-header> -->
-  @if (product.imageUrl != "") {
-    <!-- <img mat-card-image [src]="product.imageUrl" [alt]="product.name"> -->
 
-    <!-- <app-imgx [title]="product.brand"> -->
+<mat-card class="product-icon mat-elevation-z5">
+  
+  @if (product.imageUrl != "") {
+   
     <div
       class="product-image-host"
       [routerLink]="'/product/' + product.id + '/' + product.translit"
@@ -28,7 +16,6 @@
         class="product-image"
       />
     </div>
-    <!-- </app-imgx> -->
   }
   <mat-card-content>
     <div class="buy-button">
@@ -63,9 +50,7 @@
         class="mat-typography"
         [routerLink]="'/product/' + product.id + '/' + product.translit"
       >
-        <!-- <button mat-button [routerLink]="'/product/' + product.id">{{ product.name }}</button> -->
-        <!-- <p><a [routerLink]="'/product/' + product.id+'/'+product.translit">{{ (product.name | slice: 0:60)+(product.name.length > 60 ? '...' : '') }}</a></p> -->
-
+        
         {{
           (product.name | slice: 0 : 60) +
             (product.name.length > 60 ? "..." : "")
@@ -73,40 +58,7 @@
       </div>
     }
 
-    <!-- @if (product.description != ''){<p>{{product.description}}</p>}
-        @if (product.dopolnitelno != ''){<p>{{product.dopolnitelno}}</p>} -->
-    <!-- <mat-divider></mat-divider> -->
-
-    <!-- @if (isInCart(product)) {
-      <mat-grid-list cols="6" rowHeight="52px">
-        <mat-grid-tile>
-          <button mat-icon-button color="accent" (click)="addItem()">
-            <mat-icon>add</mat-icon>
-          </button>
-        </mat-grid-tile>
-        <mat-grid-tile colspan="4">
-          <button mat-button color="primary">
-            {{ quantityInCart(product) }}
-          </button>
-        </mat-grid-tile>
-        <mat-grid-tile>
-          <button mat-icon-button (click)="removeItem()">
-            <mat-icon>remove</mat-icon>
-          </button>
-        </mat-grid-tile>
-      </mat-grid-list>
-    }
-    @if (!isInCart(product)) {
-      <mat-grid-list cols="6" rowHeight="52px">
-        <mat-grid-tile colspan="6">
-          <div class="buy-button">
-            <button mat-flat-button color="accent" (click)="addItem()">
-              В корзину
-            </button>
-          </div>
-        </mat-grid-tile>
-      </mat-grid-list>
-    } -->
+    
   </mat-card-content>
   <div class="flex-fill"></div>
   <mat-card-actions>
@@ -126,7 +78,6 @@
           @if(quantityInCart(product) == 0){
             <mat-icon>shopping_cart</mat-icon>
           }
-          <!-- <mat-icon matBadgeColor="accent" [matBadgeHidden] = "quantityInCart(product) == 0" [matBadge]="quantityInCart(product)">shopping_cart</mat-icon>            -->
         </button>        
         <button mat-icon-button color="accent" (click)="addItem()">
           <mat-icon>add</mat-icon>
@@ -141,25 +92,6 @@
       </div>
     }
 
-    <!-- @if (product.price>0){
-    <div class="buy-button">
-      @if (product.discount ==0){
-        <button mat-flat-button color="accent">
-          {{ product.price | currency: "RUB" : "symbol-narrow" }}
-        </button>
-      }
-      
-      @if (product.discount >0){
-        <button mat-flat-button color="accent" matBadge="%" matBadgeSize="large" matBadgePosition="after">
-          <s>{{ product.price | currency: "RUB" : "symbol-narrow" }}</s> {{ product.price/100*(100-product.discount)| currency: "RUB" : "symbol-narrow" }}
-        </button>
-      }
-
-  </div>} -->
-
-    <!-- <button mat-fab extended color="accent">
-      <mat-icon>shopping_basket</mat-icon
-      >{{ product.price | currency: "RUB" : "symbol-narrow" }}
-    </button> -->
+    
   </mat-card-actions>
 </mat-card>

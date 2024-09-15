@@ -36,16 +36,16 @@ import { ConfirmDialogDemoComponent } from './components/confirm-dialog-demo/con
 import { NgxMaskDirective, NgxMaskPipe, provideNgxMask } from 'ngx-mask';
 import { PrivacyComponent } from './pages/company/privacy/privacy.component';
 import { ProductSearchComponent } from './components/product-search/product-search.component';
-import { ContactsComponent } from './components/contacts/contacts.component';
+import { ContactsListComponent } from './components/contacts-list/contacts-list.component';
 import { ShareButtonDirective } from 'ngx-sharebuttons';
 import { ShareButtonsComponent } from './components/share-buttons/share-buttons.component';
-import { ContactsMarketComponent } from './pages/contacts-market/contacts-market.component';
+import { ContactsComponent } from './pages/company/contacts/contacts.component';
 import { QRCodeModule } from 'angularx-qrcode';
 
 import { BrandLineListComponent } from './components/brand-line-list/brand-line-list.component';
-import { BrandLineIconComponent } from './components/brand-line-icon/brand-line-icon.component';
 import { BrandSeriesListComponent } from './components/brand-series-list/brand-series-list.component';
-import { BrandSeriesIconComponent } from './components/brand-series-icon/brand-series-icon.component';
+import { AboutComponent } from './pages/company/about/about.component';
+import { RequisitesComponent } from './pages/company/requisites/requisites.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -74,13 +74,13 @@ import { BrandSeriesIconComponent } from './components/brand-series-icon/brand-s
         ConfirmDialogDemoComponent,
         PrivacyComponent,
         ProductSearchComponent,
-        ContactsComponent,
+        ContactsListComponent,
         ShareButtonsComponent,
-        ContactsMarketComponent,
-        BrandLineIconComponent,
+        ContactsComponent,
         BrandSeriesListComponent,
-        BrandSeriesIconComponent,
         BrandLineListComponent,
+        AboutComponent,
+        RequisitesComponent,
     ],
     bootstrap: [AppComponent], imports: [MaterialModule,
         BrowserModule,

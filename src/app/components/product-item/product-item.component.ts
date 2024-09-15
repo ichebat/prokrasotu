@@ -79,6 +79,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   isMainButtonHidden = true; //иногда, когда открывается диалог, необходимо скрыть MainButton телеграма, чтобы он не закрывал экран, а после диалога вернуть как было
   MainButtonText = ''; //в зависимости от того какой режим разные надписи на главной кнопке телеграма
 
+  mainButtonTextValid = "Отправить в PROКРАСОТУ";
+  mainButtonTextProgress = "Отправка...";
+  mainButtonTextInvalid = "Некорректно заполнены поля";
+
   //здесь храним видимость и доступность к редактированию контролов реактивной формы
   FormControlsFlags: any = [
     { controlName: 'id', visible: true, enabled: true },
@@ -116,36 +120,36 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   ) {
     this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
 
-    //подписываемся на изменения формы, для скрытия/отображения MainButton
-    this.subscr_form = this.form.statusChanges
-      .pipe(distinctUntilChanged())
-      .subscribe(() => {
-        console.log(this.form.status);
-        this.isFormValid();
-      });
+    // //подписываемся на изменения формы, для скрытия/отображения MainButton
+    // this.subscr_form = this.form.statusChanges
+    //   .pipe(distinctUntilChanged())
+    //   .subscribe(() => {
+    //     console.log(this.form.status);
+    //     this.isFormValid();
+    //   });
 
     this.sendData = this.sendData.bind(this); //функция для главной MainButton кнопки телеграм
 
-    //ниже привязка действия к MainButton телеграм
-    const sendDataToTelegram = () => {
-      if (
-        this.getVisible('button_submit') &&
-        this.getEnabled('button_submit')
-      ) {
-        this.sendData();
-      }
-    };
+    // //ниже привязка действия к MainButton телеграм
+    // const sendDataToTelegram = () => {
+    //   if (
+    //     this.getVisible('button_submit') &&
+    //     this.getEnabled('button_submit')
+    //   ) {
+    //     this.sendData();
+    //   }
+    // };
 
-    //привязка идет эффектом
-    effect(() => {
-      this.telegramService.tg.onEvent('mainButtonClicked', sendDataToTelegram);
-      return () => {
-        this.telegramService.tg.offEvent(
-          'mainButtonClicked',
-          sendDataToTelegram,
-        );
-      };
-    });
+    // //привязка идет эффектом
+    // effect(() => {
+    //   this.telegramService.tg.onEvent('mainButtonClicked', sendDataToTelegram);
+    //   return () => {
+    //     this.telegramService.tg.offEvent(
+    //       'mainButtonClicked',
+    //       sendDataToTelegram,
+    //     );
+    //   };
+    // });
 
     //строим реактивную форму с валидацией
     this.form = fb.group({
@@ -319,18 +323,26 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     if (this.telegramService.IsTelegramWebAppOpened){      
       this.telegramService.BackButton.show();
       this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+      if (this.telegramService.isAdmin)
+      {
+        this.telegramService.MainButton.show();
+        this.telegramService.MainButton.enable();
+        this.telegramService.MainButton.onClick(this.sendData);
+        this.telegramService.MainButton.setText(this.mainButtonTextValid);
+      }
+      else this.telegramService.MainButton.hide();
     }
 
     if (!this.telegramService.isAdmin) return;
     this.setInitialValue();
 
-    //подписываемся на изменения формы, для скрытия/отображения MainButton
-    this.subscr_form = this.form.statusChanges
-      .pipe(distinctUntilChanged())
-      .subscribe(() => {
-        console.log(this.form.status);
-        this.isFormValid();
-      });
+    // //подписываемся на изменения формы, для скрытия/отображения MainButton
+    // this.subscr_form = this.form.statusChanges
+    //   .pipe(distinctUntilChanged())
+    //   .subscribe(() => {
+    //     console.log(this.form.status);
+    //     this.isFormValid();
+    //   });
 
     this.subscr_id = this.form.get('id')!.valueChanges.subscribe((val) => {
       this.product.id = val;
@@ -416,9 +428,12 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
 
-      this.telegramService.MainButton.hide();
-      this.telegramService.MainButton.disable();
-      this.isMainButtonHidden = true;
+      if (this.telegramService.isAdmin)
+        {
+          this.telegramService.MainButton.hide();
+          this.telegramService.MainButton.offClick(this.sendData);
+          this.isMainButtonHidden = true;          
+        }
     }
 
     this.subscr_form.unsubscribe();
@@ -442,18 +457,20 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     
   }
 
-  //проверка валидности и скрытие/отображение главной кнопки
-  private isFormValid() {
-    if (this.form.valid) {
-      // this.telegramService.MainButton.show();
-      // this.isMainButtonHidden = false;
-      this.telegramService.MainButton.enable();
-    } else {
-      // this.telegramService.MainButton.hide();
-      // this.isMainButtonHidden = true;
-      this.telegramService.MainButton.disable();
-    }
-  }
+  // //проверка валидности и скрытие/отображение главной кнопки
+  // private isFormValid() {
+  //   if (this.form.valid) {
+  //     // this.telegramService.MainButton.show();
+  //     // this.isMainButtonHidden = false;
+  //     this.telegramService.MainButton.enable();
+  //     this.telegramService.MainButton.setText(this.mainButtonTextValid);
+  //   } else {
+  //     // this.telegramService.MainButton.hide();
+  //     // this.isMainButtonHidden = true;
+  //     this.telegramService.MainButton.disable();
+  //     this.telegramService.MainButton.setText(this.mainButtonTextInvalid);
+  //   }
+  // }
 
   isInCart(product: IProduct) {
     return (
@@ -478,6 +495,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       checked: true,
     };
     if (this.cartService.checkMaxCartItemPosition(newItem)) {
+      this.zone.run(() => {
       const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
         ConfirmDialogDemoComponent,
         {
@@ -487,15 +505,17 @@ export class ProductItemComponent implements OnInit, OnDestroy {
               'Нельзя добавить более ' +
               environment.maxCartItemPosition.toString() +
               ' шт. одного товара в корзину.',
+            showCancelButton: false,
           },
         },
       );
       dialogRef.afterClosed().subscribe((result) => {
-        if (result == true) {
-        } else return;
+        return;
       });
+    });
     }
     if (this.cartService.checkMaxCartItems(newItem)) {
+      this.zone.run(() => {
       const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
         ConfirmDialogDemoComponent,
         {
@@ -505,13 +525,14 @@ export class ProductItemComponent implements OnInit, OnDestroy {
               'Нельзя добавить более ' +
               environment.maxCartItems.toString() +
               ' разных товаров в корзину.',
+            showCancelButton: false,
           },
         },
       );
       dialogRef.afterClosed().subscribe((result) => {
-        if (result == true) {
-        } else return;
+        return;
       });
+    });
     } else this.cartService.addItem(newItem);
   }
 
@@ -538,6 +559,17 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   sendData() {
     if (!this.telegramService.isAdmin) return;
 
+    if(!this.form.valid){
+      this.telegramService.MainButton.setText(this.mainButtonTextInvalid);
+      this.telegramService.MainButton.disable();
+      setTimeout(() => {
+        this.telegramService.MainButton.setText(this.mainButtonTextValid);
+        this.telegramService.MainButton.enable();
+        return;
+      }, 5000);
+      return;    
+    }
+
     //добавление нового товара делается кнопкой submit
 
     if (
@@ -548,7 +580,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.telegramService.isAdmin
     ) {
       this.disableButton = true;
-      this.telegramService.MainButton.setText('Отправка...');
+      this.telegramService.MainButton.setText(this.mainButtonTextProgress);
       this.telegramService.MainButton.disable();
 
       this.productService
@@ -600,7 +632,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.telegramService.isAdmin
     ) {
       this.disableButton = true;
-      this.telegramService.MainButton.setText('Отправка...');
+      this.telegramService.MainButton.setText(this.mainButtonTextProgress);
       this.telegramService.MainButton.disable();
 
       this.productService
@@ -701,11 +733,12 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.disableButton = false;
     this.telegramService.MainButton.enable();
     if (this.getVisible('button_submit') && this.getEnabled('button_submit')) {
-      if (this.product.id > 0) {
-        this.telegramService.MainButton.setText('Обновить данные');
-      } else {
-        this.telegramService.MainButton.setText('Отправить в PROКРАСОТУ');
-      }
+      this.telegramService.MainButton.setText(this.mainButtonTextValid);
+      // if (this.product.id > 0) {
+      //   this.telegramService.MainButton.setText(this.mainButtonTextValid);
+      // } else {
+      //   this.telegramService.MainButton.setText(this.mainButtonTextValid);
+      // }
     }
   }
 

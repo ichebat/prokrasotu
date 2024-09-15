@@ -89,13 +89,7 @@
           @if(quantityInCart(product) == 0){
             <mat-icon>shopping_cart</mat-icon>
           }
-<!--           
-            <mat-icon
-              matBadgeColor="accent"
-              [matBadgeHidden]="quantityInCart(product) == 0"
-              [matBadge]="quantityInCart(product)"
-              >shopping_cart</mat-icon
-            > -->
+
           </button>
           <button mat-icon-button color="accent" (click)="addItem()">
             <mat-icon>add</mat-icon>

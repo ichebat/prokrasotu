@@ -11,7 +11,7 @@
   </h3>
 
   <mat-checkbox checked="true" (change)="changeAllItems($event.checked)">Выделить все</mat-checkbox>
-  @for (cartItem of cartService.$cart()!.items; track cartItem) {
+  @for (cartItem of cartService.$cart()!.items; track $index) {
     <app-cart-item [cartItem]="cartItem" />
   }
 

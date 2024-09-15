@@ -8,27 +8,6 @@
   productsService.$productBrandLine()?.name ||
   productsService.$productBrandSeries()?.name
 ) {
-  <!-- <mat-nav-list class="list-horizontal">
-    <a mat-list-item routerLink="/">Главная</a>
-    @if (productsService.$productCategory()?.name) {
-      <a
-        mat-list-item
-        [routerLink]="'/shop/' + productsService.$productCategory()?.translit"
-        >{{ productsService.$productCategory()?.name }}</a
-      >
-    }
-  </mat-nav-list> -->
-
-  <!-- <ul>
-        <li><a mat-button routerLink="/">Главная</a></li>
-    </ul>
-  
-  @if (productsService.$productCategory()?.name) {
-    <a mat-button [routerLink]="'/shop/'+productsService.$productCategory()?.translit">{{productsService.$productCategory()?.name}}</a>
-  } -->
-
-
-
     @if (productsService.$productCategory()?.name) {
       <mat-chip highlighted color="primary" routerLink="/shop">{{
         productsService.$productCategory()?.name | uppercase

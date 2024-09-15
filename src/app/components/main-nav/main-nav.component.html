@@ -125,15 +125,16 @@
     <mat-nav-list>
       <a mat-list-item routerLink="/shop" (click)="toggleMenu()">
         <span class="entry">
-          <mat-icon>shopping_basket</mat-icon>
+          <mat-icon>home</mat-icon>
           @if (!isCollapsed) {
-            <span>Каталог товаров</span>
+            <span>На главную</span>
           }
         </span>
       </a>
     </mat-nav-list>
-    @if (!isCollapsed) {
-      <mat-accordion>
+    <!-- @if (!isCollapsed) { -->
+      <mat-accordion>      
+
         @for (
           category of productsService.$productCategoriesMenuTree();
           track $index
@@ -171,8 +172,52 @@
             </mat-nav-list>
           </mat-expansion-panel>
         }
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              О КОМПАНИИ
+            </mat-panel-title>          
+          </mat-expansion-panel-header>
+          <mat-nav-list>            
+            <a mat-list-item routerLink="/company/about" (click)="toggleMenu()">
+              <span class="entry">
+                <mat-icon>face</mat-icon>
+                @if (!isCollapsed) {
+                  <span>О нас</span>
+                }
+              </span>
+            </a>
+            <a mat-list-item routerLink="/company/requisites" (click)="toggleMenu()">
+              <span class="entry">
+                <mat-icon>assignment</mat-icon>
+                @if (!isCollapsed) {
+                  <span>Наши реквизиты</span>
+                }
+              </span>
+            </a>
+            <a mat-list-item routerLink="/company/contacts" (click)="toggleMenu()">
+              <span class="entry">
+                <mat-icon>contacts</mat-icon>
+                @if (!isCollapsed) {
+                  <span>Контакты</span>
+                }
+              </span>
+            </a>
+            <a mat-list-item routerLink="/company/privacy" (click)="toggleMenu()">
+              <span class="entry">
+                <mat-icon>security</mat-icon>
+                @if (!isCollapsed) {
+                  <span>Политика конф.</span>
+                }
+              </span>
+            </a>
+          </mat-nav-list>
+  
+        </mat-expansion-panel>
       </mat-accordion>
-    }
+    <!-- } -->
+
+    
 
     @if (
       cartService.$cart()!.totalAmount > 0 &&
@@ -195,11 +240,13 @@
         </a>
       </mat-nav-list>
     }
+
+    <mat-nav-list>
     @if (
       cartService.$cart()!.totalAmount == 0 ||
       cartService.$cart()!.totalCount == 0
     ) {
-      <mat-nav-list>
+      
         <a mat-list-item (click)="toggleMenu()" routerLink="/cart">
           <span class="entry">
             <mat-icon>shopping_cart</mat-icon>
@@ -208,16 +255,7 @@
             }
           </span>
         </a>
-      </mat-nav-list>
     }
-    <mat-nav-list>
-      <a mat-list-item (click)="toggleMenu()" routerLink="/contacts">
-        <span class="entry">
-          <mat-icon>contacts</mat-icon>
-          <span>Контактная информация</span>
-        </span>
-      </a>
-
       <a mat-list-item (click)="toggleMenu()" routerLink="/orders">
         <span class="entry">
           <mat-icon>history</mat-icon>

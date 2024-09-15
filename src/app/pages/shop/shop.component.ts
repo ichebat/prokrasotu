@@ -8,13 +8,14 @@ import {
 } from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
 import { IProduct, ProductsService } from '../../services/products.service';
-import { Subscription } from 'rxjs';
+import { catchError, map, Observable, of, Subscription } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
 import { DeliveryService } from '../../services/delivery.service';
 import { CartService } from '../../services/cart.service';
+import { ImageUploadService } from 'node-upload-images';
 
 @Component({
   selector: 'app-shop',
@@ -24,6 +25,7 @@ export class ShopComponent implements OnInit, OnDestroy {
   telegram = inject(TelegramService);
   navigation = inject(NavigationService);
 
+  
   //@Input('category') categoryFromRoute = '';
   @Input() set category(category: string) {
     this.productsService.updateSelectedCategoryTranslit(category);
@@ -156,6 +158,24 @@ export class ShopComponent implements OnInit, OnDestroy {
     // });
 
     this.goBack = this.goBack.bind(this);
+  }
+
+  selectedFile: any = null;
+
+  onFileSelected(event: any): void {
+    this.selectedFile = event.target.files[0] ?? null;
+  }
+
+  async imageUploadToPostimages() {
+    const service = new ImageUploadService('postimages.org');
+    try {
+      var fs = require('file-system');
+      const imageData = fs.readFileSync(this.selectedFile);
+      let { directLink } = await service.uploadFromBinary(imageData, 'test.png');
+      console.log(directLink);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   ngOnDestroy(): void {

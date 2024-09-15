@@ -5,9 +5,7 @@
       [src]="cartItem.product.imageUrl"
       [alt]="cartItem.product.name"
     />
-    <!-- <div class="flex-fill"></div> -->
-
-    <!-- <mat-card-title>{{ cartItem.product.name }}</mat-card-title> -->
+   
     <mat-card-subtitle>{{ cartItem.product.name }}</mat-card-subtitle>
     <mat-card-subtitle>
       <span>{{ cartItem.quantity }} шт. </span>
@@ -76,15 +74,7 @@
       @if(quantityInCart(cartItem.product) == 0){
         <mat-icon>shopping_cart</mat-icon>
       }
-
-      <!-- <button mat-icon-button routerLink="/cart">
-        <mat-icon
-          matBadgeColor="accent"
-          [matBadgeHidden]="quantityInCart(cartItem.product) == 0"
-          [matBadge]="quantityInCart(cartItem.product)"
-          >shopping_cart</mat-icon
-        >
-      </button> -->
+      
       <button mat-icon-button color="accent" (click)="addItem()">
         <mat-icon>add</mat-icon>
       </button>

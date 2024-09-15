@@ -6,6 +6,7 @@ export interface DialogData {
   description: string;
   value: string;
   showinput: boolean;
+  showCancelButton: boolean;
   inputvalues: string[];
   inputdescriptions: string[];
 }

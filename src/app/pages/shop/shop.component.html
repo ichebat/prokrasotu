@@ -1,12 +1,4 @@
-<!-- <p>{{telegram.UserName}}</p> -->
-<!-- <button (click)="productsService.fetchProducts()">Get Products</button> -->
-<!-- <p>{{category}}</p>
-<p>{{typeFromRoute}}</p>
-<p>{{brandFromRoute}}</p>
-<hr>
 
-<p>{{typeSignal()}}</p>
-<p>{{brandSignal()}}</p> -->
 
 <app-bread-crumb/>
 
@@ -70,18 +62,6 @@
   />}
 }
 
-<!-- @if(!productsService.$productType()){
-  <app-type-list
-    [types]="productsService.$productTypes()!"
-  />
-}
-
-@if(!productsService.$productBrand()!){
-  <app-brand-list
-    [brands]="productsService.$productBrands()!"
-  />
-}
- -->
  <mat-form-field appearance="outline">
    <mat-label>Введите строку для поиска</mat-label>
    <input matNativeControl
@@ -98,41 +78,15 @@
 </mat-form-field>
 
  @if ((productsService.$productCategory() && productsService.$productType())||productsService.$searchFilter()){
-
-
-  <!-- <input
-    type="text"
-    #filter
-    (input)="productsService.updateFilter(filter.value)"
-    [value]="productsService.$searchFilter()"
-  /> -->
-
   <app-product-list 
     titleList=""
     subtitleList=""
     [products]="productsService.$products()!"
   />
-
-  
-
-  <!-- <app-product-list 
-    title="Уход" 
-    subtitle="Описание категории ухода" 
-    [products]="productsService.byCategory['уход']"/>
-
-    <app-product-list 
-    title="Окрашивание" 
-    subtitle="Описание категории окрашивания" 
-    [products]="productsService.byCategory['окрашивание']"/>
-
-    <app-product-list 
-    title="Аксессуары" 
-    subtitle="Описание категории аксессуары" 
-    [products]="productsService.byCategory['аксессуары']"/> -->
-
-
   }
 
-  <!-- <button mat-button (click)="btnClick()" type="button">CLICK</button> -->
-  <!-- <p>chat_id is: {{telegram.Id}}</p>
-  <p>Tg is: {{tgString}}</p> -->
+  <button mat-button (click)="imageUploadToPostimages()" type="button">CHEERIO</button>
+
+  <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
+  <input hidden (change)="onFileSelected($event)" #fileInput type="file">
+  <span class="file-name">{{selectedFile?.name}}</span>

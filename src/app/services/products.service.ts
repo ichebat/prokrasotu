@@ -680,7 +680,7 @@ export class ProductsService {
               ? row.c[ProductColumns.colName].v
               : ''),
           });
-        });
+        }).filter(p=>p.price >0 || this.telegram.isAdmin);
       }),
       catchError(this.handleError<IProduct[]>('getProducts', [])),
     );

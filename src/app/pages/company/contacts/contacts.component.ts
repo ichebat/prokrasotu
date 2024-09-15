@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NavigationService } from '../../services/navigation.service';
-import { TelegramService } from '../../services/telegram.service';
-import { environment } from '../../../environments/environment';
+import { NavigationService } from '../../../services/navigation.service';
+import { TelegramService } from '../../../services/telegram.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
-  selector: 'app-contacts-market',
-  templateUrl: './contacts-market.component.html',
-  styleUrl: './contacts-market.component.scss'
+  selector: 'app-contacts',
+  templateUrl: './contacts.component.html',
+  styleUrl: './contacts.component.scss'
 })
-export class ContactsMarketComponent  implements OnInit, OnDestroy{
+export class ContactsComponent  implements OnInit, OnDestroy{
 
   constructor(
     public telegramService: TelegramService,

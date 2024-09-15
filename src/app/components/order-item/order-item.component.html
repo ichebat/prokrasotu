@@ -7,37 +7,7 @@
     <mat-card-header>
       <mat-card-title>Информация о заказе №{{ order.id }}</mat-card-title>
       <mat-card-subtitle>{{ orderStatus() }} </mat-card-subtitle>
-      <!-- @if (order.delivery) {
-        <mat-card-subtitle
-          >Выбрана доставка: {{ order.delivery.name }}
-        </mat-card-subtitle>
-      }
-      @if (order.clientAddress) {
-        <mat-card-subtitle
-          >Адрес доставки: {{ order.clientAddress }}
-        </mat-card-subtitle>
-      }
-      @if (order.clientName) {
-        <mat-card-subtitle
-          >Имя покупателя: {{ order.clientName }}
-        </mat-card-subtitle>
-      }
-      @if (order.clientPhone) {
-        <mat-card-subtitle
-          >тел.покупателя:
-          <a mat-button href="{{ 'tel:+7' + order.clientPhone }}" target="_blank"
-            >+7{{ order.clientPhone }}</a
-          ></mat-card-subtitle
-        >
-      }
-      @if (order.clientTgName) {
-        <mat-card-subtitle
-          >связаться через Telegram:
-          <a mat-button href="{{ 'https://t.me/' + order.clientTgName }}" target="_blank">{{
-            "@" + order.clientTgName
-          }}</a></mat-card-subtitle
-        >
-      } -->
+      
     </mat-card-header>
     <mat-card-content>
       <mat-nav-list>
@@ -98,43 +68,7 @@
         </a>
       </mat-nav-list>
 
-      <!-- <div class="buy-button-x3">
-          @if (getVisible('button_cancel')) {
-            <button
-              mat-button
-              color="warn"
-              type="button"
-              [disabled]="!form.valid || disableButton || !getEnabled('button_cancel')"
-              (click)="cancelOrder()"
-            >
-              <mat-icon>cancel</mat-icon> Отменить
-            </button>
-          }
-
-          @if (getVisible('button_accept')) {
-            <button
-              mat-flat-button
-              color="primary"
-              type="button"
-              [disabled]="!form.valid || disableButton || !getEnabled('button_accept')"
-              (click)="acceptOrder()"
-            >
-              <mat-icon>credit_card</mat-icon> Готов к оплате
-            </button>
-          }
-
-          @if (getVisible('button_complete')) {
-            <button
-              mat-button
-              color="primary"
-              type="button"
-              [disabled]="!form.valid || disableButton || !getEnabled('button_complete')"
-              (click)="completeOrder()"
-            >
-              <mat-icon>check_circle</mat-icon> Завершить
-            </button>
-          }
-        </div> -->
+      
     </mat-card-content>
   </mat-card>
 
@@ -147,10 +81,7 @@
   matSort
   class="mat-elevation-z8 table table-bordered table-striped table-hover mb"
 >
-  <!-- <ng-container matColumnDef="score">
-      <th mat-header-cell *matHeaderCellDef> id </th>
-      <td mat-cell *matCellDef="let element"> {{element?.product?.id}} </td>
-    </ng-container> -->
+  
   <ng-container matColumnDef="imageUrl">
     <th
       mat-header-cell
@@ -168,12 +99,7 @@
         [title]="element.product.name"
         class="order-item-image"
       />
-      <!-- <a
-        [routerLink]="
-          '/product/' + element.product.id + '/' + element.product.translit
-        "
-      >
-      </a> -->
+      
     </td>
     <td mat-footer-cell *matFooterCellDef><strong>Итого: </strong></td>
   </ng-container>
@@ -407,11 +333,7 @@
       @for (option of ClientAddressOptionsJSON; track $index) {
         <mat-option [value]="option.value">{{ option.value }}</mat-option>
       }
-      <!-- <mat-option
-      *ngFor="let option of ClientAddressOptionsJSON; let i = index"
-      [value]="option.value"
-      >{{ option.value }}</mat-option
-    > -->
+     
     </mat-autocomplete>
   }
 
@@ -591,14 +513,7 @@
     >
   </mat-form-field>
 
-  <!-- <button
-    mat-raised-button
-    color="accent"
-    [disabled]="!form.valid || disableButton"
-    type="submit"
-  >
-    Submit
-  </button> -->
+ 
 
   <mat-form-field appearance="outline" *ngIf="getVisible('correctionReason')">
     <mat-label>Причина корректировки заказа</mat-label>
@@ -732,29 +647,6 @@
     <a target="_blank" routerLink="/company/privacy/">по ссылке</a>
   </h3>
 
-  <!-- <mat-nav-list>
-    <a *ngIf="order.id > 0 && !getVisible('button_accept') && telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled" mat-list-item [routerLink]="'/order/' + order!.id+'/accept'">
-      <mat-icon matListItemIcon>attach_money</mat-icon>
-      <span matListItemTitle>Готовы подтвердить заказ?</span>
-      <span matListItemLine>перейдите по ссылке</span>
-    </a>          
-    <a *ngIf="order.id > 0 && !getVisible('button_submit') && telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled" mat-list-item [routerLink]="'/order/' + order!.id+'/edit'">
-      <mat-icon matListItemIcon>edit</mat-icon>
-      <span matListItemTitle>Изменить данные в заказе?</span>
-      <span matListItemLine>перейдите по ссылке</span>
-    </a>
-    <a *ngIf="order.id > 0 && !getVisible('button_cancel') && !order.isCompleted  && !order.isCancelled" mat-list-item [routerLink]="'/order/' + order!.id+'/cancel'">
-      <mat-icon matListItemIcon>remove_shopping_cart</mat-icon>
-      <span matListItemTitle>Отменить заказ?</span>
-      <span matListItemLine>перейдите по ссылке</span>
-    </a>
-    <a *ngIf="order.id > 0 && !getVisible('button_complete') && telegramService.isAdmin && order.isAccepted && !order.isCompleted  && !order.isCancelled" mat-list-item [routerLink]="'/order/' + order!.id+'/complete'">
-      <mat-icon matListItemIcon>done</mat-icon>
-      <span matListItemTitle>Завершить заказ?</span>
-      <span matListItemLine>перейдите по ссылке</span>
-    </a>
-  </mat-nav-list> -->
-
   @if (totalAmountOrder > 0) {
     <h3>
       Итого заказ на {{ totalAmountOrder | currency: "RUB" : "symbol-narrow" }}
@@ -767,8 +659,7 @@
 
   @if (!telegramService.IsTelegramWebAppOpened) {
   <div class="buy-button pb">
-    <!-- @if (order.id == 0 || telegramService.isAdmin) { -->
-
+   
     @if (getVisible("button_submit")) {
       <button
         mat-flat-button
@@ -787,7 +678,6 @@
       </button>
     }
 
-    <!-- @if (order.id > 0 && !telegramService.isAdmin) { -->
     @if (getVisible("button_close")) {
       <button
         mat-flat-button

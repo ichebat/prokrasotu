@@ -8,13 +8,19 @@ import { CartComponent } from './pages/cart/cart.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { OrderComponent } from './pages/order/order.component';
 import { PrivacyComponent } from './pages/company/privacy/privacy.component';
-import { ContactsMarketComponent } from './pages/contacts-market/contacts-market.component';
+import { ContactsComponent } from './pages/company/contacts/contacts.component';
+import { AboutComponent } from './pages/company/about/about.component';
+import { RequisitesComponent } from './pages/company/requisites/requisites.component';
 
 const routes: Routes = [
   { path: '', component: ShopComponent },
   { path: 'feedback', component: FeedbackComponent },
   { path: 'cart', component: CartComponent },
-  { path: 'contacts', component: ContactsMarketComponent },
+  
+  { path: 'company/contacts', component: ContactsComponent },
+  { path: 'company/about', component: AboutComponent },
+  { path: 'company/privacy', component: PrivacyComponent },
+  { path: 'company/requisites', component: RequisitesComponent },
 
   { path: 'shop', component: ShopComponent },
   { path: 'shop/:category', component: ShopComponent },
@@ -28,8 +34,6 @@ const routes: Routes = [
   { path: 'order', component: OrderComponent },
   { path: 'order/:id', component: OrderComponent },
   { path: 'order/:id/:action', component: OrderComponent },
-
-  { path: 'company/privacy', component: PrivacyComponent },
 
   //Wild Card Route for 404 request
   { path: '**', pathMatch: 'full', component: PagenotfoundComponent },

@@ -1,41 +1,8 @@
 <h2 class="mb">{{titleList | uppercase }}</h2> 
 <h4 class="mb">{{subtitleList | uppercase }}</h4>
-<!-- <div class="responsive-grid">
-  @for (category of categories; track category) {
-    <app-category-icon [category]="category" />
-  }
-</div> -->
+
 <mat-chip-listbox>
-  @for (category of categories; track category) {
+  @for (category of categories; track $index) {
     <mat-chip highlighted color="primary" [routerLink]="'/shop/' + category.translit">{{ category.name | uppercase }}</mat-chip>
   }
 </mat-chip-listbox>
-
-
-<!-- <h3>Выберите категорию товара</h3>
-    <mat-chip-listbox>
-        @for (category of categories; track category) {
-            <mat-chip highlighted color="primary" [routerLink]="'/shop/' + category.translit">{{ category.name | uppercase }}</mat-chip>
-        }
-    </mat-chip-listbox> -->
-
-    <!-- <mat-chip-listbox>
-      <mat-chip highlighted color="primary" routerLink="/shop/">Каталог</mat-chip>
-  
-      @if (productsService.$productCategory()?.name) {
-        <mat-chip highlighted color="accent" [routerLink]="'/shop/'+productsService.$productCategory()?.translit">{{
-          productsService.$productCategory()?.name
-        }}</mat-chip>
-      }
-      @if (productsService.$productType()?.name) {
-        <mat-chip highlighted color="warn" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit">{{
-          productsService.$productType()?.name
-        }}</mat-chip>
-      }
-      @if (productsService.$productBrand()?.name) {
-        <mat-chip highlighted color="primary" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit">{{
-          productsService.$productBrand()?.name
-        }}</mat-chip>
-      }
-    </mat-chip-listbox> -->
-
