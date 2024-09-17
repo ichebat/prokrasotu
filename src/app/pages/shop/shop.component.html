@@ -85,8 +85,6 @@
   />
   }
 
-  <button mat-button (click)="imageUploadToPostimages()" type="button">CHEERIO</button>
-
   <button type="button" mat-raised-button (click)="fileInput.click()">Choose File</button>
   <input hidden (change)="onFileSelected($event)" #fileInput type="file">
   <span class="file-name">{{selectedFile?.name}}</span>

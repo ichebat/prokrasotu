@@ -15,7 +15,8 @@ import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
 import { DeliveryService } from '../../services/delivery.service';
 import { CartService } from '../../services/cart.service';
-import { ImageUploadService } from 'node-upload-images';
+import { Buffer } from 'buffer';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-shop',
@@ -25,17 +26,14 @@ export class ShopComponent implements OnInit, OnDestroy {
   telegram = inject(TelegramService);
   navigation = inject(NavigationService);
 
-  
   //@Input('category') categoryFromRoute = '';
   @Input() set category(category: string) {
     this.productsService.updateSelectedCategoryTranslit(category);
-    if (category){
+    if (category) {
       if (this.telegramService.IsTelegramWebAppOpened) {
         this.telegramService.BackButton.show();
-      } 
-    }else 
-        this.telegramService.BackButton.hide();
-      
+      }
+    } else this.telegramService.BackButton.hide();
   }
   @Input() set type(type: string) {
     this.productsService.updateSelectedTypeTranslit(type);
@@ -107,6 +105,7 @@ export class ShopComponent implements OnInit, OnDestroy {
     private location: Location,
     private route: ActivatedRoute,
     private router: Router,
+    private http: HttpClient,
   ) {
     //если запустили телеграм бота по webAppDirectLink с параметром https://t.me/botusername/appname?startapp=someParamValue
     //то считываем someParamValue и парсим для перехода
@@ -160,23 +159,97 @@ export class ShopComponent implements OnInit, OnDestroy {
     this.goBack = this.goBack.bind(this);
   }
 
-  selectedFile: any = null;
+  selectedFile: any = '';
+  selectedFileBuffer: any = '';
 
   onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0] ?? null;
+    this.selectedFile = event.target.files[0] ?? '';
+    this.selectedFileBuffer = event.target.files[0].arrayBuffer() ?? '';
+    console.log(this.selectedFileBuffer);
+    
+    var base64String;
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      base64String = fileReader.result;
+      console.log(base64String);
+      (async()=>{
+
+
+        console.clear();
+  
+  
+        var file        = base64String;
+  
+        console.log('file: '+base64String);
+        var message     = 'uploading test2.png';
+  
+        var owner       = 'ichebat';
+        var repo        = 'prokrasotucdn';
+        var path        = 'uploads/test2.png';
+        
+        var token       = 'тут токен';
+        
+        var url         = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  
+  
+        var res         = await fetch(url);
+        var json        = await res.json();
+        var sha         = json.sha;
+        
+        
+        var content     = window.btoa(file);
+        
+        var body        = sha?{content,sha,message}:{content,message};      
+        var bodyStr     = JSON.stringify(body);
+        
+        var headers     = {authorization:`Bearer ${token}`};
+        var opts        = {method:'put',headers, bodyStr};
+  
+        return this.http
+               .put(url, bodyStr, {headers: headers})
+               .subscribe({
+                next: (data) => {
+                  console.log('put github api data', data);
+                },
+                error: (err) => {
+                  console.log('put github api error', err);
+                },
+                complete: () => {
+                  console.log('put github api complete');
+                },
+              });
+        
+        // var res         = await fetch(url,opts);
+        // var json        = await res.json();
+  
+        
+        // console.log('result :',res.status,res.statusText);
+        // console.log();
+        // console.log(JSON.stringify(json,null,4));
+      })();
+    };
+    fileReader.readAsBinaryString(this.selectedFile);
+
+   // return;
+    
+    
+
+    //console.log(this.selectedFileBuffer);
   }
 
-  async imageUploadToPostimages() {
-    const service = new ImageUploadService('postimages.org');
-    try {
-      var fs = require('file-system');
-      const imageData = fs.readFileSync(this.selectedFile);
-      let { directLink } = await service.uploadFromBinary(imageData, 'test.png');
-      console.log(directLink);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  // async imageUploadToPostimages() {
+  //   const service = new ImageUploadService('postimages.org');
+  //   try {
+  //     //var fs = require('file-system');
+  //     let { directLink } = await service.uploadFromBinary(
+  //       Buffer.from(this.selectedFileBuffer),
+  //       'test.png',
+  //     );
+  //     console.log(directLink);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // }
 
   ngOnDestroy(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
