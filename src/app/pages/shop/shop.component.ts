@@ -15,8 +15,9 @@ import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
 import { DeliveryService } from '../../services/delivery.service';
 import { CartService } from '../../services/cart.service';
-import { Buffer } from 'buffer';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+
 
 @Component({
   selector: 'app-shop',
@@ -159,6 +160,8 @@ export class ShopComponent implements OnInit, OnDestroy {
     this.goBack = this.goBack.bind(this);
   }
 
+  
+
   selectedFile: any = '';
   selectedFileBuffer: any = '';
 
@@ -187,7 +190,7 @@ export class ShopComponent implements OnInit, OnDestroy {
         var repo        = 'prokrasotucdn';
         var path        = 'uploads/test2.png';
         
-        var token       = 'тут токен';
+        var token       = environment.gitHubCdnApiToken;
         
         var url         = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
   

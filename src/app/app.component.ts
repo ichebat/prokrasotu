@@ -11,6 +11,7 @@ import { SpinnerService } from './services/spinner.service';
 import { registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 import { ThemeSwitchService } from './services/theme-switch.service';
+import { config } from 'dotenv';
 
 @Component({
   selector: 'app-root',
@@ -33,6 +34,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
     public readonly _themeswitchService: ThemeSwitchService,
   ) {
     this.telegram.ready();
+
   }
 
   ngAfterViewChecked(): void {
@@ -50,10 +52,12 @@ export class AppComponent implements OnInit, AfterViewChecked {
 
     this.spinnerService.hide();
 
-    var isDarkThemeActive = window.localStorage.getItem("isDarkThemeActive");
-  if (isDarkThemeActive) {
-      this._themeswitchService.isDarkThemeActive.next(isDarkThemeActive == "true");
-      this._themeswitchService.OnThemeSwitch.next(isDarkThemeActive == "true");
+    var isDarkThemeActive = window.localStorage.getItem('isDarkThemeActive');
+    if (isDarkThemeActive) {
+      this._themeswitchService.isDarkThemeActive.next(
+        isDarkThemeActive == 'true',
+      );
+      this._themeswitchService.OnThemeSwitch.next(isDarkThemeActive == 'true');
     }
 
     // this.productsService.fetchProducts();

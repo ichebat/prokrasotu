@@ -1,7 +1,11 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -47,61 +51,67 @@ import { BrandSeriesListComponent } from './components/brand-series-list/brand-s
 import { AboutComponent } from './pages/company/about/about.component';
 import { RequisitesComponent } from './pages/company/requisites/requisites.component';
 
-@NgModule({ declarations: [
-        AppComponent,
-        ShopComponent,
-        FeedbackComponent,
-        ProductComponent,
-        PagenotfoundComponent,
-        ProductListComponent,
-        ProductItemComponent,
-        ProductIconComponent,
-        MainNavComponent,
-        CategoryIconComponent,
-        TypeIconComponent,
-        BrandIconComponent,
-        CategoryListComponent,
-        BrandListComponent,
-        TypeListComponent,
-        BreadCrumbComponent,
-        CartComponent,
-        CartItemComponent,
-        OrderComponent,
-        OrdersComponent,
-        OrderListComponent,
-        OrderIconComponent,
-        OrderItemComponent,
-        ConfirmDialogDemoComponent,
-        PrivacyComponent,
-        ProductSearchComponent,
-        ContactsListComponent,
-        ShareButtonsComponent,
-        ContactsComponent,
-        BrandSeriesListComponent,
-        BrandLineListComponent,
-        AboutComponent,
-        RequisitesComponent,
+@NgModule({
+  declarations: [
+    AppComponent,
+    ShopComponent,
+    FeedbackComponent,
+    ProductComponent,
+    PagenotfoundComponent,
+    ProductListComponent,
+    ProductItemComponent,
+    ProductIconComponent,
+    MainNavComponent,
+    CategoryIconComponent,
+    TypeIconComponent,
+    BrandIconComponent,
+    CategoryListComponent,
+    BrandListComponent,
+    TypeListComponent,
+    BreadCrumbComponent,
+    CartComponent,
+    CartItemComponent,
+    OrderComponent,
+    OrdersComponent,
+    OrderListComponent,
+    OrderIconComponent,
+    OrderItemComponent,
+    ConfirmDialogDemoComponent,
+    PrivacyComponent,
+    ProductSearchComponent,
+    ContactsListComponent,
+    ShareButtonsComponent,
+    ContactsComponent,
+    BrandSeriesListComponent,
+    BrandLineListComponent,
+    AboutComponent,
+    RequisitesComponent,
+  ],
+  bootstrap: [AppComponent],
+  imports: [
+    MaterialModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    ReactiveFormsModule,
+    AppRoutingModule,
+    NgxMaskDirective,
+    NgxMaskPipe,
+    ShareButtonDirective,
+    QRCodeModule
+  ],
+  providers: [
+    TelegramService,
+    provideAnimationsAsync(),
+    [
+      {
+        provide: HTTP_INTERCEPTORS,
+        useClass: CustomHttpInterceptor,
+        multi: true,
+      },
     ],
-    bootstrap: [AppComponent], imports: [MaterialModule,
-        BrowserModule,
-        BrowserAnimationsModule,
-        FormsModule,
-        ReactiveFormsModule,
-        AppRoutingModule,
-        NgxMaskDirective,
-        NgxMaskPipe,
-        ShareButtonDirective,
-        QRCodeModule], providers: [
-        TelegramService,
-        provideAnimationsAsync(),
-        [
-            {
-                provide: HTTP_INTERCEPTORS,
-                useClass: CustomHttpInterceptor,
-                multi: true,
-            },
-        ],
-        provideNgxMask(),
-        provideHttpClient(withInterceptorsFromDi()),
-    ] })
+    provideNgxMask(),
+    provideHttpClient(withInterceptorsFromDi()),
+  ],
+})
 export class AppModule {}
