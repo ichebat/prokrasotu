@@ -11,7 +11,6 @@ import { SpinnerService } from './services/spinner.service';
 import { registerLocaleData } from '@angular/common';
 import localeRu from '@angular/common/locales/ru';
 import { ThemeSwitchService } from './services/theme-switch.service';
-import { config } from 'dotenv';
 
 @Component({
   selector: 'app-root',

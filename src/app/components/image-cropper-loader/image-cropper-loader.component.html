@@ -1,0 +1,20 @@
+<input type="file" (change)="fileChangeEvent($event)" />
+
+<image-cropper
+    [imageChangedEvent]="imageChangedEvent"
+    [resizeToWidth]="resizeToWidth" 
+    [maintainAspectRatio]="maintainAspectRatio"
+    [containWithinAspectRatio]="containWithinAspectRatio"
+    [aspectRatio]="aspectRatio"
+    [cropperMinWidth]="cropperMinWidth"
+    [onlyScaleDown]="onlyScaleDown"
+    [roundCropper]="roundCropper"
+    alignImage="'center'"
+    format="png"
+    (imageCropped)="imageCropped($event)"
+    (imageLoaded)="imageLoaded($event)"
+    (cropperReady)="cropperReady()"
+    (loadImageFailed)="loadImageFailed()"
+></image-cropper>
+
+<img [src]="croppedImage" />

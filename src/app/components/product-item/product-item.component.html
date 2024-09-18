@@ -398,8 +398,11 @@
       >
     </mat-form-field>
 
+    <app-image-cropper-loader></app-image-cropper-loader>
+
     <mat-form-field appearance="outline" *ngIf="getVisible('imageUrl')">
       <mat-label>Введите ссылку на картинку</mat-label>
+      
       <textarea
         matInput
         cdkTextareaAutosize

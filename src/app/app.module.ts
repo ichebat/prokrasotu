@@ -50,6 +50,7 @@ import { BrandLineListComponent } from './components/brand-line-list/brand-line-
 import { BrandSeriesListComponent } from './components/brand-series-list/brand-series-list.component';
 import { AboutComponent } from './pages/company/about/about.component';
 import { RequisitesComponent } from './pages/company/requisites/requisites.component';
+import { ImageCropperLoaderComponent } from './components/image-cropper-loader/image-cropper-loader.component';
 
 @NgModule({
   declarations: [
@@ -98,7 +99,8 @@ import { RequisitesComponent } from './pages/company/requisites/requisites.compo
     NgxMaskDirective,
     NgxMaskPipe,
     ShareButtonDirective,
-    QRCodeModule
+    QRCodeModule,
+    ImageCropperLoaderComponent
   ],
   providers: [
     TelegramService,
