@@ -820,4 +820,22 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.form.controls['brandSeries'].setValue(this.product.brandSeries);
     }
   }
+
+  base64;
+  onTap(): void {
+    var self = this;
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      var reader = new FileReader();
+      reader.onloadend = function () {
+        console.log(reader.result);
+        self.base64 = reader.result;
+      }
+      reader.readAsDataURL(xhr.response);
+    };
+    var img: any = document.getElementById('imgElement');
+    xhr.open('GET', img.src);
+    xhr.responseType = 'blob';
+    xhr.send();
+  }
 }

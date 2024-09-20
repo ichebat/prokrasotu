@@ -1,4 +1,6 @@
-<input type="file" (change)="fileChangeEvent($event)" />
+@if (!imageHTMLTagId){
+    <input type="file" (change)="fileChangeEvent($event)" />
+}
 
 <image-cropper
     [imageChangedEvent]="imageChangedEvent"
@@ -17,4 +19,15 @@
     (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
 
-<img [src]="croppedImage" />
+<mat-card appearance="outlined">
+    <mat-card-header>
+        <mat-card-title>
+
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <img [src]="croppedImage" />
+    </mat-card-content>
+</mat-card>
+
+

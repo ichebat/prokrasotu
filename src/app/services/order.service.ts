@@ -16,6 +16,7 @@ import {
 import { environment } from '../../environments/environment.development';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DeliveryClass, IDelivery } from './delivery.service';
+import { decrypt } from '../../environments/environment';
 
 export interface IOrder {
   id: number;
@@ -484,7 +485,7 @@ export class OrderService {
     const headerDict = {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      Authorization: 'Token ' + environment.DADATA_API_KEY,
+      Authorization: 'Token ' + decrypt(environment.pass, environment.DADATA_API_KEY),
       'Access-Control-Allow-Origin': '*',
     };
 

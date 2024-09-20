@@ -304,6 +304,7 @@
         placeholder="Введите адрес доставки"
         [matAutocomplete]="autoClientAddress"
         (ngModelChange)="clientAddressChanging(clientAddress.value)"
+        [readonly]="!getEnabled('clientAddress')"
       ></textarea>
       @if (clientAddress.value) {
         <button

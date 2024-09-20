@@ -42,4 +42,5 @@ testem.log
 Thumbs.db
 
 #Secret information Config Json Files
-/src/environments/*.json
+/src/assets/environment.development.json
+/src/assets/environment.prod.json

@@ -16,7 +16,8 @@ import { OrderService } from '../../services/order.service';
 import { DeliveryService } from '../../services/delivery.service';
 import { CartService } from '../../services/cart.service';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { decrypt, environment } from '../../../environments/environment';
+import { GitHubCdnService } from '../../services/git-hub-cdn.service';
 
 
 @Component({
@@ -107,6 +108,7 @@ export class ShopComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
+    private git: GitHubCdnService
   ) {
     //если запустили телеграм бота по webAppDirectLink с параметром https://t.me/botusername/appname?startapp=someParamValue
     //то считываем someParamValue и парсим для перехода
@@ -162,76 +164,119 @@ export class ShopComponent implements OnInit, OnDestroy {
 
   
 
-  selectedFile: any = '';
-  selectedFileBuffer: any = '';
-
   onFileSelected(event: any): void {
-    this.selectedFile = event.target.files[0] ?? '';
-    this.selectedFileBuffer = event.target.files[0].arrayBuffer() ?? '';
-    console.log(this.selectedFileBuffer);
+    const selectedFile = event.target.files[0] ?? '';
+    const fileName = 'logo1.png';
+    this.git.getSha(fileName).subscribe({
+      next: (data : any) => {
+        console.log('data');
+        console.log(data.sha);
+        var sha = data.sha;
+        this.git.uploadByFile(fileName, selectedFile.arrayBuffer(),sha).subscribe({
+          next: (data : any) => {
+            console.log(data);
+          },
+          error: (err) => {console.log('uploadByFile error', err);},
+          complete: () => {console.log('uploadByFile complete');},
+        });
+
+      },
+      error: (err) => {
+        this.git.uploadByFile(fileName, selectedFile.arrayBuffer(),'').subscribe({
+          next: (data : any) => {
+            console.log(data);
+          },
+          error: (err) => {console.log('uploadByFile error', err);},
+          complete: () => {console.log('uploadByFile complete');},
+        });
+      },
+      complete: () => {
+
+      },
+    });
+    // this.git.uploadByFile({
+    //   fileName: 'logo.png',
+    //   file:selectedFile
+    // }).subscribe({
+    //   next: (data : any) => {
+    //     console.log('data');
+    //     console.log(data);
+    //   },
+    //   error: (err) => {
+
+    //   },
+    //   complete: () => {
+
+    //   },
+    // });
+    // this.selectedFileBuffer = event.target.files[0].arrayBuffer() ?? '';
+
+
+    // console.log(this.selectedFileBuffer);
     
-    var base64String;
-    const fileReader = new FileReader();
-    fileReader.onload = () => {
-      base64String = fileReader.result;
-      console.log(base64String);
-      (async()=>{
+    // var base64String;
+    // const fileReader = new FileReader();
+    // fileReader.onload = () => {
+    //   base64String = fileReader.result;
+    //   console.log(base64String);
+      
+    //   (async()=>{
 
 
-        console.clear();
+    //     console.clear();
   
   
-        var file        = base64String;
+    //     var file        = base64String;
   
-        console.log('file: '+base64String);
-        var message     = 'uploading test2.png';
+    //     console.log('file: '+base64String);
+    //     var message     = 'uploading test2.png';
   
-        var owner       = 'ichebat';
-        var repo        = 'prokrasotucdn';
-        var path        = 'uploads/test2.png';
+    //     var owner       = 'ichebat';
+    //     var repo        = 'prokrasotucdn';
+    //     var path        = 'uploads/test2.png';
         
-        var token       = environment.gitHubCdnApiToken;
+    //     var token       = decrypt(environment.pass, environment.gitHubCdnApiToken+"!")
         
-        var url         = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+    //     var url         = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
   
   
-        var res         = await fetch(url);
-        var json        = await res.json();
-        var sha         = json.sha;
+    //     var res         = await fetch(url);
+    //     var json        = await res.json();
+    //     var sha         = json.sha;
         
         
-        var content     = window.btoa(file);
+    //     var content     = window.btoa(file);
         
-        var body        = sha?{content,sha,message}:{content,message};      
-        var bodyStr     = JSON.stringify(body);
+    //     var body        = sha?{content,sha,message}:{content,message};      
+    //     var bodyStr     = JSON.stringify(body);
         
-        var headers     = {authorization:`Bearer ${token}`};
-        var opts        = {method:'put',headers, bodyStr};
+    //     var headers     = {authorization:`Bearer ${token}`};
+    //     var opts        = {method:'put',headers, bodyStr};
   
-        return this.http
-               .put(url, bodyStr, {headers: headers})
-               .subscribe({
-                next: (data) => {
-                  console.log('put github api data', data);
-                },
-                error: (err) => {
-                  console.log('put github api error', err);
-                },
-                complete: () => {
-                  console.log('put github api complete');
-                },
-              });
+    //     return this.http
+    //            .put(url, bodyStr, {headers: headers})
+    //            .subscribe({
+    //             next: (data) => {
+    //               console.log('put github api data', data);
+    //             },
+    //             error: (err) => {
+    //               console.log('put github api error', err);
+    //             },
+    //             complete: () => {
+    //               console.log('put github api complete');
+    //             },
+    //           });
         
-        // var res         = await fetch(url,opts);
-        // var json        = await res.json();
+    //     // var res         = await fetch(url,opts);
+    //     // var json        = await res.json();
   
         
-        // console.log('result :',res.status,res.statusText);
-        // console.log();
-        // console.log(JSON.stringify(json,null,4));
-      })();
-    };
-    fileReader.readAsBinaryString(this.selectedFile);
+    //     // console.log('result :',res.status,res.statusText);
+    //     // console.log();
+    //     // console.log(JSON.stringify(json,null,4));
+    //   })();
+    // };
+    // fileReader.readAsBinaryString(this.selectedFile);
 
    // return;
     

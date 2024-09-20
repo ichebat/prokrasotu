@@ -474,7 +474,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
           item.enabled =
             true &&
             this.telegramService.isAdmin &&
-            this.order.delivery.isAddressRequired &&
+            
             this.action == 'edit';
         }
         if (item.controlName == 'correctionReason') {

@@ -20,6 +20,7 @@
     @if (product.imageUrl != "") {
       <div class="product-image-host">
         <img
+          id="imgElement"
           mat-card-image
           [src]="product.imageUrl"
           [alt]="product.description"
@@ -27,11 +28,20 @@
           class="product-item-image"
         />
       </div>
+
+      <button (click)="onTap()">Get base 64</button>
+      <div>
+        <b>Base64: </b>
+        {{base64}}
+      </div>
     }
 
     <mat-card-content>
       @if (product.price! > 0) {
-        <p>Цена действительна только для интернет-магазина и может отличаться от цен в розничных магазинах</p>
+        <p>
+          Цена действительна только для интернет-магазина и может отличаться от
+          цен в розничных магазинах
+        </p>
         <div class="buy-button pb">
           @if (product.discount == 0) {
             <button mat-flat-button (click)="addItem()" color="primary">
@@ -78,18 +88,18 @@
             <mat-icon>remove</mat-icon>
           </button>
           <button mat-icon-button routerLink="/cart">
-            
-          @if(quantityInCart(product) > 0){
-            <mat-icon
-              [attr.aria-hidden]="false" aria-hidden="false"
-              matBadgeColor="accent"
-              [matBadge]="quantityInCart(product)"
-              >shopping_cart</mat-icon>
-          }
-          @if(quantityInCart(product) == 0){
-            <mat-icon>shopping_cart</mat-icon>
-          }
-
+            @if (quantityInCart(product) > 0) {
+              <mat-icon
+                [attr.aria-hidden]="false"
+                aria-hidden="false"
+                matBadgeColor="accent"
+                [matBadge]="quantityInCart(product)"
+                >shopping_cart</mat-icon
+              >
+            }
+            @if (quantityInCart(product) == 0) {
+              <mat-icon>shopping_cart</mat-icon>
+            }
           </button>
           <button mat-icon-button color="accent" (click)="addItem()">
             <mat-icon>add</mat-icon>
@@ -398,11 +408,22 @@
       >
     </mat-form-field>
 
-    <app-image-cropper-loader></app-image-cropper-loader>
+    <app-image-cropper-loader
+      [maintainAspectRatio]="true"
+      [containWithinAspectRatio]="true"
+      [aspectRatio]="1 / 1"
+      [resizeToWidth]="256"
+      [cropperMinWidth]="256"
+      [onlyScaleDown]="true"
+      [roundCropper]="false"
+      [canvasRotation]="0"
+      [imageHTMLTagId]="'imgElement'"
+      [imageURL]="product.imageUrl"
+    ></app-image-cropper-loader>
 
     <mat-form-field appearance="outline" *ngIf="getVisible('imageUrl')">
       <mat-label>Введите ссылку на картинку</mat-label>
-      
+
       <textarea
         matInput
         cdkTextareaAutosize
@@ -616,7 +637,7 @@
       <p>{{ MainButtonText }}</p>
     }
 
-    @if (!telegramService.IsTelegramWebAppOpened ) {
+    @if (!telegramService.IsTelegramWebAppOpened) {
       <div class="buy-button pb">
         @if (getVisible("button_submit")) {
           <button
