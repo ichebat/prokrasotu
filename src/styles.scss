@@ -29,8 +29,18 @@
   margin-bottom: var(--main-padding);
 }
 
+.mx {
+  margin-left: var(--main-padding);
+  margin-right: var(--main-padding);
+}
+
 .pb {
   padding-bottom: var(--main-padding);
+}
+
+.px {
+  padding-left: var(--main-padding);
+  padding-right: var(--main-padding);
 }
 
 .hint {

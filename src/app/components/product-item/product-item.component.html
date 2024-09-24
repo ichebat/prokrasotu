@@ -3,7 +3,8 @@
     <mat-card-header>
       <mat-card-title
         >{{ product.name
-        }}<app-share-buttons
+        }}
+        <app-share-buttons
           [url]="getUrl()"
           [title]="product.name"
           [description]="product.name"
@@ -17,7 +18,7 @@
       </mat-card-subtitle>
     </mat-card-header>
 
-    @if (product.imageUrl != "") {
+    @if (product.imageUrl != "" || product.id > 0) {
       <div class="product-image-host">
         <img
           id="imgElement"
@@ -28,12 +29,20 @@
           class="product-item-image"
         />
       </div>
-
-      <button (click)="onTap()">Get base 64</button>
-      <div>
-        <b>Base64: </b>
-        {{base64}}
-      </div>
+      <app-image-cropper-loader
+      [maintainAspectRatio]="true"
+      [containWithinAspectRatio]="true"
+      [aspectRatio]="1 / 1"
+      [resizeToWidth]="320"
+      [cropperMinWidth]="320"
+      [onlyScaleDown]="true"
+      [roundCropper]="false"
+      [canvasRotation]="0"
+      [targetHTMLElement]="'imgElement'"
+      [gitHubFileName]="'product_'+product.id+'.png'"
+      (onGitHubLoaded)="GitHubLoaded($event)"
+      (onGitHubLoading)="GitHubLoading($event)"
+    ></app-image-cropper-loader>
     }
 
     <mat-card-content>
@@ -408,19 +417,6 @@
       >
     </mat-form-field>
 
-    <app-image-cropper-loader
-      [maintainAspectRatio]="true"
-      [containWithinAspectRatio]="true"
-      [aspectRatio]="1 / 1"
-      [resizeToWidth]="256"
-      [cropperMinWidth]="256"
-      [onlyScaleDown]="true"
-      [roundCropper]="false"
-      [canvasRotation]="0"
-      [imageHTMLTagId]="'imgElement'"
-      [imageURL]="product.imageUrl"
-    ></app-image-cropper-loader>
-
     <mat-form-field appearance="outline" *ngIf="getVisible('imageUrl')">
       <mat-label>Введите ссылку на картинку</mat-label>
 
@@ -472,9 +468,11 @@
       <input
         matNativeControl
         formControlName="category"
-        #category
         placeholder="Введите категорию"
         [readonly]="!getEnabled('category')"
+        #category
+        [matAutocomplete]="autoCategory"
+        (ngModelChange)="categoryChanging(category.value)"
       />
       @if (category.value) {
         <button
@@ -500,15 +498,25 @@
         >Максимум 50 символов</mat-error
       >
     </mat-form-field>
+    <mat-autocomplete
+      #autoCategory="matAutocomplete"
+      (optionSelected)="categoryChanged()"
+    >
+      @for (option of categoryOptionsAuto; track $index) {
+        <mat-option [value]="option.name">{{ option.name }}</mat-option>
+      }
+    </mat-autocomplete>
 
     <mat-form-field appearance="outline" *ngIf="getVisible('type')">
       <mat-label>Введите тип</mat-label>
       <input
         matNativeControl
         formControlName="type"
-        #type
         placeholder="Введите тип"
         [readonly]="!getEnabled('type')"
+        #type
+        [matAutocomplete]="autoType"
+        (ngModelChange)="typeChanging(type.value)"
       />
       @if (type.value) {
         <button
@@ -532,15 +540,25 @@
         >Максимум 50 символов</mat-error
       >
     </mat-form-field>
+    <mat-autocomplete
+      #autoType="matAutocomplete"
+      (optionSelected)="typeChanged()"
+    >
+      @for (option of typeOptionsAuto; track $index) {
+        <mat-option [value]="option.name">{{ option.name }}</mat-option>
+      }
+    </mat-autocomplete>
 
     <mat-form-field appearance="outline" *ngIf="getVisible('brand')">
       <mat-label>Введите бренд</mat-label>
       <input
         matNativeControl
         formControlName="brand"
-        #brand
         placeholder="Введите бренд"
         [readonly]="!getEnabled('brand')"
+        #brand
+        [matAutocomplete]="autoBrand"
+        (ngModelChange)="brandChanging(brand.value)"
       />
       @if (brand.value) {
         <button
@@ -564,15 +582,25 @@
         >Максимум 50 символов</mat-error
       >
     </mat-form-field>
+    <mat-autocomplete
+      #autoBrand="matAutocomplete"
+      (optionSelected)="brandChanged()"
+    >
+      @for (option of brandOptionsAuto; track $index) {
+        <mat-option [value]="option.name">{{ option.name }}</mat-option>
+      }
+    </mat-autocomplete>
 
     <mat-form-field appearance="outline" *ngIf="getVisible('brandLine')">
       <mat-label>Введите линейку для бренда</mat-label>
       <input
         matNativeControl
         formControlName="brandLine"
-        #brandLine
         placeholder="Введите линейку для бренда"
         [readonly]="!getEnabled('brandLine')"
+        #brandLine
+        [matAutocomplete]="autoBrandLine"
+        (ngModelChange)="brandLineChanging(brandLine.value)"
       />
       @if (brandLine.value) {
         <button
@@ -598,15 +626,25 @@
         >Максимум 50 символов</mat-error
       >
     </mat-form-field>
+    <mat-autocomplete
+      #autoBrandLine="matAutocomplete"
+      (optionSelected)="brandLineChanged()"
+    >
+      @for (option of brandLineOptionsAuto; track $index) {
+        <mat-option [value]="option.name">{{ option.name }}</mat-option>
+      }
+    </mat-autocomplete>
 
     <mat-form-field appearance="outline" *ngIf="getVisible('brandSeries')">
       <mat-label>Введите серию для бренда</mat-label>
       <input
         matNativeControl
         formControlName="brandSeries"
-        #brandSeries
         placeholder="Введите серию для бренда"
         [readonly]="!getEnabled('brandSeries')"
+        #brandSeries
+        [matAutocomplete]="autoBrandSeries"
+        (ngModelChange)="brandSeriesChanging(brandSeries.value)"
       />
       @if (brandSeries.value) {
         <button
@@ -632,6 +670,14 @@
         >Максимум 50 символов</mat-error
       >
     </mat-form-field>
+    <mat-autocomplete
+      #autoBrandSeries="matAutocomplete"
+      (optionSelected)="brandSeriesChanged()"
+    >
+      @for (option of brandSeriesOptionsAuto; track $index) {
+        <mat-option [value]="option.name">{{ option.name }}</mat-option>
+      }
+    </mat-autocomplete>
 
     @if (MainButtonText) {
       <p>{{ MainButtonText }}</p>

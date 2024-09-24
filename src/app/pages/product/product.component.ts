@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
-import { IProduct, ProductsService } from '../../services/products.service';
+import { IProduct, ProductClass, ProductsService } from '../../services/products.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -13,7 +13,8 @@ import { CartService } from '../../services/cart.service';
   styleUrl: './product.component.scss',
 })
 export class ProductComponent implements OnInit, OnDestroy {
-  // subscription: Subscription;
+
+// subscription: Subscription;
 
   // product!: IProduct;
   /**
@@ -28,6 +29,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     private router: Router,
     private location: Location,
   ) {
+    
     const id = this.route.snapshot.paramMap.get('id');
     this.productsService.updateId(id);
 

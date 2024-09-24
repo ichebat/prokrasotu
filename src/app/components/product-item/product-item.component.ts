@@ -27,6 +27,12 @@ import { Subscription, distinctUntilChanged } from 'rxjs';
 export class ProductItemComponent implements OnInit, OnDestroy {
   @Input() product!: IProduct;
 
+  categoryOptionsAuto; //для работы c autocomplete категории
+  typeOptionsAuto; //для работы c autocomplete типа
+  brandOptionsAuto; //для работы c autocomplete бренда
+  brandLineOptionsAuto; //для работы c autocomplete линейка бренда
+  brandSeriesOptionsAuto; //для работы c autocomplete серия бренда
+
   form: FormGroup = new FormGroup({}); //реактивная форма
 
   private subscr_form: Subscription = Subscription.EMPTY;
@@ -120,6 +126,12 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   ) {
     this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
 
+    this.categoryOptionsAuto = this.productService.$productCategoriesMenuTree();
+    this.typeOptionsAuto = this.productService.$productTypesMenuTree();
+    this.brandOptionsAuto = this.productService.$productBrands();
+    this.brandLineOptionsAuto = this.productService.$productBrandLines();
+    this.brandSeriesOptionsAuto = this.productService.$productBrandSeriesList();
+
     // //подписываемся на изменения формы, для скрытия/отображения MainButton
     // this.subscr_form = this.form.statusChanges
     //   .pipe(distinctUntilChanged())
@@ -157,7 +169,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       url: [
         this.product?.url,
         [
-          Validators.required,
           Validators.minLength(2),
           Validators.maxLength(255),
           Validators.pattern(
@@ -197,8 +208,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           Validators.maxLength(50),
         ],
       ],
-      brandLine: [this.product?.brandLine, []],
-      brandSeries: [this.product?.brandSeries, []],
+      brandLine: [this.product?.brandLine, [Validators.minLength(2),
+        Validators.maxLength(50)]],
+      brandSeries: [this.product?.brandSeries, [Validators.minLength(2),
+        Validators.maxLength(50)]],
       name: [
         this.product?.name,
         [
@@ -216,7 +229,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       imageUrl: [
         this.product?.imageUrl,
         [
-          Validators.required,
           Validators.minLength(2),
           Validators.maxLength(255),
           Validators.pattern(
@@ -355,29 +367,31 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       .valueChanges.subscribe((val) => {
         this.product.artikul = val;
       });
-    this.subscr_category = this.form
-      .get('category')!
-      .valueChanges.subscribe((val) => {
-        this.product.category = val;
-      });
-    this.subscr_type = this.form.get('type')!.valueChanges.subscribe((val) => {
-      this.product.type = val;
-    });
-    this.subscr_brand = this.form
-      .get('brand')!
-      .valueChanges.subscribe((val) => {
-        this.product.brand = val;
-      });
-    this.subscr_brandLine = this.form
-      .get('brandLine')!
-      .valueChanges.subscribe((val) => {
-        this.product.brandLine = val;
-      });
-    this.subscr_brandSeries = this.form
-      .get('brandSeries')!
-      .valueChanges.subscribe((val) => {
-        this.product.brandSeries = val;
-      });
+
+      //Чтобы работал Autocomplete подписку не включаем
+    // this.subscr_category = this.form
+    //   .get('category')!
+    //   .valueChanges.subscribe((val) => {
+    //     this.product.category = val;
+    //   });
+    // this.subscr_type = this.form.get('type')!.valueChanges.subscribe((val) => {
+    //   this.product.type = val;
+    // });
+    // this.subscr_brand = this.form
+    //   .get('brand')!
+    //   .valueChanges.subscribe((val) => {
+    //     this.product.brand = val;
+    //   });
+    // this.subscr_brandLine = this.form
+    //   .get('brandLine')!
+    //   .valueChanges.subscribe((val) => {
+    //     this.product.brandLine = val;
+    //   });
+    // this.subscr_brandSeries = this.form
+    //   .get('brandSeries')!
+    //   .valueChanges.subscribe((val) => {
+    //     this.product.brandSeries = val;
+    //   });
     this.subscr_name = this.form.get('name')!.valueChanges.subscribe((val) => {
       this.product.name = val;
     });
@@ -570,6 +584,18 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       return;    
     }
 
+    //при загрузке картинки на гитхаб возникает отправка, которой надо дождаться
+    if(this.disableButton){
+      this.telegramService.MainButton.setText(this.mainButtonTextProgress);
+      this.telegramService.MainButton.disable();
+      setTimeout(() => {
+        this.telegramService.MainButton.setText(this.mainButtonTextValid);
+        this.telegramService.MainButton.enable();
+        return;
+      }, 5000);
+      return;    
+    }
+
     //добавление нового товара делается кнопкой submit
 
     if (
@@ -620,6 +646,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             this.onHandleUpdate();
             console.log('addProduct complete');
             this.router.navigate(['/']);
+            this.productService.updateProductsApi();
           },
         });
     }
@@ -672,6 +699,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             this.onHandleUpdate();
             console.log('updateProduct complete');
             this.router.navigate(['/']);
+            this.productService.updateProductsApi();
           },
         });
     }
@@ -794,48 +822,73 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     if (!this.form.controls['category'].disabled) {
       this.product.category = '';
       this.form.controls['category'].setValue(this.product.category);
+      this.categoryChanging('');
     }
   }
   onTypeClear() {
     if (!this.form.controls['type'].disabled) {
       this.product.type = '';
       this.form.controls['type'].setValue(this.product.type);
+      this.typeChanging('');
     }
   }
   onBrandClear() {
     if (!this.form.controls['brand'].disabled) {
       this.product.brand = '';
       this.form.controls['brand'].setValue(this.product.brand);
+      this.brandChanging('');
     }
   }
   onBrandLineClear() {
     if (!this.form.controls['brandLine'].disabled) {
       this.product.brandLine = '';
       this.form.controls['brandLine'].setValue(this.product.brandLine);
+      this.brandLineChanging('');
     }
   }
   onBrandSeriesClear() {
     if (!this.form.controls['brandSeries'].disabled) {
       this.product.brandSeries = '';
       this.form.controls['brandSeries'].setValue(this.product.brandSeries);
+      this.brandSeriesChanging('');
     }
   }
 
-  base64;
-  onTap(): void {
-    var self = this;
-    var xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      var reader = new FileReader();
-      reader.onloadend = function () {
-        console.log(reader.result);
-        self.base64 = reader.result;
-      }
-      reader.readAsDataURL(xhr.response);
-    };
-    var img: any = document.getElementById('imgElement');
-    xhr.open('GET', img.src);
-    xhr.responseType = 'blob';
-    xhr.send();
+  public GitHubLoaded(event: any):void {
+    //console.log('Loaded GitHub: ', event);
+    const newImageUrl = event.content.download_url;
+    if (!this.form.controls['imageUrl'].disabled && newImageUrl) {
+      this.product.imageUrl = newImageUrl;
+      this.form.controls['imageUrl'].setValue(this.product.imageUrl);
+    }
+    
+  } 
+
+  public GitHubLoading(event: boolean):void {
+    //console.log('GitHubLoading',event)
+    this.disableButton = event;
+  } 
+
+  categoryChanging(query: string) {
+    this.categoryOptionsAuto = this.productService.$productCategoriesMenuTree().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
   }
+  categoryChanged() {}  
+  typeChanging(query: string) {
+    this.typeOptionsAuto = this.productService.$productTypesMenuTree().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+  }
+  typeChanged() {}  
+  brandChanging(query: string) {
+    this.brandOptionsAuto = this.productService.$productBrands().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+  }
+  brandChanged() {}
+  brandLineChanging(query: string) {
+    this.brandLineOptionsAuto = this.productService.$productBrandLines().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+  }
+  brandLineChanged() {}
+  brandSeriesChanging(query: string) {
+    this.brandSeriesOptionsAuto = this.productService.$productBrandSeriesList().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+  }
+  brandSeriesChanged() {}
+
+
 }

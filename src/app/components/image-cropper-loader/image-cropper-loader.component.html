@@ -1,33 +1,52 @@
-@if (!imageHTMLTagId){
-    <input type="file" (change)="fileChangeEvent($event)" />
-}
+<!-- <input type="file" (change)="fileChangeEvent($event)" /> -->
+<div class="buy-button-x3 pb">
+  <button
+    type="button"
+    mat-flat-button
+    (click)="fileInput.click()"
+    color="primary"
+    class="mx"
+  >
+    Загрузить изображение
+  </button>
+  @if(croppedImage && gitHubFileName && selectedFile){
+    <button
+        type="accent"
+        mat-flat-button
+        (click)="gitHubLoad()"
+        color="accent"
+        class="mx">
+        Сохранить
+    </button>
+    }
+</div>
+<input hidden (change)="fileChangeEvent($event)" #fileInput type="file" />
 
 <image-cropper
-    [imageChangedEvent]="imageChangedEvent"
-    [resizeToWidth]="resizeToWidth" 
-    [maintainAspectRatio]="maintainAspectRatio"
-    [containWithinAspectRatio]="containWithinAspectRatio"
-    [aspectRatio]="aspectRatio"
-    [cropperMinWidth]="cropperMinWidth"
-    [onlyScaleDown]="onlyScaleDown"
-    [roundCropper]="roundCropper"
-    [alignImage]="'center'"
-    format="png"
-    (imageCropped)="imageCropped($event)"
-    (imageLoaded)="imageLoaded($event)"
-    (cropperReady)="cropperReady()"
-    (loadImageFailed)="loadImageFailed()"
+  [imageChangedEvent]="imageChangedEvent"
+  [resizeToWidth]="resizeToWidth"
+  [maintainAspectRatio]="maintainAspectRatio"
+  [containWithinAspectRatio]="containWithinAspectRatio"
+  [aspectRatio]="aspectRatio"
+  [cropperMinWidth]="cropperMinWidth"
+  [onlyScaleDown]="onlyScaleDown"
+  [roundCropper]="roundCropper"
+  [alignImage]="'center'"
+  [output]="'blob'"
+  format="png"
+  (imageCropped)="imageCropped($event)"
+  (imageLoaded)="imageLoaded($event)"
+  (cropperReady)="cropperReady()"
+  (loadImageFailed)="loadImageFailed()"
 ></image-cropper>
 
-<mat-card appearance="outlined">
+@if (!targetHTMLElement) {
+  <mat-card appearance="outlined">
     <mat-card-header>
-        <mat-card-title>
-
-        </mat-card-title>
+      <mat-card-title> </mat-card-title>
     </mat-card-header>
     <mat-card-content>
-        <img [src]="croppedImage" />
+      <img [src]="croppedImage" />
     </mat-card-content>
-</mat-card>
-
-
+  </mat-card>
+}

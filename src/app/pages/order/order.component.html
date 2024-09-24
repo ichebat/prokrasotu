@@ -6,7 +6,7 @@
     @if ((orderService.$order()?.items)!.length>0) {
       <app-order-item [order]="orderService.$order()!" [action]="orderAction"/>
       
-      <mat-chip-listbox>
+      <!-- <mat-chip-listbox>
         <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
-      </mat-chip-listbox>
+      </mat-chip-listbox> -->
     }
