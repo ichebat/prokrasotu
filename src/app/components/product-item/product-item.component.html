@@ -5,12 +5,14 @@
     <mat-card-header>
       <mat-card-title
         >{{ product.name }}
-        <app-share-buttons
-          [url]="getUrl()"
-          [title]="product.name"
-          [description]="product.name"
-        ></app-share-buttons
-      ></mat-card-title>
+        @if(product.id>0){
+          <app-share-buttons
+            [url]="getUrl()"
+            [title]="product.name"
+            [description]="product.name"
+          ></app-share-buttons>
+        }
+      </mat-card-title>
       <mat-card-subtitle
         >{{ product.brand }}
         @if (product.artikul) {
@@ -48,7 +50,7 @@
 
     <mat-card-content>
       @if (
-        product.price! > 0 && !getVisible('selectedProductAttribute')
+        product.price! > 0
       ) {
         <p>
           Цена действительна только для интернет-магазина и может отличаться от
@@ -207,7 +209,7 @@
           </button>
         </div>
       }
-      @if (!isInCart(product)) {
+      @if (!isInCart(product)&&product.id>0) {
         <div class="buy-button">
           <!-- <button mat-flat-button color="primary" (click)="addItem()">
             В корзину
@@ -261,7 +263,8 @@
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
-  <h2>Редактирование товара</h2>
+  @if(product.id>0){<h2>Редактирование товара</h2>}
+  @if(product.id==0){<h2>Создание нового товара</h2>}
   <h3>
     <mat-icon color="accent">warning</mat-icon>
     Внимание, редактирование товара доступно только для администратора. Меняйте
@@ -273,6 +276,19 @@
   </h4>
 
   @if (product.id > 0) {
+    <div class="buy-button">
+      <button
+            mat-flat-button
+            matTooltip="Удалить продукт"
+            type="button"          
+            color="warn"
+            (click)="removeProduct()">
+            
+            <mat-icon>delete</mat-icon> Удалить товар
+          </button>
+
+    </div>
+
     <app-product-detail [product]="product"></app-product-detail>
   }
 

@@ -376,7 +376,7 @@ export class ProductsService {
         if (
           !group.find(
             (item) =>
-              item.name == prod.type && item.category.name == prod.category,
+              item.name == prod.type //&& item.category.name == prod.category,
           )
         ) {
           group.push({

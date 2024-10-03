@@ -288,7 +288,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(this.selectedProductAttribute);
     
 
-    //console.log(this.product);
+    //console.log('this.product',this.product);
 
     //выставляем флаги отображения контролов
     this.FormControlsFlags.forEach((item) => {
@@ -317,6 +317,12 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
         //возможность редактирования следующих контролов будет изменена
         item.enabled = true;
+
+        
+        if (item.controlName == 'selectedProductAttribute') {
+          item.visible = true && this.product.detail.attributes.length>0;
+          item.enabled = true && this.product.detail.attributes.length>0;
+        }
       }
 
       //3. ******************************************* */
@@ -331,6 +337,11 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
         //возможность редактирования следующих контролов будет изменена
         item.enabled = true;
+
+        if (item.controlName == 'selectedProductAttribute') {
+          item.visible = true && this.product.detail.attributes.length>0;
+          item.enabled = true && this.product.detail.attributes.length>0;
+        }
       }
 
       //4. ******************************************* */
@@ -347,7 +358,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
       //выключаем контролы
       if (!item.controlName.toString().startsWith('button_')) {
-        if (!item.enabled) this.form.controls[item.controlName].disable();
+        if (!item.enabled && this.form.controls[item.controlName]) this.form.controls[item.controlName].disable();
+        if (!item.enabled && this.formSelectedAttribute.controls[item.controlName]) this.formSelectedAttribute.controls[item.controlName].disable();
       }
     });
   }
@@ -536,6 +548,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
 
   addItem() {
+    if (this.product.id<=0) return;
     console.log('Add to cart');
 
     const newItem: ICartItem = {
@@ -610,6 +623,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
 
   removeItem() {
+    if (this.product.id<=0) return;
     console.log('Remove from cart');
 
     const newItem: ICartItem = {
@@ -630,10 +644,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   //https://stackoverflow.com/questions/70997956/how-to-send-a-message-via-url-with-inline-buttons
 
   //функция отправки данных (id ==0 для нового продукта, id>0 для редактирования)
-  sendData() {
+  sendData(method='update') {
     if (!this.telegramService.isAdmin) return;
 
-    if(!this.form.valid){
+    if(!this.form.valid && method=='update'){
       this.telegramService.MainButton.setText(this.mainButtonTextInvalid);
       this.telegramService.MainButton.disable();
       setTimeout(() => {
@@ -645,7 +659,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     }
 
     //при загрузке картинки на гитхаб возникает отправка, которой надо дождаться
-    if(this.disableButton){
+    if(this.disableButton && method=='update'){
       this.telegramService.MainButton.setText(this.mainButtonTextProgress);
       this.telegramService.MainButton.disable();
       setTimeout(() => {
@@ -656,6 +670,60 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       return;    
     }
 
+    if (
+      this.product.id > 0 &&
+      this.telegramService.isAdmin 
+      && method == 'remove'
+    ) {
+      this.disableButton = true;
+      this.telegramService.MainButton.setText(this.mainButtonTextProgress);
+      this.telegramService.MainButton.disable();
+
+      this.productService
+        .sendProductToGoogleAppsScript(
+          this.telegramService.Id,
+          this.telegramService.UserName,
+          'removeProduct',
+          {
+            id: this.product?.id,
+            url: this.form.controls['url'].value,
+            artikul: this.form.controls['artikul'].value,
+            category: this.form.controls['category'].value,
+            type: this.form.controls['type'].value,
+            brand: this.form.controls['brand'].value,
+            brandLine: this.form.controls['brandLine'].value,
+            brandSeries: this.form.controls['brandSeries'].value,
+            name: this.form.controls['name'].value,
+            description: this.form.controls['description'].value,
+            dopolnitelno: this.form.controls['dopolnitelno'].value,
+            imageUrl: this.form.controls['imageUrl'].value,
+            price: this.form.controls['price'].value,
+            discount: this.form.controls['discount'].value,
+            isNew: this.form.controls['isNew'].value,
+            translit: this.form.controls['translit'].value,
+            detail: this.form.controls['detail'].value,
+            isActive: this.form.controls['isActive'].value,
+          },
+        )
+        .subscribe({
+          next: (data) => {
+            const removeProduct_response = data;
+            console.log('removeProduct data', data);
+          },
+          error: (err) => {
+            this.onHandleUpdate();
+            console.log('removeProduct error', err);
+          },
+          complete: () => {
+            this.onHandleUpdate();
+            console.log('removeProduct complete');
+            this.router.navigate(['/']);
+            this.productService.updateProductsApi();
+          },
+        });
+    }
+
+    
     //добавление нового товара делается кнопкой submit
 
     if (
@@ -664,6 +732,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.getEnabled('button_submit') &&
       this.form.valid &&
       this.telegramService.isAdmin
+      && method == 'update'
     ) {
       this.disableButton = true;
       this.telegramService.MainButton.setText(this.mainButtonTextProgress);
@@ -719,6 +788,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.getEnabled('button_submit') &&
       this.form.valid &&
       this.telegramService.isAdmin
+      && method == 'update'
     ) {
       this.disableButton = true;
       this.telegramService.MainButton.setText(this.mainButtonTextProgress);
@@ -760,6 +830,63 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             console.log('updateProduct error', err);
           },
           complete: () => {
+            //обновляем корзину
+            let flagCart = false;
+            
+            // this.cartService.$cart.update((currentCart) => {
+            //   const existingItem = currentCart.items.find(
+            //     (i) => i.product.id === item.product.id,
+            //   );
+            //   if (!existingItem) {
+            //     return currentCart;
+            //   } else {
+            //     if (existingItem.quantity - item.quantity <= 0) {
+            //       item.quantity = existingItem.quantity;
+            //     }
+            //     existingItem.quantity -= item.quantity;
+            //     flagCart = true;
+            //   }
+
+            //   currentCart.items = currentCart.items.filter(
+            //     (p) => p.quantity > 0,
+            //   );
+
+            //   currentCart.totalCount = this.cartService.calculateTotalCount(
+            //     currentCart.items,
+            //   );
+            //   currentCart.totalAmount = this.cartService.calculateTotalAmount(
+            //     currentCart.items,
+            //   );
+
+            //   return currentCart;
+            // });
+            
+           
+
+            //обновляем корзину в таблице
+            if (flagCart && this.telegramService.Id) {
+              this.cartService
+                .sendCartToGoogleAppsScript(
+                  this.telegramService.Id,
+                  this.telegramService.UserName,
+                  'removeCart',
+                  this.cartService.$cart(),
+                )
+                .subscribe({
+                  next: (data) => {
+                    console.log('removeCart data', data);
+                  },
+                  error: (err) => {
+                    this.onHandleUpdate();
+                    console.log('removeCart error', err);
+                  },
+                  complete: () => {
+                    console.log('removeCart complete');
+                    //console.log(this.cartService.$cart());
+                  },
+                });
+            }
+            
             this.onHandleUpdate();
             console.log('updateProduct complete');
             this.router.navigate(['/']);
@@ -971,5 +1098,27 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
   selectedProductAttributeChange(item: ProductAttributeClass | null) {
     this.selectedProductAttribute = item;
+  }
+
+  removeProduct(){
+    this.zone.run(() => {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: 'Удаление?',
+            description:
+              'Следующий товар: [' +
+              this.product.name +
+              '] будет удален безвозвратно. Подтвердите действие.',
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          this.sendData('remove');
+        }
+      });
+    });
   }
 }
