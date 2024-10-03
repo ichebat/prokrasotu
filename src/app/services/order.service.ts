@@ -205,7 +205,7 @@ export class OrderService {
     const amount = items.reduce(
       (total, item) =>
         total +
-        ((item.product.price * (100 - item.product.discount)) / 100) *
+        ((((item.attribute && item.attribute.price>0)?(item.attribute.price):(item.product.price)) * (100 - item.product.discount)) / 100) *
           item.quantity,
       0,
     );

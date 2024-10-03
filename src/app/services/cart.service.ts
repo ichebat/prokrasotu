@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { IProduct, ProductClass } from './products.service';
+import { IProduct, IProductAttribute, ProductAttributeClass, ProductClass, ProductDetailClass } from './products.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TelegramService } from './telegram.service';
 import { BehaviorSubject, Observable, Subject, map, switchMap , of, catchError, tap} from 'rxjs';
@@ -8,12 +8,14 @@ import { environment } from '../../environments/environment';
 
 export interface ICartItem {
   product: IProduct;
+  attribute: IProductAttribute | null;
   quantity: number;
   checked: boolean;
 }
 
 export class CartItemClass implements ICartItem {
   product: IProduct = new ProductClass(null);
+  attribute: IProductAttribute | null = null;
   quantity: number = 0;
   checked: boolean = false;
   
@@ -61,7 +63,7 @@ export class CartService {
     return items.reduce(
       (total, item) =>
         total +
-        ((item.product.price * (100 - item.product.discount)) / 100) *
+        ((((item.attribute && item.attribute.price>0)?(item.attribute.price):(item.product.price)) * (100 - item.product.discount)) / 100) *
           item.quantity,
       0,
     );
@@ -99,13 +101,16 @@ export class CartService {
     return false;
   }
 
-  addItem(item: ICartItem) {
+  addItem(cartItem: ICartItem) {
+
+    var item = JSON.parse(JSON.stringify(cartItem)) as ICartItem;
+    item.product.detail = new ProductDetailClass(null); //чтобы не гонять лишнюю информацию по сети
+    
     this.$cart.update((currentCart) => {
       let existingItem = currentCart.items.find(
-        (i) => i.product.id === item.product.id,
+        (i) => (i.product.id === item.product.id && ((i.attribute == null)||(i.attribute.description == item.attribute?.description))),
       );
 
-      
       if (!this.telegram.isAdmin)
       {
         //ограничения на количество единиц одного товара в корзине
@@ -153,7 +158,11 @@ export class CartService {
     });
   }
 
-  removeItem(item: ICartItem) {
+  removeItem(cartItem: ICartItem) {
+
+    var item = JSON.parse(JSON.stringify(cartItem)) as ICartItem;
+    item.product.detail = new ProductDetailClass(null); //чтобы не гонять лишнюю информацию по сети
+
     this.$cart.update((currentCart) => {
       let existingItem = currentCart.items.find(
         (i) => i.product.id === item.product.id,

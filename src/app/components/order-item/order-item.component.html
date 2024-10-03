@@ -114,7 +114,7 @@
     </th>
     <td mat-cell *matCellDef="let element" class="align-middle">
       <p>
-        {{ element.product?.name }}
+        {{ element.product?.name }}<strong>{{element.attribute?' ('+element.attribute!.description+')':''}}</strong>
         {{
           element.product?.artikul
             ? "; арт.: " + element.product?.artikul
@@ -126,11 +126,11 @@
         @if (element.product.discount == 0) {
           <span>
             по
-            {{ element.product.price | currency: "RUB" : "symbol-narrow" }}
+            {{ ((element.attribute && element.attribute.price>0)?(element.attribute.price):(element.product.price)) | currency: "RUB" : "symbol-narrow" }}
             @if (element.quantity > 1) {
               Итого:
               {{
-                element.quantity * element.product.price
+                element.quantity * ((element.attribute && element.attribute.price>0)?(element.attribute.price):(element.product.price))
                   | currency: "RUB" : "symbol-narrow"
               }}
             }
@@ -140,17 +140,17 @@
           <span>
             по
             <s>{{
-              element.product.price | currency: "RUB" : "symbol-narrow"
+              ((element.attribute && element.attribute.price>0)?(element.attribute.price):(element.product.price)) | currency: "RUB" : "symbol-narrow"
             }}</s>
             {{
-              (element.product.price / 100) * (100 - element.product.discount)
+              (((element.attribute && element.attribute.price>0)?(element.attribute.price):(element.product.price)) / 100) * (100 - element.product.discount)
                 | currency: "RUB" : "symbol-narrow"
             }}
             @if (element.quantity > 1) {
               Итого:
               {{
                 element.quantity *
-                  (element.product.price / 100) *
+                  (((element.attribute && element.attribute.price>0)?(element.attribute.price):(element.product.price)) / 100) *
                   (100 - element.product.discount)
                   | currency: "RUB" : "symbol-narrow"
               }}

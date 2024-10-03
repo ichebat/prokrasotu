@@ -34,9 +34,10 @@ export class ImageCropperLoaderComponent implements AfterViewInit {
   @Input() canvasRotation: number = 0; //Rotate the canvas (1 = 90deg, 2 = 180deg...)
   @Input() targetHTMLElement: string = ''; //Id element на который выводить изображение
   @Input() gitHubFileName: string = ''; //Имя файла под которым загружать на GitHub
+  @Input() useImageAspectRatio: boolean = false; //если true то aspectRatio будет как у загружаемого изображения
 
-  @Output() public onGitHubLoaded:EventEmitter<any> = new EventEmitter<any>();
-  @Output() public onGitHubLoading:EventEmitter<any> = new EventEmitter<any>();
+  @Output() public onGitHubLoaded: EventEmitter<any> = new EventEmitter<any>();
+  @Output() public onGitHubLoading: EventEmitter<any> = new EventEmitter<any>();
 
   imageChangedEvent: Event | null = null;
   croppedImage: SafeUrl = '';
@@ -53,12 +54,29 @@ export class ImageCropperLoaderComponent implements AfterViewInit {
   fileChangeEvent(event: any): void {
     this.imageChangedEvent = event;
     this.selectedFile = event.target.files[0] ?? '';
+    
+    if (this.useImageAspectRatio && this.selectedFile)
+    {
+      let fr = new FileReader();
+      fr.onload = () => { // when file has loaded
+        var img = new Image();
+        img.onload = () => {
+          this.aspectRatio = img.width / img.height;
+          
+        };
+        img.src = fr.result!.toString(); // This is the data URL 
+      };
+      fr.readAsDataURL(this.selectedFile);
+    }
+
+    console.log(this.selectedFile);
   }
   imageCropped(event: ImageCroppedEvent) {
     this.croppedImage = this.sanitizer.bypassSecurityTrustUrl(event.objectUrl!);
     this.croppedImageBlob = event.blob;
     if (this.targetHTMLElement)
-      (<HTMLImageElement>document.getElementById(this.targetHTMLElement)).src =event.objectUrl!;//event.base64!;
+      (<HTMLImageElement>document.getElementById(this.targetHTMLElement)).src =
+        event.objectUrl!; //event.base64!;
 
     //console.log(event.base64);
     // event.blob can be used to upload the cropped image
@@ -75,15 +93,14 @@ export class ImageCropperLoaderComponent implements AfterViewInit {
   ngAfterViewInit(): void {}
 
   public gitHubLoad(): void {
-    
     this.onGitHubLoading.emit(true);
     //const selectedFile = this.selectedFile;
     const fileName = this.gitHubFileName;
-    
+
     if (!this.croppedImage || !this.croppedImageBlob || !fileName) return;
 
     var base64String = this.croppedImageBlob;
-    
+
     const fileReader = new FileReader();
     fileReader.onload = () => {
       base64String = fileReader.result;
@@ -92,49 +109,42 @@ export class ImageCropperLoaderComponent implements AfterViewInit {
           // console.log('data');
           // console.log(data.sha);
           var sha = data.sha;
-          this.git
-            .uploadByFile(fileName, base64String, sha)
-            .subscribe({
-              next: (data: any) => {
-                //console.log(data);
-                this.onGitHubLoaded.emit(data);
-                this.onGitHubLoading.emit(false);
-              },
-              error: (err) => {
-                console.log('uploadByFile error', err);                
-                this.onGitHubLoading.emit(false);
-              },
-              complete: () => {
-                console.log('uploadByFile complete');              
-                this.onGitHubLoading.emit(false);
-              },
-            });
+          this.git.uploadByFile(fileName, base64String, sha).subscribe({
+            next: (data: any) => {
+              //console.log(data);
+              this.onGitHubLoaded.emit(data);
+              this.onGitHubLoading.emit(false);
+            },
+            error: (err) => {
+              console.log('uploadByFile error', err);
+              this.onGitHubLoading.emit(false);
+            },
+            complete: () => {
+              console.log('uploadByFile complete');
+              this.onGitHubLoading.emit(false);
+            },
+          });
         },
         error: (err) => {
-          this.git
-            .uploadByFile(fileName, base64String, '')
-            .subscribe({
-              next: (data: any) => {
-                //console.log(data);
-                this.onGitHubLoaded.emit(data);
-                this.onGitHubLoading.emit(false);
-              },
-              error: (err) => {
-                console.log('uploadNewByFile error', err);                
-                this.onGitHubLoading.emit(false);
-              },
-              complete: () => {
-                console.log('uploadNewByFile complete');                
-                this.onGitHubLoading.emit(false);
-              },
-            });
+          this.git.uploadByFile(fileName, base64String, '').subscribe({
+            next: (data: any) => {
+              //console.log(data);
+              this.onGitHubLoaded.emit(data);
+              this.onGitHubLoading.emit(false);
+            },
+            error: (err) => {
+              console.log('uploadNewByFile error', err);
+              this.onGitHubLoading.emit(false);
+            },
+            complete: () => {
+              console.log('uploadNewByFile complete');
+              this.onGitHubLoading.emit(false);
+            },
+          });
         },
         complete: () => {},
       });
-
-    }
+    };
     fileReader.readAsBinaryString(this.croppedImageBlob);
-
-    
   }
 }

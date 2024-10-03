@@ -98,7 +98,7 @@ export class CartItemComponent implements OnInit, OnDestroy {
 
   quantityInCart(product:IProduct)
   {
-    return this.cartService.$cart().items.find(p=>p.product.id === product.id)!.quantity;
+    return this.cartService.$cart().items.find(p=>p.product.id === product.id && p.attribute?.description == this.cartItem.attribute?.description)!.quantity;
   }
 
   addItem() {
@@ -107,6 +107,7 @@ export class CartItemComponent implements OnInit, OnDestroy {
     
     const newItem: ICartItem = {
       product: this.cartItem.product,
+      attribute: this.cartItem.attribute,
       quantity: 1,
       checked: this.cartItem.checked,
     };
@@ -157,6 +158,7 @@ export class CartItemComponent implements OnInit, OnDestroy {
     
     const newItem: ICartItem = {
       product: this.cartItem.product,
+      attribute: this.cartItem.attribute,
       quantity: 1,
       checked: this.cartItem.checked,
     };

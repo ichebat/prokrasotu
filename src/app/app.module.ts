@@ -51,6 +51,7 @@ import { BrandSeriesListComponent } from './components/brand-series-list/brand-s
 import { AboutComponent } from './pages/company/about/about.component';
 import { RequisitesComponent } from './pages/company/requisites/requisites.component';
 import { ImageCropperLoaderComponent } from './components/image-cropper-loader/image-cropper-loader.component';
+import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 
 @NgModule({
   declarations: [
@@ -87,6 +88,7 @@ import { ImageCropperLoaderComponent } from './components/image-cropper-loader/i
     BrandLineListComponent,
     AboutComponent,
     RequisitesComponent,
+    ProductDetailComponent,
   ],
   bootstrap: [AppComponent],
   imports: [

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IProduct } from '../../services/products.service';
+import { IProduct, ProductAttributeClass } from '../../services/products.service';
 import { CartService, ICartItem } from '../../services/cart.service';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { environment } from '../../../environments/environment';
@@ -13,6 +13,8 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class ProductIconComponent {
   @Input() product!: IProduct;
+
+  selectedProductAttribute: ProductAttributeClass | null = null;
 
 
   constructor(private cartService: CartService,
@@ -35,6 +37,7 @@ export class ProductIconComponent {
     
     const newItem: ICartItem = {
       product: this.product,
+      attribute: this.selectedProductAttribute,
       quantity: 1,
       checked: true,
     };
@@ -86,6 +89,7 @@ export class ProductIconComponent {
     
     const newItem: ICartItem = {
       product: this.product,
+      attribute: this.selectedProductAttribute,
       quantity: 1,
       checked: true,
     };

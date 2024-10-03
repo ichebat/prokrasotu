@@ -8,7 +8,7 @@ import {
   effect,
   signal,
 } from '@angular/core';
-import { IProduct, ProductsService } from '../../services/products.service';
+import { IProduct, ProductAttributeClass, ProductDetailClass, ProductsService } from '../../services/products.service';
 import { CartService, ICartItem } from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
@@ -27,6 +27,8 @@ import { Subscription, distinctUntilChanged } from 'rxjs';
 export class ProductItemComponent implements OnInit, OnDestroy {
   @Input() product!: IProduct;
 
+  selectedProductAttribute: ProductAttributeClass | null = null;
+
   categoryOptionsAuto; //для работы c autocomplete категории
   typeOptionsAuto; //для работы c autocomplete типа
   brandOptionsAuto; //для работы c autocomplete бренда
@@ -34,6 +36,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   brandSeriesOptionsAuto; //для работы c autocomplete серия бренда
 
   form: FormGroup = new FormGroup({}); //реактивная форма
+  formSelectedAttribute: FormGroup = new FormGroup({}); //реактивная форма для выбора атрибута
 
   private subscr_form: Subscription = Subscription.EMPTY;
   private subscr_id: Subscription = Subscription.EMPTY;
@@ -52,6 +55,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   private subscr_discount: Subscription = Subscription.EMPTY;
   private subscr_isNew: Subscription = Subscription.EMPTY;
   private subscr_translit: Subscription = Subscription.EMPTY;
+  private subscr_isActive: Subscription = Subscription.EMPTY;
+  private subscr_selectedProductAttribute: Subscription = Subscription.EMPTY;
 
   private $isInCartSignal = signal<boolean>(false);
   private $quantitySignal = signal<number>(0);
@@ -106,9 +111,11 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     { controlName: 'price', visible: true, enabled: true },
     { controlName: 'discount', visible: true, enabled: true },
     { controlName: 'isNew', visible: true, enabled: true },
+    { controlName: 'isActive', visible: true, enabled: true },
     { controlName: 'translit', visible: true, enabled: true },
 
     { controlName: 'button_submit', visible: true, enabled: true },
+    { controlName: 'selectedProductAttribute', visible: true, enabled: true },
   ];
 
   //когда нажимаем отправку кнопки становятся неактивными
@@ -162,6 +169,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     //     );
     //   };
     // });
+
 
     //строим реактивную форму с валидацией
     this.form = fb.group({
@@ -236,14 +244,22 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           ),
         ],
       ],
-      price: [this.product?.price, [Validators.required, Validators.min(1)]],
+      price: [this.product?.price, [Validators.required, Validators.min(0)]],
       discount: [
         this.product?.discount,
         [Validators.required, Validators.min(0), Validators.max(99)],
       ],
       isNew: [this.product?.isNew, []],
       translit: [this.product?.translit, []],
+      detail: [this.product?.detail, []],
+      isActive: [this.product?.isActive, []],
+      
     });
+
+    this.formSelectedAttribute = fb.group({
+      selectedProductAttribute: [this.selectedProductAttribute, this.product?.detail.attributes.length>0?[Validators.required]:[]],
+    });
+
   }
 
   //после конструктора необходимо заполнить форму начальными значениями
@@ -253,7 +269,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.form.controls['id'].setValue(this.product?.id);
     this.form.controls['url'].setValue(this.product?.url);
     this.form.controls['artikul'].setValue(this.product?.artikul), //{value: this.product?.delivery, disabled: (this.product?.isAccepted || this.product?.isCompleted || this.product?.isCancelled)});
-      this.form.controls['category'].setValue(this.product?.category);
+    this.form.controls['category'].setValue(this.product?.category);
     this.form.controls['type'].setValue(this.product?.type);
     this.form.controls['brand'].setValue(this.product?.brand);
     this.form.controls['brandLine'].setValue(this.product?.brandLine);
@@ -266,6 +282,11 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.form.controls['discount'].setValue(this.product?.discount);
     this.form.controls['isNew'].setValue(this.product?.isNew);
     this.form.controls['translit'].setValue(this.product?.translit);
+    this.form.controls['detail'].setValue(this.product?.detail);
+    this.form.controls['isActive'].setValue(this.product?.isActive);
+    
+    this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(this.selectedProductAttribute);
+    
 
     //console.log(this.product);
 
@@ -425,6 +446,17 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       .valueChanges.subscribe((val) => {
         this.product.isNew = val;
       });
+    this.subscr_isActive = this.form
+        .get('isActive')!
+        .valueChanges.subscribe((val) => {
+          this.product.isActive = val;
+        });
+    
+    this.subscr_selectedProductAttribute = this.formSelectedAttribute
+        .get('selectedProductAttribute')!
+        .valueChanges.subscribe((val) => {
+          this.selectedProductAttribute = val;
+        });
     this.subscr_translit = this.form
       .get('translit')!
       .valueChanges.subscribe((val) => {
@@ -466,6 +498,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.subscr_price.unsubscribe();
     this.subscr_discount.unsubscribe();
     this.subscr_isNew.unsubscribe();
+    this.subscr_isActive.unsubscribe();
+    this.subscr_selectedProductAttribute.unsubscribe();
     this.subscr_translit.unsubscribe();
 
     
@@ -490,14 +524,15 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     return (
       this.cartService
         .$cart()
-        .items.findIndex((p) => p.product.id === product.id) >= 0
+        .items.findIndex((p) => p.product.id === product.id  && p.attribute?.description == this.selectedProductAttribute?.description) >= 0
     );
   }
 
   quantityInCart(product: IProduct) {
-    return this.cartService
-      .$cart()
-      .items.find((p) => p.product.id === product.id)!.quantity;
+    const searchItem = this.cartService
+    .$cart()
+    .items.find((p) => p.product.id === product.id && p.attribute?.description == this.selectedProductAttribute?.description);
+    return searchItem?searchItem.quantity:0;
   }
 
   addItem() {
@@ -505,9 +540,30 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
     const newItem: ICartItem = {
       product: this.product,
+      attribute: this.selectedProductAttribute,
       quantity: 1,
       checked: true,
     };
+
+    if (this.product.detail.attributes.length>0 && !this.selectedProductAttribute) {
+      this.zone.run(() => {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: 'Сначала выберите товар',
+            description:
+              'Выберите товар из списка, чтобы добавить в корзину',
+            showCancelButton: false,
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        return;
+      });
+    });
+    }
+
     if (this.cartService.checkMaxCartItemPosition(newItem)) {
       this.zone.run(() => {
       const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
@@ -547,7 +603,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         return;
       });
     });
-    } else this.cartService.addItem(newItem);
+    } 
+    else 
+    if ((this.product.detail.attributes.length>0 && this.selectedProductAttribute) || this.product.detail.attributes.length==0)
+    this.cartService.addItem(newItem);
   }
 
   removeItem() {
@@ -555,6 +614,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
     const newItem: ICartItem = {
       product: this.product,
+      attribute: this.selectedProductAttribute,
       quantity: 1,
       checked: true,
     };
@@ -631,6 +691,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             discount: this.form.controls['discount'].value,
             isNew: this.form.controls['isNew'].value,
             translit: this.form.controls['translit'].value,
+            detail: this.form.controls['detail'].value,
+            isActive: this.form.controls['isActive'].value,
           },
         )
         .subscribe({
@@ -684,6 +746,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             discount: this.form.controls['discount'].value,
             isNew: this.form.controls['isNew'].value,
             translit: this.form.controls['translit'].value,
+            detail: this.form.controls['detail'].value,
+            isActive: this.form.controls['isActive'].value,
           },
         )
         .subscribe({
@@ -890,5 +954,22 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
   brandSeriesChanged() {}
 
+  testClick(){
+    console.log(this.product);
+  }
 
+  downloadImage(fileName, url) {
+    this.productService.downloadImage(fileName, url);
+  }
+
+
+  //для корректного отображения select контрола необходима функция сравнения
+  compareFunction(o1: any, o2: any) {
+    if (o1 == null || o2 == null) return false;
+    return o1.description.toString() == o2.description.toString();
+  }
+
+  selectedProductAttributeChange(item: ProductAttributeClass | null) {
+    this.selectedProductAttribute = item;
+  }
 }

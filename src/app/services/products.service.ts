@@ -21,7 +21,78 @@ export enum ProductColumns {
   colPrice = 12,
   colDiscount = 13,
   colIsNew = 14,
+  colDetail = 15,
+  colIsActive = 16,
 }
+
+
+export interface IProductAttribute {
+  description: string; //название прибавится к названию продукта при выборе
+  price: number; //если больше 0, то цена заменит цену продукта при выборе
+  imageUrl: string; //если внесено, то заменит картинку продукта при выборе
+  isActive: boolean; //возможно ли купить данный товар, если false, то временно отсутствует в продаже
+  keyValues: string []; //словарь типа values[key] key берется из keys в IProductDetail
+}
+export class ProductAttributeClass implements IProductAttribute {
+  description: string = ''; //описание, сборное их keyValues, прибавляется к названию товара при выборе
+  price: number= 0; //цена
+  imageUrl: string=''; //ссылка на изображение
+  isActive: boolean = false; //возможно ли купить данный товар, если false, то временно отсутствует в продаже
+  keyValues: string [] = [];
+
+  constructor(obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
+}
+
+export interface IProductDetail {
+  mainImageUrl: string; //общая картинка для всех характеристик
+  mainImageDescription: string; //и ее описание  
+  keys: string []; //свойства у родственных продуктов (уровень глубины цвета, цветовой нюанс и название для 100+ оттенков одного продукта) или (процент оксигента, объем)
+  attributes: IProductAttribute[];
+}
+
+export class ProductDetailClass implements IProductDetail {
+  mainImageUrl: string = '';
+  mainImageDescription: string = '';
+  keys: string[] = [];
+  attributes: ProductAttributeClass[] = [];
+
+  // constructor(obj) {
+  //   if (obj == null){
+  //     for (var prop in obj) {
+  //       this[prop] = obj[prop];
+  //     }
+  //   } 
+  //   else
+  //   {
+  //     this.mainImageUrl = obj.mainImageUrl;
+  //     this.mainImageDescription = obj.mainImageDescription;
+  //     this.keys = [] as string[];
+  //     obj.keys.forEach(element => {this.keys.push(element);});
+  //     this.attributes = [] as ProductAttributeClass[];
+  //     obj.attributes.forEach(item => {
+  //       this.attributes.push(item);
+  //     });
+  //   } 
+  // }
+
+  constructor(obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
+
+  // isCorrect(){
+  //   var result = true;
+  //   var msg = '';
+  //   //mainImageUrl и mainImageDescription заполняются вместе
+  //   result = result && ((this.mainImageUrl != '' && this.mainImageDescription != '') || ((this.mainImageUrl == '' && this.mainImageDescription == '')));
+  //   //keys и attributes заполняются вместе
+  //   result = result && ((this.keys.length ==0 && this.attributes.length == 0) || (this.keys.length >0 && this.attributes.length > 0));
+
+  //   return result;
+  // }
+}
+
 
 export interface IProduct {
   id: number;
@@ -40,6 +111,8 @@ export interface IProduct {
   discount: number;
   isNew: boolean;
   translit: string;
+  detail: IProductDetail;
+  isActive: boolean; //возможно ли купить данный товар, если false, то временно отсутствует в продаже
 }
 
 export class ProductClass implements IProduct {
@@ -59,6 +132,8 @@ export class ProductClass implements IProduct {
   discount: number = 0;
   isNew: boolean = false;
   translit: string = '';
+  detail: ProductDetailClass = new ProductDetailClass(null);
+  isActive: boolean = false;
 
   constructor(obj) {
     for (var prop in obj) this[prop] = obj[prop];
@@ -471,9 +546,11 @@ export class ProductsService {
           discount: 0,
           isNew: false,
           translit: '',
+          detail: new ProductDetailClass(null),
+          isActive: false
         };
       } else {
-        console.log('productIdValue',productIdValue);
+        //console.log('productIdValue',productIdValue);
         return productsAPIValue.find((p) => {
           return (
             p.id.toString().toLowerCase() ===
@@ -683,6 +760,7 @@ export class ProductsService {
     };
   }
 
+  //только админ видит все, другие только ненулевые цены и доступные к покупке
   getProducts(): Observable<IProduct[]> {
     console.log('Start get products');
     return this._http.get(this.url, { responseType: 'text' }).pipe(
@@ -734,41 +812,48 @@ export class ProductsService {
               discount: row.c[ProductColumns.colDiscount]
                 ? row.c[ProductColumns.colDiscount].v
                 : 0,
-              isNew: row.c[ProductColumns.colIsNew]
-                ? row.c[ProductColumns.colIsNew].v
+              isNew: (row.c[ProductColumns.colIsNew] && row.c[ProductColumns.colIsNew].v === true)
+                ? true
                 : false,
               translit: transliterate(
                 row.c[ProductColumns.colName]
                   ? row.c[ProductColumns.colName].v
                   : '',
               ),
+              detail: 
+                row.c[ProductColumns.colDetail]
+                  ? new ProductDetailClass(JSON.parse(row.c[ProductColumns.colDetail].v))
+                  : new ProductDetailClass(null),
+              isActive: (row.c[ProductColumns.colIsActive] && row.c[ProductColumns.colIsActive].v === true)
+                ? true
+                : false,
             });
           })
-          .filter((p) => p.price > 0 || this.telegram.isAdmin);
+          .filter((p) => (p.price > 0 && p.isActive) || this.telegram.isAdmin);
       }),
       catchError(this.handleError<IProduct[]>('getProducts', [])),
     );
   }
 
-  get byGroup() {
-    return this.$products().reduce((group, prod) => {
-      if (!group[prod.type]) {
-        group[prod.type] = [];
-      }
-      group[prod.type].push(prod);
-      return group;
-    }, {});
-  }
+  // get byGroup() {
+  //   return this.$products().reduce((group, prod) => {
+  //     if (!group[prod.type]) {
+  //       group[prod.type] = [];
+  //     }
+  //     group[prod.type].push(prod);
+  //     return group;
+  //   }, {});
+  // }
 
-  get byCategory() {
-    return this.$products().reduce((group, prod) => {
-      if (!group[prod.category]) {
-        group[prod.category] = [];
-      }
-      group[prod.category].push(prod);
-      return group;
-    }, {});
-  }
+  // get byCategory() {
+  //   return this.$products().reduce((group, prod) => {
+  //     if (!group[prod.category]) {
+  //       group[prod.category] = [];
+  //     }
+  //     group[prod.category].push(prod);
+  //     return group;
+  //   }, {});
+  // }
 
   public sendProductToGoogleAppsScript(
     chat_id: string,
@@ -782,6 +867,29 @@ export class ProductsService {
       action: actionName,
       product: product,
     });
+  }
+
+  public downloadImage(fileName, url: string) {
+
+    this._http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        // Create a link element
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName+'.jpg'; // Set the download filename
+  
+        // Append link to the body, click it, and then remove it
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      },
+      error: (err) => {
+          console.error('Error downloading the image: ', err);
+      },
+      complete: () => {
+        console.log('Download image complete');
+      },
+  });
   }
 
   // transliterate(word):string {

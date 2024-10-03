@@ -46,7 +46,7 @@
     }
     
     @if (productsService.$productBrandSeries()?.name) {
-      <mat-chip highlighted color="primary" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit">{{
+      <mat-chip highlighted color="accent" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit">{{
         productsService.$productBrandSeries()?.name | uppercase
       }}
       <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit">
