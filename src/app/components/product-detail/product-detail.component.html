@@ -1,6 +1,6 @@
 <form [formGroup]="form" (ngSubmit)="sendData()">
   <mat-form-field appearance="outline">
-    <mat-label>Выберите, если в карточке несколько товаров</mat-label>
+    <mat-label>В карточке несколько товаров?</mat-label>
     <input
       style="display: none"
       matNativeControl
@@ -24,13 +24,13 @@
       в этой карточке
     </p>
     <mat-form-field appearance="outline">
-      <mat-label>Введите ссылку на изображение (общее)</mat-label>
+      <mat-label>Ссылка на изображение (общее)</mat-label>
       <textarea
         matNativeControl
         cdkTextareaAutosize
         [formControlName]="'mainImageUrl'"
         #mainImageUrl
-        [placeholder]="'Введите ссылку на изображение (общее)'"
+        [placeholder]="'Ссылка на изображение (общее)'"
         (ngModelChange)="mainImageUrlChanging($event)"
       ></textarea>
       @if (form.get("mainImageUrl")?.value) {
@@ -44,7 +44,7 @@
         </button>
       }
       <mat-hint align="end"
-        >Введите ссылку на изображение (общее)
+        >Ссылка на изображение (общее)
         {{ form.get("mainImageUrl")?.value.length }}/255</mat-hint
       >
       <mat-error *ngIf="form.get('mainImageUrl')?.hasError('required')"
@@ -504,23 +504,34 @@
             <ng-container matColumnDef="description">
               <th mat-header-cell *matHeaderCellDef><strong>Товар.</strong></th>
               <td mat-cell *matCellDef="let element">
+                @if (element.isActive) {
+                  <mat-icon>visibility</mat-icon>
+                }
+                @if (!element.isActive) {
+                  <mat-icon color="warn">visibility_off</mat-icon>
+                }
                 @for (colName of displayedColumns; track $index) {
                   {{ element.keyValues[$index] + " " }}
                 }
+                {{
+                  " (" +
+                    (element.price | currency: "RUB" : "symbol-narrow") +
+                    ")"
+                }}
               </td>
             </ng-container>
 
-            <ng-container matColumnDef="price">
+            <!-- <ng-container matColumnDef="price">
               <th mat-header-cell *matHeaderCellDef><strong>Цена.</strong></th>
               <td mat-cell *matCellDef="let element">{{ element.price }}</td>
-            </ng-container>
-            <ng-container matColumnDef="isActive">
+            </ng-container> -->
+            <!-- <ng-container matColumnDef="isActive">
               <th mat-header-cell *matHeaderCellDef><strong>Актив.</strong></th>
               <td mat-cell *matCellDef="let element">
                 @if(element.isActive ){<mat-icon>sync</mat-icon>}
                 @if(!element.isActive ){<mat-icon color="warn">sync_disabled</mat-icon>}
               </td>
-            </ng-container>
+            </ng-container> -->
 
             <ng-container matColumnDef="ActionBar">
               <th

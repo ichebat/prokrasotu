@@ -173,8 +173,8 @@ export class ProductDetailComponent implements OnInit {
     //this.displayedColumns.forEach(p=>cols.push(p));
     cols.push('imageUrl');
     cols.push('description');
-    cols.push('price');
-    cols.push('isActive');
+    //cols.push('price');
+    //cols.push('isActive');
     cols.push('ActionBar');
     return cols;
   }

@@ -130,7 +130,7 @@
               )
             "
           >
-            Скачать файл: {{ product.detail.mainImageDescription }}</a
+            {{ product.detail.mainImageDescription }}</a
           >
         </p>
       }
@@ -271,6 +271,22 @@
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   @if (product.id > 0) {
+    <h2>Удаление товара</h2>
+    <div class="buy-button-x3">
+      <button
+        mat-raised-button
+        (click)="removeProduct()"
+        color="warn"
+        type="button"
+        class="mx mb"
+      >
+        <mat-icon>delete</mat-icon> Удалить товар
+      </button>
+    </div>
+  }
+
+
+  @if (product.id > 0) {
     <h2>Редактирование товара</h2>
   }
   @if (product.id == 0) {
@@ -287,17 +303,6 @@
   </h4>
 
   @if (product.id > 0) {
-    <div class="buy-button-x3">
-      <button
-        mat-raised-button
-        (click)="removeProduct()"
-        color="warn"
-        type="button"
-        class="mx mb"
-      >
-        <mat-icon>delete</mat-icon> Удалить товар
-      </button>
-    </div>
 
     <app-product-detail [product]="product"></app-product-detail>
   }
