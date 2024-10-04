@@ -273,9 +273,10 @@ export class ProductsService {
     } else {
       const filteredArray = productsAPIValue.filter((p) => {
         return (
-          (p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0 ||
-            p.artikul.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >=
-              0) &&
+          (p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
+          || p.artikul.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
+          || (p.detail.attributes.find(a=>a.description.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0))
+            ) &&
           (transliterate(p.category).toString().toLowerCase() ===
             selectedCategoryTranslitValue.toString().toLowerCase() ||
             !selectedCategoryTranslitValue) &&
@@ -354,7 +355,7 @@ export class ProductsService {
     } else {
       return productsAPIValue.reduce((group, prod) => {
         if (!group) group = [] as IProductCategory[];
-        if (!group.find((item) => item.name == prod.category)) {
+        if (!group.find((item) => item.name.toString().toLowerCase() == prod.category.toString().toLowerCase())) {
           group.push({
             name: prod.category,
             translit: transliterate(prod.category),
@@ -376,7 +377,7 @@ export class ProductsService {
         if (
           !group.find(
             (item) =>
-              item.name == prod.type //&& item.category.name == prod.category,
+              item.name.toString().toLowerCase() == prod.type.toString().toLowerCase() //&& item.category.name == prod.category,
           )
         ) {
           group.push({
@@ -876,12 +877,12 @@ export class ProductsService {
         // Create a link element
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = fileName+'.jpg'; // Set the download filename
+        link.download = fileName+'.png'; // Set the download filename
   
         // Append link to the body, click it, and then remove it
-        document.body.appendChild(link);
+        // document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link);
+        // document.body.removeChild(link);
       },
       error: (err) => {
           console.error('Error downloading the image: ', err);

@@ -24,7 +24,9 @@
           mat-button
           [routerLink]="'/product/' + product.id + '/' + product.translit"
         >
-          {{ product.price | currency: "RUB" : "symbol-narrow" }}
+          {{ selectedProductAttribute && selectedProductAttribute!.price > 0
+            ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
+            : (product.price | currency: "RUB" : "symbol-narrow") }}
         </button>
       }
       @if (product.discount > 0) {
@@ -36,11 +38,19 @@
           matBadgeColor="accent"
           [routerLink]="'/product/' + product.id + '/' + product.translit"
         >
-          <s>{{ product.price | currency: "RUB" : "symbol-narrow" }}</s>
-          {{
-            (product.price / 100) * (100 - product.discount)
-              | currency: "RUB" : "symbol-narrow"
-          }}
+        <s>{{
+          selectedProductAttribute && selectedProductAttribute!.price > 0
+            ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
+            : (product.price | currency: "RUB" : "symbol-narrow")
+        }}</s>
+        {{
+          ((selectedProductAttribute &&
+          selectedProductAttribute!.price > 0
+            ? selectedProductAttribute!.price
+            : product.price) /
+            100) *
+            (100 - product.discount) | currency: "RUB" : "symbol-narrow"
+        }}
         </button>
       }
     </div>
@@ -58,9 +68,49 @@
       </div>
     }
 
+    @if(product.detail.attributes.length>0){
+      
+      <form [formGroup]="formSelectedAttribute">
+        <mat-form-field
+          appearance="outline">
+          <mat-label>Выберите</mat-label>
+          <!-- <input
+            *ngIf="false"
+            matInput
+            formControlName="selectedProductAttribute"
+            [readonly]="true"
+          /> -->
+          <mat-select
+            formControlName="selectedProductAttribute"
+            (selectionChange)="selectedProductAttributeChange($event.value)"
+            [compareWith]="compareFunction">
+            <mat-option
+              *ngFor="let attribute of product.detail.attributes"
+              [value]="attribute"
+              [disabled]="!attribute.isActive"
+            >
+                {{ 
+                  attribute.description+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
+                }}
+            </mat-option>
+          </mat-select>
+          <mat-error
+            *ngIf="
+              formSelectedAttribute
+                .get('selectedProductAttribute')!
+                .hasError('required')
+            "
+          >
+            Необходимо уточнить выбор
+          </mat-error>
+        </mat-form-field>
+      </form>
+    }
     
   </mat-card-content>
   <div class="flex-fill"></div>
+
+
   <mat-card-actions>
     @if (isInCart(product)) {
       <div class="buy-button-x3">

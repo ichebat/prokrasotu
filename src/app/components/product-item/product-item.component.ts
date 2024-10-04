@@ -8,7 +8,7 @@ import {
   effect,
   signal,
 } from '@angular/core';
-import { IProduct, ProductAttributeClass, ProductDetailClass, ProductsService } from '../../services/products.service';
+import { IProduct, ProductAttributeClass, ProductClass, ProductDetailClass, ProductsService } from '../../services/products.service';
 import { CartService, ICartItem } from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NavigationService } from '../../services/navigation.service';
 import { Subscription, distinctUntilChanged } from 'rxjs';
+import { ProductDetailComponent } from '../product-detail/product-detail.component';
 
 @Component({
   selector: 'app-product-item',
@@ -133,8 +134,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   ) {
     this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
 
-    this.categoryOptionsAuto = this.productService.$productCategoriesMenuTree();
-    this.typeOptionsAuto = this.productService.$productTypesMenuTree();
+    this.categoryOptionsAuto = this.productService.$productCategories();;//this.productService.$productCategoriesMenuTree();
+    this.typeOptionsAuto = this.productService.$productTypes();//this.productService.$productTypesMenuTree();
     this.brandOptionsAuto = this.productService.$productBrands();
     this.brandLineOptionsAuto = this.productService.$productBrandLines();
     this.brandSeriesOptionsAuto = this.productService.$productBrandSeriesList();
@@ -264,6 +265,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
   //после конструктора необходимо заполнить форму начальными значениями
   setInitialValue() {
+    this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(this.selectedProductAttribute);
+
     if (!this.telegramService.isAdmin) return;
 
     this.form.controls['id'].setValue(this.product?.id);
@@ -285,7 +288,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.form.controls['detail'].setValue(this.product?.detail);
     this.form.controls['isActive'].setValue(this.product?.isActive);
     
-    this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(this.selectedProductAttribute);
+    
     
 
     //console.log('this.product',this.product);
@@ -378,8 +381,16 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       else this.telegramService.MainButton.hide();
     }
 
-    if (!this.telegramService.isAdmin) return;
+    
     this.setInitialValue();
+    
+    this.subscr_selectedProductAttribute = this.formSelectedAttribute
+        .get('selectedProductAttribute')!
+        .valueChanges.subscribe((val) => {
+          this.selectedProductAttribute = val;
+        });
+
+    if (!this.telegramService.isAdmin) return;
 
     // //подписываемся на изменения формы, для скрытия/отображения MainButton
     // this.subscr_form = this.form.statusChanges
@@ -464,11 +475,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           this.product.isActive = val;
         });
     
-    this.subscr_selectedProductAttribute = this.formSelectedAttribute
-        .get('selectedProductAttribute')!
-        .valueChanges.subscribe((val) => {
-          this.selectedProductAttribute = val;
-        });
+    
     this.subscr_translit = this.form
       .get('translit')!
       .valueChanges.subscribe((val) => {
@@ -715,6 +722,58 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             console.log('removeProduct error', err);
           },
           complete: () => {
+
+            //обновляем корзину
+            let flagCart = false;
+              this.cartService.$cart.update((currentCart) => {
+                const existingItem = currentCart.items.find(
+                  (i) => i.product.id === this.product.id,
+                );
+                if (!existingItem) {
+                  return currentCart;
+                } else {
+                  existingItem.quantity = 0;
+                  flagCart = true;
+                }
+
+                currentCart.items = currentCart.items.filter(
+                  (p) => p.quantity > 0,
+                );
+
+                currentCart.totalCount = this.cartService.calculateTotalCount(
+                  currentCart.items,
+                );
+                currentCart.totalAmount = this.cartService.calculateTotalAmount(
+                  currentCart.items,
+                );
+
+                return currentCart;
+              });
+
+            //обновляем корзину в таблице
+            if (flagCart && this.telegramService.Id) {
+              this.cartService
+                .sendCartToGoogleAppsScript(
+                  this.telegramService.Id,
+                  this.telegramService.UserName,
+                  'removeCart',
+                  this.cartService.$cart(),
+                )
+                .subscribe({
+                  next: (data) => {
+                    console.log('removeCart data', data);
+                  },
+                  error: (err) => {
+                    this.onHandleUpdate();
+                    console.log('removeCart error', err);
+                  },
+                  complete: () => {
+                    console.log('removeCart complete');
+                    //console.log(this.cartService.$cart());
+                  },
+                });
+            }
+
             this.onHandleUpdate();
             console.log('removeProduct complete');
             this.router.navigate(['/']);
@@ -1121,4 +1180,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       });
     });
   }
+
+  
 }

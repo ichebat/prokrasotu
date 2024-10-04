@@ -1,8 +1,6 @@
 <form [formGroup]="form" (ngSubmit)="sendData()">
   <mat-form-field appearance="outline">
-    <mat-label
-      >Несколько товаров подходит под описание этой карточки?</mat-label
-    >
+    <mat-label>Выберите, если в карточке несколько товаров</mat-label>
     <input
       style="display: none"
       matNativeControl
@@ -27,13 +25,14 @@
     </p>
     <mat-form-field appearance="outline">
       <mat-label>Введите ссылку на изображение (общее)</mat-label>
-      <input
+      <textarea
         matNativeControl
+        cdkTextareaAutosize
         [formControlName]="'mainImageUrl'"
         #mainImageUrl
         [placeholder]="'Введите ссылку на изображение (общее)'"
         (ngModelChange)="mainImageUrlChanging($event)"
-      />
+      ></textarea>
       @if (form.get("mainImageUrl")?.value) {
         <button
           matSuffix
@@ -179,291 +178,392 @@
     }
 
     @if (attributes.controls.length > 0) {
-      <div formArrayName="attributes">
-        @for (attribute of attributes.controls; track $index; let i = $index) {
-          <mat-card appearance="outlined" class="mb">
-            <mat-card-header>
-              <mat-card-title
-                >Детальная информация №{{ i + 1 }} о товаре</mat-card-title
-              >
-              <mat-card-subtitle
-                >В данной карточке может быть множество товаров с отличительными
-                свойствами. Заполните отличительные свойства для {{ i + 1 }}-го
-                товара.</mat-card-subtitle
-              >
-            </mat-card-header>
-            <mat-card-content>
-              <p>
-                Если указать изображение, то оно будет отображаться рядом с
-                изображением в карточке товара при выборе
-              </p>
-              <div [formGroupName]="i">
-                <mat-form-field appearance="outline">
-                  <mat-label>Введите ссылку на изображение</mat-label>
-                  <textarea
-                    matNativeControl
-                    cdkTextareaAutosize
-                    [formControlName]="'imageUrl'"
-                    #imageUrl
-                    [placeholder]="'Введите ссылку на изображение'"
-                    (ngModelChange)="imageUrlChanging($event, i)"
-                  ></textarea>
-                  @if (attribute.get("imageUrl")?.value) {
-                    <button
-                      matSuffix
-                      mat-icon-button
-                      type="button"
-                      (click)="onImageUrlClear(i)"
-                    >
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  }
-                  <mat-hint align="end"
-                    >Введите ссылку на изображение
-                    {{ attribute.get("imageUrl")?.value.length }}/255</mat-hint
-                  >
-                  <mat-error
-                    *ngIf="attribute.get('imageUrl')?.hasError('required')"
-                    >Это обязательное поле</mat-error
-                  >
-                  <mat-error
-                    *ngIf="attribute.get('imageUrl')?.hasError('minlength')"
-                    >Минимум 2 символа</mat-error
-                  >
-                  <mat-error
-                    *ngIf="attribute.get('imageUrl')?.hasError('maxlength')"
-                    >Максимум 255 символов</mat-error
-                  >
-                  <mat-error
-                    *ngIf="
-                      !attribute.get('imageUrl')?.hasError('minlength') &&
-                      !attribute.get('imageUrl')?.hasError('maxlength') &&
-                      attribute.get('imageUrl')?.hasError('pattern')
-                    "
-                    >Некорректный формат ссылки</mat-error
-                  >
-                </mat-form-field>
+      <div formArrayName="attributes" class="mb">
+        <mat-accordion>
+          @for (
+            attribute of attributes.controls;
+            track $index;
+            let i = $index
+          ) {
+            <mat-expansion-panel
+              [expanded]="step() === i"
+              (opened)="setStep(i)"
+            >
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  №{{ i + 1 }}: {{ attribute.get("description")?.value }}
+                </mat-panel-title>
+              </mat-expansion-panel-header>
 
-                <div class="product-image-host">
-                  <img
-                    [id]="'imgDetailElement' + i"
-                    mat-card-image
-                    [src]="product.detail.attributes[i].imageUrl"
-                    [alt]="product.detail.attributes[i].description"
-                    [title]="product.detail.attributes[i].description"
-                    class="product-item-image"
-                  />
-                </div>
-                <app-image-cropper-loader
-                  [maintainAspectRatio]="true"
-                  [containWithinAspectRatio]="false"
-                  [aspectRatio]="1 / 1"
-                  [resizeToWidth]="320"
-                  [cropperMinWidth]="160"
-                  [onlyScaleDown]="true"
-                  [roundCropper]="false"
-                  [canvasRotation]="0"
-                  [targetHTMLElement]="'imgDetailElement' + i"
-                  [gitHubFileName]="
-                    product.detail.attributes[i].imageUrl
-                      ? product.detail.attributes[i].imageUrl
-                      : 'product_' +
-                        product.id +
-                        '_detail_' +
-                        i +
-                        '_' +
-                        myDateNumber +
-                        '.png'
-                  "
-                  (onGitHubLoaded)="GitHubDetailLoaded($event, i)"
-                  (onGitHubLoading)="GitHubDetailLoading($event)"
-                ></app-image-cropper-loader>
+              <mat-card appearance="outlined" class="mb">
+                <mat-card-header>
+                  <mat-card-subtitle
+                    >В данной карточке может быть множество товаров с
+                    отличительными свойствами. Заполните отличительные свойства
+                    для {{ i + 1 }}-го товара.</mat-card-subtitle
+                  >
+                </mat-card-header>
+                <mat-card-content>
+                  <p>
+                    Если указать изображение, то оно будет отображаться рядом с
+                    изображением в карточке товара при выборе
+                  </p>
+                  <div [formGroupName]="i">
+                    <mat-form-field appearance="outline">
+                      <mat-label>Введите ссылку на изображение</mat-label>
+                      <textarea
+                        matNativeControl
+                        cdkTextareaAutosize
+                        [formControlName]="'imageUrl'"
+                        #imageUrl
+                        [placeholder]="'Введите ссылку на изображение'"
+                        (ngModelChange)="imageUrlChanging($event, i)"
+                      ></textarea>
+                      @if (attribute.get("imageUrl")?.value) {
+                        <button
+                          matSuffix
+                          mat-icon-button
+                          type="button"
+                          (click)="onImageUrlClear(i)"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
+                      <mat-hint align="end"
+                        >Введите ссылку на изображение
+                        {{
+                          attribute.get("imageUrl")?.value.length
+                        }}/255</mat-hint
+                      >
+                      <mat-error
+                        *ngIf="attribute.get('imageUrl')?.hasError('required')"
+                        >Это обязательное поле</mat-error
+                      >
+                      <mat-error
+                        *ngIf="attribute.get('imageUrl')?.hasError('minlength')"
+                        >Минимум 2 символа</mat-error
+                      >
+                      <mat-error
+                        *ngIf="attribute.get('imageUrl')?.hasError('maxlength')"
+                        >Максимум 255 символов</mat-error
+                      >
+                      <mat-error
+                        *ngIf="
+                          !attribute.get('imageUrl')?.hasError('minlength') &&
+                          !attribute.get('imageUrl')?.hasError('maxlength') &&
+                          attribute.get('imageUrl')?.hasError('pattern')
+                        "
+                        >Некорректный формат ссылки</mat-error
+                      >
+                    </mat-form-field>
 
-                <div formArrayName="keyValues">
-                  @for (
-                    keyValue of keyValues(i).controls;
-                    track $index;
-                    let j = $index
-                  ) {
-                    <div [formGroupName]="j">
-                      <mat-form-field appearance="outline">
-                        <mat-label
-                          >Введите {{ product.detail.keys[j] }}</mat-label
-                        >
-                        <input
-                          matNativeControl
-                          [formControlName]="'keyValue'"
-                          #keyValue
-                          [placeholder]="'Введите ' + product.detail.keys[j]"
-                          (ngModelChange)="detailKeyValueChanging($event, i, j)"
-                        />
-                        @if (keyValue.get("keyValue")?.value) {
-                          <button
-                            matSuffix
-                            mat-icon-button
-                            type="button"
-                            (click)="onKeyValueClear(i, j)"
-                          >
-                            <mat-icon>close</mat-icon>
-                          </button>
-                        }
-                        <mat-hint align="end"
-                          >Введите [{{ product.detail.keys[j] }}]
-                          {{
-                            keyValue.get("keyValue")?.value.length
-                          }}/50</mat-hint
-                        >
-                        <mat-error
-                          *ngIf="keyValue.get('keyValue')?.hasError('required')"
-                          >Это обязательное поле</mat-error
-                        >
-                        <mat-error
-                          *ngIf="
-                            keyValue.get('keyValue')?.hasError('minlength')
-                          "
-                          >Минимум 2 символа</mat-error
-                        >
-                        <mat-error
-                          *ngIf="
-                            keyValue.get('keyValue')?.hasError('maxlength')
-                          "
-                          >Максимум 50 символов</mat-error
-                        >
-                      </mat-form-field>
+                    <div class="product-image-host">
+                      <img
+                        [id]="'imgDetailElement' + i"
+                        mat-card-image
+                        [src]="product.detail.attributes[i].imageUrl"
+                        [alt]="product.detail.attributes[i].description"
+                        [title]="product.detail.attributes[i].description"
+                        class="product-item-image"
+                      />
                     </div>
-                  }
-                </div>
+                    <app-image-cropper-loader
+                      [maintainAspectRatio]="true"
+                      [containWithinAspectRatio]="false"
+                      [aspectRatio]="1 / 1"
+                      [resizeToWidth]="320"
+                      [cropperMinWidth]="160"
+                      [onlyScaleDown]="true"
+                      [roundCropper]="false"
+                      [canvasRotation]="0"
+                      [targetHTMLElement]="'imgDetailElement' + i"
+                      [gitHubFileName]="
+                        product.detail.attributes[i].imageUrl
+                          ? product.detail.attributes[i].imageUrl
+                          : 'product_' +
+                            product.id +
+                            '_detail_' +
+                            i +
+                            '_' +
+                            myDateNumber +
+                            '.png'
+                      "
+                      (onGitHubLoaded)="GitHubDetailLoaded($event, i)"
+                      (onGitHubLoading)="GitHubDetailLoading($event)"
+                    ></app-image-cropper-loader>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>Описание</mat-label>
-                  <textarea
-                    matInput
-                    matNativeControl
-                    cdkTextareaAutosize
-                    formControlName="description"
-                    #description
-                    maxlength="500"
-                    placeholder="Описание"
-                    (ngModelChange)="descriptionChanging($event, i)"
-                  >
-                  </textarea>
-                  @if (description.value) {
-                    <button
-                      matSuffix
-                      mat-icon-button
-                      type="button"
-                      (click)="onDescriptionClear(i)"
-                    >
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  }
-                  <mat-hint align="end"
-                    >Описание {{ description.value.length }}/500</mat-hint
-                  >
-                  <mat-error
-                    *ngIf="form.get('description')?.hasError('required')"
-                    >Это обязательное поле</mat-error
-                  >
-                  <mat-error
-                    *ngIf="form.get('description')?.hasError('maxlength')"
-                    >Максимум 500 символов</mat-error
-                  >
-                </mat-form-field>
+                    <div formArrayName="keyValues">
+                      @for (
+                        keyValue of keyValues(i).controls;
+                        track $index;
+                        let j = $index
+                      ) {
+                        <div [formGroupName]="j">
+                          <mat-form-field appearance="outline">
+                            <mat-label
+                              >Введите {{ product.detail.keys[j] }}</mat-label
+                            >
+                            <input
+                              matNativeControl
+                              [formControlName]="'keyValue'"
+                              #keyValue
+                              [placeholder]="
+                                'Введите ' + product.detail.keys[j]
+                              "
+                              (ngModelChange)="
+                                detailKeyValueChanging($event, i, j)
+                              "
+                            />
+                            @if (keyValue.get("keyValue")?.value) {
+                              <button
+                                matSuffix
+                                mat-icon-button
+                                type="button"
+                                (click)="onKeyValueClear(i, j)"
+                              >
+                                <mat-icon>close</mat-icon>
+                              </button>
+                            }
+                            <mat-hint align="end"
+                              >Введите [{{ product.detail.keys[j] }}]
+                              {{
+                                keyValue.get("keyValue")?.value.length
+                              }}/50</mat-hint
+                            >
+                            <mat-error
+                              *ngIf="
+                                keyValue.get('keyValue')?.hasError('required')
+                              "
+                              >Это обязательное поле</mat-error
+                            >
+                            <mat-error
+                              *ngIf="
+                                keyValue.get('keyValue')?.hasError('minlength')
+                              "
+                              >Минимум 2 символа</mat-error
+                            >
+                            <mat-error
+                              *ngIf="
+                                keyValue.get('keyValue')?.hasError('maxlength')
+                              "
+                              >Максимум 50 символов</mat-error
+                            >
+                          </mat-form-field>
+                        </div>
+                      }
+                    </div>
 
-                <p>Если указать цену 0 рублей, то будет взята цена из карточки</p>
-                <mat-form-field appearance="outline">
-                  <mat-label>Введите цену (руб.)</mat-label>
-                  <input
-                    type="number"
-                    matNativeControl
-                    formControlName="price"
-                    #price
-                    placeholder="Введите цену (руб.)"
-                    (ngModelChange)="priceChanging($event, i)"
-                  />
-                  @if (price.value) {
-                    <button
-                      matSuffix
-                      mat-icon-button
-                      type="button"
-                      (click)="onPriceClear(i)"
-                    >
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  }
-                  <mat-hint align="end">Введите цену (руб.)</mat-hint>
-                  <mat-error
-                    *ngIf="attribute.get('price')?.hasError('required')"
-                    >Это обязательное поле</mat-error
-                  >
-                  <mat-error *ngIf="attribute.get('price')?.hasError('min')"
-                    >Скидка (руб.) должна быть больше 0</mat-error
-                  >
-                </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Описание</mat-label>
+                      <textarea
+                        matInput
+                        matNativeControl
+                        cdkTextareaAutosize
+                        formControlName="description"
+                        #description
+                        maxlength="500"
+                        placeholder="Описание"
+                        (ngModelChange)="descriptionChanging($event, i)"
+                      >
+                      </textarea>
+                      @if (description.value) {
+                        <button
+                          matSuffix
+                          mat-icon-button
+                          type="button"
+                          (click)="onDescriptionClear(i)"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
+                      <mat-hint align="end"
+                        >Описание {{ description.value.length }}/500</mat-hint
+                      >
+                      <mat-error
+                        *ngIf="form.get('description')?.hasError('required')"
+                        >Это обязательное поле</mat-error
+                      >
+                      <mat-error
+                        *ngIf="form.get('description')?.hasError('maxlength')"
+                        >Максимум 500 символов</mat-error
+                      >
+                    </mat-form-field>
 
-                <mat-form-field appearance="outline">
-                  <mat-label>Доступно для покупки?</mat-label>
-                  <input
-                    style="display: none"
-                    matNativeControl
-                    formControlName="isActive"
-                  />
-                  <mat-checkbox
-                    formControlName="isActive"
-                    #isActive
-                    placeholder="Доступно для покупки?"
-                    (change)="isActiveCheckBoxChanging($event, i)"
-                    >Доступно для покупки?</mat-checkbox
-                  >
-                </mat-form-field>
-              </div>
-            </mat-card-content>
-          </mat-card>
-        }
+                    <p>
+                      Если указать цену 0 рублей, то будет взята цена из
+                      карточки
+                    </p>
+                    <mat-form-field appearance="outline">
+                      <mat-label>Введите цену (руб.)</mat-label>
+                      <input
+                        type="number"
+                        matNativeControl
+                        formControlName="price"
+                        #price
+                        placeholder="Введите цену (руб.)"
+                        (ngModelChange)="priceChanging($event, i)"
+                      />
+                      @if (price.value) {
+                        <button
+                          matSuffix
+                          mat-icon-button
+                          type="button"
+                          (click)="onPriceClear(i)"
+                        >
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
+                      <mat-hint align="end">Введите цену (руб.)</mat-hint>
+                      <mat-error
+                        *ngIf="attribute.get('price')?.hasError('required')"
+                        >Это обязательное поле</mat-error
+                      >
+                      <mat-error *ngIf="attribute.get('price')?.hasError('min')"
+                        >Скидка (руб.) должна быть больше 0</mat-error
+                      >
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Доступно для покупки?</mat-label>
+                      <input
+                        style="display: none"
+                        matNativeControl
+                        formControlName="isActive"
+                      />
+                      <mat-checkbox
+                        formControlName="isActive"
+                        #isActive
+                        placeholder="Доступно для покупки?"
+                        (change)="isActiveCheckBoxChanging($event, i)"
+                        >Доступно для покупки?</mat-checkbox
+                      >
+                    </mat-form-field>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </mat-expansion-panel>
+          }
+        </mat-accordion>
       </div>
 
-      <table mat-table [dataSource]="dataSource">
-        <ng-container matColumnDef="imageUrl">
-          <th mat-header-cell *matHeaderCellDef><strong>Рис.</strong></th>
-          <td mat-cell *matCellDef="let element">
-            <img
-              mat-card-image
-              [src]="element.imageUrl"
-              [alt]="element.description"
-              [title]="element.description"
-              class="order-item-image"
-            />
-          </td>
-        </ng-container>
+      <!-- @if (product.detail.keys.length > 0) {
+        <p>Заполнено места {{ getPercentFillGoogleSheetCell() | percent }}</p>
+        <div class="buy-button-x3">
+          <button
+            mat-raised-button
+            (click)="addRow()"
+            color="primary"
+            type="button"
+            class="mx mb"
+            [disabled]="!form.valid || disableButton"
+          >
+            Добавить в карточку
+          </button>
+          @if (attributes.controls.length > 0) {
+            <button
+              mat-raised-button
+              (click)="removeRow(attributes.controls.length-1)"
+              color="warn"
+              type="button"
+              class="mx mb"
+              [disabled]="disableButton"
+            >
+              Убрать из карточки
+            </button>
+          }
+        </div>
+      } -->
 
-        @for (colName of displayedColumns; track $index) {
-          <ng-container [matColumnDef]="colName">
-            <th mat-header-cell *matHeaderCellDef class="align-middle">
-              <strong>{{ colName }}</strong>
-            </th>
-            <td mat-cell *matCellDef="let element" class="align-middle">
-              {{ element.keyValues[$index] }}
-            </td>
-          </ng-container>
-        }
+      <mat-card appearance="outlined" class="mb">
+        <mat-card-content>
+          <table mat-table [dataSource]="dataSource">
+            <ng-container matColumnDef="imageUrl">
+              <th mat-header-cell *matHeaderCellDef><strong>Рис.</strong></th>
+              <td mat-cell *matCellDef="let element">
+                <img
+                  mat-card-image
+                  [src]="element.imageUrl"
+                  [alt]="element.description"
+                  [title]="element.description"
+                  class="product-detail-image"
+                />
+              </td>
+            </ng-container>
 
-        <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef><strong>Цена.</strong></th>
-          <td mat-cell *matCellDef="let element">{{ element.price }}</td>
-        </ng-container>
-        <ng-container matColumnDef="isActive">
-          <th mat-header-cell *matHeaderCellDef><strong>Активно</strong></th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.isActive ? "Да" : "Нет" }}
-          </td>
-        </ng-container>
+            <!-- @for (colName of displayedColumns; track $index) {
+              <ng-container [matColumnDef]="colName">
+                <th mat-header-cell *matHeaderCellDef class="align-middle">
+                  <strong>{{ colName }}</strong>
+                </th>
+                <td mat-cell *matCellDef="let element" class="align-middle">
+                  {{ element.keyValues[$index] }}
+                </td>
+              </ng-container>
+            }-->
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumnsForTable"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumnsForTable"
-        ></tr>
-      </table>
+            <ng-container matColumnDef="description">
+              <th mat-header-cell *matHeaderCellDef><strong>Товар.</strong></th>
+              <td mat-cell *matCellDef="let element">
+                @for (colName of displayedColumns; track $index) {
+                  {{ element.keyValues[$index] + " " }}
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef><strong>Цена.</strong></th>
+              <td mat-cell *matCellDef="let element">{{ element.price }}</td>
+            </ng-container>
+            <ng-container matColumnDef="isActive">
+              <th mat-header-cell *matHeaderCellDef><strong>Актив.</strong></th>
+              <td mat-cell *matCellDef="let element">
+                @if(element.isActive ){<mat-icon>sync</mat-icon>}
+                @if(!element.isActive ){<mat-icon color="warn">sync_disabled</mat-icon>}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ActionBar">
+              <th
+                mat-header-cell
+                *matHeaderCellDef
+                style="width: 20%"
+                class="align-middle p-1"
+              >
+                <button
+                  mat-icon-button
+                  matTooltip="Добавить продукт"
+                  type="button"
+                  (click)="addRow()"
+                >
+                  <mat-icon>add_circle</mat-icon>
+                </button>
+              </th>
+              <td
+                mat-cell
+                *matCellDef="let element; let i = index"
+                class="align-middle p-1"
+              >
+                <button
+                  mat-icon-button
+                  matTooltip="Удалить продукт"
+                  type="button"
+                  (click)="removeRow(i)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumnsForTable"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumnsForTable"
+            ></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
     }
     @if (product.detail.attributes.length == 0) {
       <p>
@@ -498,7 +598,7 @@
       <br />
     }
 
-    @if (product.detail.keys.length > 0) {
+    <!-- @if (product.detail.keys.length > 0) {
       <p>Заполнено места {{ getPercentFillGoogleSheetCell() | percent }}</p>
       <div class="buy-button-x3">
         <button
@@ -524,6 +624,6 @@
           </button>
         }
       </div>
-    }
+    } -->
   }
 </form>

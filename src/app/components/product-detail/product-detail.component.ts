@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Input, NgZone, OnInit, Output, signal } from '@angular/core';
 import { IProduct, ProductAttributeClass, ProductClass, ProductDetailClass } from '../../services/products.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
   FormArray,
   FormBuilder,
@@ -9,6 +9,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
+import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
+
+export interface DialogData {  
+  message: string;
+  description: string;
+  product: ProductClass;
+}
 
 @Component({
   selector: 'app-product-detail',
@@ -18,6 +25,8 @@ import { MatTableDataSource } from '@angular/material/table';
 export class ProductDetailComponent implements OnInit {
   @Input() product!: ProductClass;
   @Output() public onDetailChanged: EventEmitter<any> = new EventEmitter<any>();
+
+  step = signal(-1);
 
   form: FormGroup = new FormGroup({}); //реактивная форма
 
@@ -32,8 +41,9 @@ export class ProductDetailComponent implements OnInit {
   disableButton: boolean = false; //отключает кнопки на время отправки данных
 
   constructor(
-    public dialog: MatDialog,
     private fb: FormBuilder,
+    private zone: NgZone,
+    public dialog: MatDialog,
   ) {
 
     this.buildForm();
@@ -46,7 +56,6 @@ export class ProductDetailComponent implements OnInit {
 
   //после конструктора необходимо заполнить форму начальными значениями
   setInitialValue() {
-    
 
     this.form.controls['mainImageUrl'].setValue(this.product.detail.mainImageUrl);
     this.form.controls['mainImageDescription'].setValue(this.product.detail.mainImageDescription);
@@ -65,9 +74,6 @@ export class ProductDetailComponent implements OnInit {
       for (let index = 0; index < attribute.keyValues.length; index++) {
         (ctrl.get('keyValues') as FormArray).controls[index].get('keyValue')?.setValue(attribute.keyValues[index]);     
       }
-      // attribute.keyValues.forEach(keyValue => {
-      //   (ctrl.get('keyValues')as FormArray).push(this.newKeyValue(keyValue))
-      // });
       this.attributes.push(ctrl);      
     });
 
@@ -75,6 +81,7 @@ export class ProductDetailComponent implements OnInit {
       this.isProductDetailExist = true;
       this.form.controls['isProductDetailExist'].setValue(true);
     }
+
 
     
     this.updateDataSource();
@@ -163,10 +170,12 @@ export class ProductDetailComponent implements OnInit {
   get displayedColumnsForTable(){ //список колонок для отображения в таблице со всеми полями, не только динамическими keyValues
     var cols = [] as string[];
 
-    this.displayedColumns.forEach(p=>cols.push(p));
+    //this.displayedColumns.forEach(p=>cols.push(p));
     cols.push('imageUrl');
+    cols.push('description');
     cols.push('price');
     cols.push('isActive');
+    cols.push('ActionBar');
     return cols;
   }
 
@@ -234,23 +243,43 @@ export class ProductDetailComponent implements OnInit {
     this.updateDataSource();
 
     this.keys.updateValueAndValidity();
+
+    this.setStep(this.product.detail.attributes.length-1)
     //this.form.updateValueAndValidity(); //обновляем статус формы
     //console.log(this.attributes.value);
     
   }
   //функция удалить строку
-  removeRow() {
-    
-    const index = this.product.detail.attributes.length-1;
-    this.attributes.removeAt(index);
+  removeRow(index) {
 
-    this.product.detail.attributes.splice(index,1);
-    
-    
+    this.zone.run(() => {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: 'Удаление?',
+            description:
+              'Следующий товар: [' +
+              this.product.name +' '+ this.product.detail.attributes[index].description+
+              '] будет удален безвозвратно. Подтвердите действие.',
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result == true) {
+          
+          this.attributes.removeAt(index);
+          this.product.detail.attributes.splice(index,1);
+          this.updateDataSource();
+          this.keys.updateValueAndValidity();
+        }
+      });
+    });
 
-    this.updateDataSource();
+    
+    //const index = this.product.detail.attributes.length-1;
 
-    this.keys.updateValueAndValidity();
+   
     //this.form.updateValueAndValidity(); //обновляем статус формы
     //console.log(this.attributes.value);
   }
@@ -375,6 +404,10 @@ export class ProductDetailComponent implements OnInit {
     const val = JSON.stringify(this.product.detail).length/50000;
     
     return val;
+  }
+
+  setStep(index: number) {
+    this.step.set(index);
   }
 
 }

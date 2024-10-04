@@ -5,7 +5,7 @@
     <mat-card-header>
       <mat-card-title
         >{{ product.name }}
-        @if(product.id>0){
+        @if (product.id > 0) {
           <app-share-buttons
             [url]="getUrl()"
             [title]="product.name"
@@ -32,6 +32,17 @@
           class="product-item-image"
         />
       </div>
+      @if (selectedProductAttribute) {
+        <div class="product-image-host">
+          <img
+            mat-card-image
+            [src]="selectedProductAttribute.imageUrl"
+            [alt]="selectedProductAttribute.description"
+            [title]="selectedProductAttribute.description"
+            class="product-item-image"
+          />
+        </div>
+      }
       <app-image-cropper-loader
         [maintainAspectRatio]="true"
         [containWithinAspectRatio]="true"
@@ -49,22 +60,19 @@
     }
 
     <mat-card-content>
-      @if (
-        product.price! > 0
-      ) {
+      @if (product.price! > 0) {
         <p>
           Цена действительна только для интернет-магазина и может отличаться от
           цен в розничных магазинах
         </p>
-        
-        
+
         <div class="buy-button pb">
           @if (product.discount == 0) {
             <button mat-flat-button (click)="addItem()" color="primary">
               В корзину за
               {{
                 selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? selectedProductAttribute!.price
+                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
                   : (product.price | currency: "RUB" : "symbol-narrow")
               }}
             </button>
@@ -82,7 +90,7 @@
               В корзину за
               <s>{{
                 selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? selectedProductAttribute!.price
+                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
                   : (product.price | currency: "RUB" : "symbol-narrow")
               }}</s>
               {{
@@ -121,20 +129,23 @@
                 product.detail.mainImageUrl
               )
             "
-            >{{ product.detail.mainImageDescription }}</a
+          >
+            Скачать файл: {{ product.detail.mainImageDescription }}</a
           >
         </p>
       }
 
-      @if(getVisible('selectedProductAttribute')){
+      @if (getVisible("selectedProductAttribute")) {
         <p>
           Цена действительна только для интернет-магазина и может отличаться от
           цен в розничных магазинах
         </p>
         <p>
-          В этой карточке имеется {{product.detail.attributes.length}} товаров. Необходимо выбрать из списка.
+          В этой карточке имеется
+          {{ product.detail.attributes.length }} товаров. Необходимо выбрать из
+          списка.
         </p>
-        <form [formGroup]="formSelectedAttribute">
+        <form [formGroup]="formSelectedAttribute" class="mx">
           <mat-form-field
             appearance="outline"
             *ngIf="getVisible('selectedProductAttribute')"
@@ -158,14 +169,10 @@
                 [disabled]="!attribute.isActive"
               >
                 <strong>
-                  {{ attribute.description }}
-                  {{
-                    attribute.price == 0
-                      ? " (бесплатно)"
-                      : "(" +
-                        (attribute.price | currency: "RUB" : "symbol-narrow") +
-                        ")"
-                  }}</strong
+                  {{ 
+                    attribute.description+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
+                  }}
+                </strong
                 >
               </mat-option>
             </mat-select>
@@ -209,7 +216,7 @@
           </button>
         </div>
       }
-      @if (!isInCart(product)&&product.id>0) {
+      @if (!isInCart(product) && product.id > 0) {
         <div class="buy-button">
           <!-- <button mat-flat-button color="primary" (click)="addItem()">
             В корзину
@@ -263,8 +270,12 @@
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
-  @if(product.id>0){<h2>Редактирование товара</h2>}
-  @if(product.id==0){<h2>Создание нового товара</h2>}
+  @if (product.id > 0) {
+    <h2>Редактирование товара</h2>
+  }
+  @if (product.id == 0) {
+    <h2>Создание нового товара</h2>
+  }
   <h3>
     <mat-icon color="accent">warning</mat-icon>
     Внимание, редактирование товара доступно только для администратора. Меняйте
@@ -276,17 +287,16 @@
   </h4>
 
   @if (product.id > 0) {
-    <div class="buy-button">
+    <div class="buy-button-x3">
       <button
-            mat-flat-button
-            matTooltip="Удалить продукт"
-            type="button"          
-            color="warn"
-            (click)="removeProduct()">
-            
-            <mat-icon>delete</mat-icon> Удалить товар
-          </button>
-
+        mat-raised-button
+        (click)="removeProduct()"
+        color="warn"
+        type="button"
+        class="mx mb"
+      >
+        <mat-icon>delete</mat-icon> Удалить товар
+      </button>
     </div>
 
     <app-product-detail [product]="product"></app-product-detail>

@@ -1,9 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { IProduct, ProductAttributeClass } from '../../services/products.service';
 import { CartService, ICartItem } from '../../services/cart.service';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { environment } from '../../../environments/environment';
 import { MatDialog } from '@angular/material/dialog';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -11,28 +13,63 @@ import { MatDialog } from '@angular/material/dialog';
   templateUrl: './product-icon.component.html',
   styleUrl: './product-icon.component.scss',
 })
-export class ProductIconComponent {
+export class ProductIconComponent  implements OnInit, OnDestroy{
   @Input() product!: IProduct;
 
   selectedProductAttribute: ProductAttributeClass | null = null;
+  
+  formSelectedAttribute: FormGroup = new FormGroup({}); //реактивная форма для выбора атрибута
+
+  
+  private subscr_selectedProductAttribute: Subscription = Subscription.EMPTY;
 
 
   constructor(private cartService: CartService,
-    public dialog: MatDialog,) {    
+    private fb: FormBuilder,
+    public dialog: MatDialog,
+    private zone: NgZone,
+    ) {  
+      
+      this.formSelectedAttribute = fb.group({
+        selectedProductAttribute: [this.selectedProductAttribute, this.product?.detail.attributes.length>0?[Validators.required]:[]],
+      });
     
+  }
+  ngOnDestroy(): void {
+    this.subscr_selectedProductAttribute.unsubscribe();
+  }
+  ngOnInit(): void {
+    this.setInitialValue();
+
+    this.subscr_selectedProductAttribute = this.formSelectedAttribute
+        .get('selectedProductAttribute')!
+        .valueChanges.subscribe((val) => {
+          this.selectedProductAttribute = val;
+        });
+  }
+
+  //после конструктора необходимо заполнить форму начальными значениями
+  setInitialValue() {
+    this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(this.selectedProductAttribute);
   }
 
   isInCart(product:IProduct)
   {
-    return this.cartService.$cart().items.findIndex(p=>p.product.id === product.id)>=0;
+    return this.cartService.$cart().items.findIndex(p=>p.product.id === product.id && p.attribute?.description == this.selectedProductAttribute?.description)>=0;
+   
   }
 
   quantityInCart(product:IProduct)
   {
-    return this.cartService.$cart().items.find(p=>p.product.id === product.id)!.quantity;
+    //return this.cartService.$cart().items.find(p=>p.product.id === product.id)!.quantity;
+    const searchItem = this.cartService
+    .$cart()
+    .items.find((p) => p.product.id === product.id && p.attribute?.description == this.selectedProductAttribute?.description);
+    return searchItem?searchItem.quantity:0;
   }
 
   addItem() {
+    if (this.product.id<=0) return;
     console.log('Add to cart');
     
     const newItem: ICartItem = {
@@ -41,6 +78,25 @@ export class ProductIconComponent {
       quantity: 1,
       checked: true,
     };
+
+    if (this.product.detail.attributes.length>0 && !this.selectedProductAttribute) {
+      this.zone.run(() => {
+      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+        ConfirmDialogDemoComponent,
+        {
+          data: {
+            message: 'Сначала выберите товар',
+            description:
+              'Выберите товар из списка, чтобы добавить в корзину',
+            showCancelButton: false,
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        return;
+      });
+    });
+    }
     
     if(this.cartService.checkMaxCartItemPosition(newItem))
     {
@@ -79,6 +135,7 @@ export class ProductIconComponent {
       });
     }
     else
+    if ((this.product.detail.attributes.length>0 && this.selectedProductAttribute) || this.product.detail.attributes.length==0)
     this.cartService.addItem(newItem);
     
     
@@ -96,6 +153,16 @@ export class ProductIconComponent {
 
     this.cartService.removeItem(newItem);
     
+  }
+
+  selectedProductAttributeChange(item: ProductAttributeClass | null) {
+    this.selectedProductAttribute = item;
+  }
+
+  //для корректного отображения select контрола необходима функция сравнения
+  compareFunction(o1: any, o2: any) {
+    if (o1 == null || o2 == null) return false;
+    return o1.description.toString() == o2.description.toString();
   }
 
 }

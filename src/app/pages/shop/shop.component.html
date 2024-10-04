@@ -85,5 +85,20 @@
   />
   }
 
+  @if (telegram.isAdmin) {
+    <div class="buy-button">
+      <button
+            mat-flat-button
+            matTooltip="Создать новый продукт"
+            type="button"          
+            color="warn"
+            [routerLink]="'/product/'">
+            
+            <mat-icon>add_circle</mat-icon> Создать новый продукт
+          </button>
+
+    </div>
+  }
+
   
   
