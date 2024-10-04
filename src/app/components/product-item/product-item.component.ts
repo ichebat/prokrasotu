@@ -1145,7 +1145,49 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
 
   downloadImage(fileName, url) {
-    this.productService.downloadImage(fileName, url);
+  if (this.telegramService.IsTelegramWebAppOpened)
+      {
+        this.telegramService.sendToGoogleAppsScript(
+          {
+            chat_id: this.telegramService.Id,
+            photo: url,
+            caption: fileName,
+            action: "sendphoto",
+          }
+        ).subscribe({
+          next: (data) => {
+            const sendphoto_response = data;
+            console.log('sendphoto data', data);
+
+            if (sendphoto_response?.status == 'success' &&
+              sendphoto_response?.data?.action.toString().toLowerCase() ==
+                'sendphoto')
+              this.zone.run(() => {
+                const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+                  ConfirmDialogDemoComponent,
+                  {
+                    data: {
+                      message: 'Информационное сообщение',
+                      description:
+                      sendphoto_response.message,
+                      showCancelButton: false,
+                    },
+                  },
+                );
+                dialogRef.afterClosed().subscribe((result) => {
+                  return;
+                });
+              });
+          },
+          error: (err) => {
+            console.log('sendphoto error', err);
+          },
+          complete: () => {
+            console.log('sendphoto complete');
+          },
+        });
+  
+      }
   }
 
 
