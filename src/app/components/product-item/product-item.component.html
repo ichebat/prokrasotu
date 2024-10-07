@@ -1,4 +1,4 @@
-<button mat-button type="button" (click)="testClick()"></button>
+<!-- <button mat-button type="button" (click)="testClick()"></button> -->
 
 <div class="responsive-grid-product-item mb">
   <mat-card appearance="outlined" class="product-item mat-elevation-z5">
@@ -304,7 +304,11 @@
 
   @if (product.id > 0) {
 
-    <app-product-detail [product]="product"></app-product-detail>
+    <app-product-detail [product]="product"
+    (onDetailChanged)="detailFormChanged($event)"></app-product-detail>
+    <mat-error *ngIf="form.get('detail')!.hasError('incorrect')">
+              Некорректно заполнены товары в карточке
+            </mat-error>
   }
 
   <form [formGroup]="form" (ngSubmit)="sendData()">
@@ -863,14 +867,12 @@
       <p>{{ MainButtonText }}</p>
     }
 
-    <!-- @if (!telegramService.IsTelegramWebAppOpened) { -->
+    @if (!telegramService.IsTelegramWebAppOpened) {
     <div class="buy-button pb">
       @if (getVisible("button_submit")) {
         <button
           mat-flat-button
-          [disabled]="
-            !form.valid || disableButton || !getEnabled('button_submit')
-          "
+          [disabled]="!form.valid || disableButton || !getEnabled('button_submit')"
           color="accent"
           type="submit"
         >
@@ -883,6 +885,6 @@
         </button>
       }
     </div>
-    <!-- } -->
+    }
   </form>
 }

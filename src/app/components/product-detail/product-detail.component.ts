@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Input, NgZone, OnInit, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Inject, Input, NgZone, OnDestroy, OnInit, Output, signal } from '@angular/core';
 import { IProduct, ProductAttributeClass, ProductClass, ProductDetailClass } from '../../services/products.service';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
@@ -10,6 +10,7 @@ import {
 } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
+import { Subscription, distinctUntilChanged } from 'rxjs';
 
 export interface DialogData {  
   message: string;
@@ -22,13 +23,14 @@ export interface DialogData {
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.scss',
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent implements OnInit, OnDestroy {
   @Input() product!: ProductClass;
   @Output() public onDetailChanged: EventEmitter<any> = new EventEmitter<any>();
 
   step = signal(-1);
 
   form: FormGroup = new FormGroup({}); //реактивная форма
+  private subscr_form: Subscription = Subscription.EMPTY;
 
   dataSource: MatTableDataSource<any> = new MatTableDataSource([] as any[]);;
   displayedColumns: string[] = []; //список колонок для отображения
@@ -48,6 +50,18 @@ export class ProductDetailComponent implements OnInit {
 
     this.buildForm();
     this.updateDataSource();
+
+    //подписываемся на изменения формы, для скрытия/отображения MainButton
+    this.subscr_form = this.form.statusChanges
+      .pipe(distinctUntilChanged())
+      .subscribe(() => {
+        //console.log(this.form.status);
+        this.onDetailChanged.emit(this.form.valid);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.subscr_form.unsubscribe();
   }
 
   ngOnInit(): void {

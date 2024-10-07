@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   Input,
   OnDestroy,
@@ -24,7 +25,7 @@ import { GitHubCdnService } from '../../services/git-hub-cdn.service';
   selector: 'app-shop',
   templateUrl: './shop.component.html',
 })
-export class ShopComponent implements OnInit, OnDestroy {
+export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
   telegram = inject(TelegramService);
   navigation = inject(NavigationService);
 
@@ -92,6 +93,13 @@ export class ShopComponent implements OnInit, OnDestroy {
       }
 
     this.goBack = this.goBack.bind(this);
+  }
+  ngAfterViewInit(): void {    
+    let top = document.getElementById('top');
+    if (top !== null) {
+      top.scrollIntoView();
+      top = null;
+    }
   }
 
   

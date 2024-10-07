@@ -237,6 +237,7 @@ export class ProductsService {
   // url = "http://cors.io/spreadsheets.google.com/feeds/list/"+this.sheetId+"/od6/public/values?alt=json";
 
   public $searchFilter = signal<string>('');
+  public $searchFilterIsNew = signal<boolean>(false);
   private $productId = signal<string>('');
   private $selectedCategoryTranslit = signal<string>('');
   private $selectedTypeTranslit = signal<string>('');
@@ -261,6 +262,7 @@ export class ProductsService {
   $products = computed(() => {
     const productsAPIValue = this.$productsAPI();
     const searchFilterValue = this.$searchFilter();
+    const searchFilterIsNewValue = this.$searchFilterIsNew();
     const selectedCategoryTranslitValue = this.$selectedCategoryTranslit();
     const selectedTypeTranslitValue = this.$selectedTypeTranslit();
     const selectedBrandTranslitValue = this.$selectedBrandTranslit();
@@ -273,10 +275,11 @@ export class ProductsService {
     } else {
       const filteredArray = productsAPIValue.filter((p) => {
         return (
-          (p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
+          (p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0          
           || p.artikul.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
           || (p.detail.attributes.find(a=>a.description.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0))
             ) &&
+          ((searchFilterIsNewValue && p.isNew) || searchFilterIsNewValue == false) &&
           (transliterate(p.category).toString().toLowerCase() ===
             selectedCategoryTranslitValue.toString().toLowerCase() ||
             !selectedCategoryTranslitValue) &&
@@ -345,6 +348,11 @@ export class ProductsService {
         return group.sort((a, b) => a.name.localeCompare(b.name));
       }, [] as IProductType[]);
     }
+  });
+
+  //проверяем есть ли новинки в фильтрованном списке
+  $productIsNewExist = computed(() => {
+    return this.$products().findIndex((p) => p.isNew == true) >=0;
   });
 
   //получаем список категорий из списка продуктов
@@ -683,6 +691,12 @@ export class ProductsService {
     const filterValue = filter.length >= 3 ? filter : '';
     this.$searchFilter.set(filterValue);
   }
+
+  updateFilterIsNew(filter: boolean) {
+    const filterIsNewValue = filter;
+    this.$searchFilterIsNew.set(filterIsNewValue);//.toString().toLowerCase() === 'true');
+    //console.log(filterIsNewValue);
+  }  
 
   updateId(id) {
     this.$productId.set(id);

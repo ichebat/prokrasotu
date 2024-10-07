@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { IProduct, ProductClass, ProductsService } from '../../services/products.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,7 +12,7 @@ import { CartService } from '../../services/cart.service';
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss',
 })
-export class ProductComponent implements OnInit, OnDestroy {
+export class ProductComponent implements OnInit, OnDestroy, AfterViewInit {
 
 // subscription: Subscription;
 
@@ -36,6 +36,15 @@ export class ProductComponent implements OnInit, OnDestroy {
     //console.log(this.router.url);
 
     this.goBack = this.goBack.bind(this);
+  }
+  
+  ngAfterViewInit(): void {
+    // Hack: Scrolls to top of Page after page view initialized
+    let top = document.getElementById('top');
+    if (top !== null) {
+      top.scrollIntoView();
+      top = null;
+    }
   }
 
   getUrl() {

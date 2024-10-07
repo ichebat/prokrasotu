@@ -545,6 +545,7 @@
                   matTooltip="Добавить продукт"
                   type="button"
                   (click)="addRow()"
+                  [disabled]="!form.valid || disableButton"
                 >
                   <mat-icon>add_circle</mat-icon>
                 </button>

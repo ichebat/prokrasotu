@@ -248,7 +248,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.form.controls['id'].setValue(this.order?.id);
     this.form.controls['items'].setValue(this.order?.items);
     this.form.controls['delivery'].setValue(this.order?.delivery), //{value: this.order?.delivery, disabled: (this.order?.isAccepted || this.order?.isCompleted || this.order?.isCancelled)});
-      this.form.controls['totalAmount'].setValue(this.order?.totalAmount);
+    this.form.controls['totalAmount'].setValue(this.order?.totalAmount);
     this.form.controls['totalCount'].setValue(this.order?.totalCount);
     this.form.controls['clientName'].setValue(this.order?.clientName);
     this.form.controls['clientTgName'].setValue(this.order?.clientTgName);

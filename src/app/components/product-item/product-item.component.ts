@@ -37,9 +37,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   brandSeriesOptionsAuto; //для работы c autocomplete серия бренда
 
   form: FormGroup = new FormGroup({}); //реактивная форма
-  formSelectedAttribute: FormGroup = new FormGroup({}); //реактивная форма для выбора атрибута
+  formSelectedAttribute: FormGroup = new FormGroup({}); //реактивная форма для выбора продукта из карточки
 
   private subscr_form: Subscription = Subscription.EMPTY;
+  private subscr_form_detail: Subscription = Subscription.EMPTY;
   private subscr_id: Subscription = Subscription.EMPTY;
   private subscr_url: Subscription = Subscription.EMPTY;
   private subscr_artikul: Subscription = Subscription.EMPTY;
@@ -227,7 +228,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(100),
-          Validators.pattern('[A-Za-zА-Яа-я0-9-:()!,_ ]{2,100}'),
+          Validators.pattern('[A-Za-zА-Яа-я0-9-:()!/,_ ]{2,100}'),
         ],
       ],
       description: [
@@ -1222,6 +1223,20 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       });
     });
   }
+
+  detailFormChanged(event: any):void {
+    //console.log('detailFormChanged',event)
+    //console.log('this.form.status',this.form.status);
+
+    if (event === false){
+      this.form.controls['detail'].setErrors({'incorrect': true});
+    }
+    else
+    {
+      this.form.controls['detail'].setErrors(null);
+    }
+    
+  } 
 
   
 }

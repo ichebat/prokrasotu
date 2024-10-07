@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 export class ContactsListComponent {
 
   getDirectLink(){
-    return environment.webAppDirectLink;
+    return environment.webAppDirectLink+"?start=_shop";
   }
 
 }

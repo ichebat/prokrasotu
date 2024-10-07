@@ -36,6 +36,6 @@ export class ContactsComponent implements OnInit, OnDestroy {
   }
 
   getUrlForTelegram() {
-    return environment.webAppDirectLink;
+    return environment.webAppDirectLink+"?start=_shop";
   }
 }

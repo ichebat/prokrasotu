@@ -30,93 +30,9 @@
   <button mat-icon-button (click)="onThemeChange($event)">
     <mat-icon>format_color_fill</mat-icon>
   </button>
-
-  <!-- @if (!isMobile) {
-    
-    <mat-slide-toggle
-      (change)="onThemeChange($event)"
-      [checked]="_themeSwitchService.isDarkThemeActive.value"
-    >
-      <mat-icon>palette</mat-icon>
-      <span>Цвет</span>
-    </mat-slide-toggle>
-  }
-  @if (isMobile) {
-    <button mat-icon-button (click)="onThemeChange($event)">
-      <mat-icon>palette</mat-icon>
-    </button>
-    <mat-slide-toggle
-      (change)="onThemeChange($event)"
-      [checked]="_themeSwitchService.isDarkThemeActive.value"
-    >
-      <mat-icon>palette</mat-icon>
-    </mat-slide-toggle>
-  } -->
 </mat-toolbar>
-
-<!-- <mat-toolbar color="primary">
-  <mat-toolbar-row>
-    <button mat-icon-button (click)="sidenav.toggle()">
-      <mat-icon>apps</mat-icon>
-    </button>
-    <button mat-button routerLink="/">
-      <div class="logo">
-        <img src="./assets/img/logo.png" alt="" />
-      </div>
-    </button>
-    <span class="example-spacer"></span>
-    <button
-      mat-icon-button
-      class="example-icon favorite-icon"
-      aria-label="Example icon-button with heart icon"
-    >
-      <mat-icon>favorite</mat-icon>
-    </button>
-    <button
-      mat-icon-button
-      class="example-icon"
-      aria-label="Example icon-button with share icon"
-    >
-      <mat-icon>share</mat-icon>
-    </button>
-  </mat-toolbar-row>
-</mat-toolbar>
-
-<mat-sidenav-container>
-  <mat-sidenav #sidenav >
-    <button mat-button class="menu-button">
-      <mat-icon>home</mat-icon>
-      <span>Home</span>
-    </button>
-    <button mat-button class="menu-button">
-      <mat-icon>person</mat-icon>
-      <span>Profile</span>
-    </button>
-    <button mat-button class="menu-button">
-      <mat-icon>info</mat-icon>
-      <span>About</span>
-    </button>
-
-    <mat-divider></mat-divider>
-
-    <button mat-button class="menu-button">
-      <mat-icon>help</mat-icon>
-      <span>Help</span>
-    </button>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <div class="mat-elevation-z8">
-      <ng-content></ng-content>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container> -->
 
 <mat-sidenav-container fullscreen>
-  <!-- <mat-sidenav
-    [ngClass]="!isCollapsed ? 'expanded' : ''"
-    [mode]="isMobile ? 'over' : 'side'"
-    [opened]="isMobile ? 'false' : 'true'"
-  > -->
   <mat-sidenav
     [ngClass]="!isCollapsed ? 'expanded' : ''"
     mode="over"
@@ -272,32 +188,9 @@
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
-    <!-- <h2>Content</h2> -->
+    <div id="top"></div>
     <div class="container">
       <router-outlet></router-outlet>
-
-      <!-- @if (isProductView()){
-          <mat-toolbar color="primary" class="sticky-footer">
-            <mat-toolbar-row>
-              <button mat-icon-button aria-label="Menu icon">
-                <mat-icon>arrow_back_ios</mat-icon>
-              </button>
-        
-              <span class="spacer"></span>
-              <button mat-button>
-                <mat-icon>add</mat-icon>
-              </button>
-              <button mat-button>1</button>
-              <button mat-button>
-                <mat-icon>remove</mat-icon>
-              </button>
-              <button mat-button>
-                <mat-icon>shopping_basket</mat-icon> В корзину
-              </button>
-            </mat-toolbar-row>
-          </mat-toolbar>
-        
-          } -->
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>
