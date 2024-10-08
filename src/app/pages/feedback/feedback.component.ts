@@ -5,7 +5,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { distinctUntilChanged } from 'rxjs';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogDemoComponent } from '../../components/confirm-dialog-demo/confirm-dialog-demo.component';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-feedback',
@@ -19,8 +19,9 @@ export class FeedbackComponent implements OnInit, OnDestroy {
   disableButton: boolean = false; //отключает кнопки на время отправки данных
 
   form: FormGroup = new FormGroup({}); //реактивная форма
+  owner = environment.owner;
 
-  mainButtonTextValid = "Отправить в PROКРАСОТУ";
+  mainButtonTextValid = "Отправить в "+this.owner.marketName;
   mainButtonTextInvalid = "Некорректно заполнены поля";
   mainButtonTextProgress = "Отправка...";
 
@@ -39,20 +40,6 @@ export class FeedbackComponent implements OnInit, OnDestroy {
     this.sendData = this.sendData.bind(this);
     this.goBack = this.goBack.bind(this);
 
-    // const sendDataToTelegram = () => {
-    //     this.sendData();
-    // };
-
-    // //привязка идет эффектом
-    // effect(() => {
-    //   this.telegramService.tg.onEvent('mainButtonClicked', sendDataToTelegram);
-    //   return () => {
-    //     this.telegramService.tg.offEvent(
-    //       'mainButtonClicked',
-    //       sendDataToTelegram,
-    //     );
-    //   };
-    // });
 
     this.form = fb.group({
       clientPhone: [
@@ -95,37 +82,9 @@ export class FeedbackComponent implements OnInit, OnDestroy {
       this.telegramService.MainButton.onClick(this.sendData);//при передаче параметра this теряется, поэтому забандить его в конструкторе
       this.telegramService.MainButton.setText(this.mainButtonTextValid);
     }
-
-
     this.setInitialValue();
-
-    //подписываемся на изменения формы, для скрытия/отображения MainButton
-    // this.form.statusChanges.pipe(distinctUntilChanged()).subscribe(() => {
-    //   console.log(this.form.status);
-    //   this.isFormValid();
-    // });
-    // this.form.updateValueAndValidity(); //обновляем статус формы
-
     this.onHandleUpdate();
-
   }
-
-  // //проверка валидности и скрытие/отображение главной кнопки
-  // private isFormValid() {
-  //   if (this.form.valid) {
-  //     // this.telegramService.MainButton.show();
-  //     // this.isMainButtonHidden = false;      
-  //     // this.telegramService.MainButton.setText(this.mainButtonTextValid)
-  //     // this.telegramService.MainButton.enable();
-  //     return true;
-  //   } else {
-  //     // this.telegramService.MainButton.hide();
-  //     // this.isMainButtonHidden = true;      
-  //     // this.telegramService.MainButton.setText(this.mainButtonTextInvalid)
-  //     // this.telegramService.MainButton.disable();
-  //     return false;
-  //   }
-  // }
 
   setInitialValue() {
     this.form.controls['clientName'].setValue(this.telegramService.FIO);
@@ -179,23 +138,6 @@ export class FeedbackComponent implements OnInit, OnDestroy {
         return;
       }, 5000);
       return;
-
-    //   this.zone.run(() => {
-    //   const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-    //     ConfirmDialogDemoComponent,
-    //     {
-    //       data: {
-    //         message: 'Некорректно заполнена форма',
-    //         description:
-    //           'Сначала необходимо заполнить все обязательные поля.',
-    //         showCancelButton: false,
-    //       },
-    //     },
-    //   );
-    //   dialogRef.afterClosed().subscribe((result) => {
-    //     return;
-    //   });
-    // });
     }
   }
 

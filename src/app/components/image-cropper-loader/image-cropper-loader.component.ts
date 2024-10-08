@@ -106,8 +106,6 @@ export class ImageCropperLoaderComponent implements AfterViewInit {
       base64String = fileReader.result;
       this.git.getSha(fileName).subscribe({
         next: (data: any) => {
-          // console.log('data');
-          // console.log(data.sha);
           var sha = data.sha;
           this.git.uploadByFile(fileName, base64String, sha).subscribe({
             next: (data: any) => {

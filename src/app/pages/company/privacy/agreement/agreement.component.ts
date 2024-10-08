@@ -1,19 +1,18 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
-import { environment } from '../../../../environments/environment';
-import { TelegramService } from '../../../services/telegram.service';
-import { NavigationService } from '../../../services/navigation.service';
+import { environment } from '../../../../../environments/environment';
+import { TelegramService } from '../../../../services/telegram.service';
+import { NavigationService } from '../../../../services/navigation.service';
 
 @Component({
-  selector: 'app-privacy',
-  templateUrl: './privacy.component.html',
-  styleUrl: './privacy.component.scss'
+  selector: 'app-agreement',
+  templateUrl: './agreement.component.html',
+  styleUrl: './agreement.component.scss'
 })
-export class PrivacyComponent implements OnInit, OnDestroy, AfterViewInit{
-
+export class AgreementComponent implements OnInit, OnDestroy, AfterViewInit {
   owner = environment.owner;
 
   constructor(public telegramService: TelegramService,
-    private navigation: NavigationService,) {    
+    private navigation: NavigationService,) {
       this.goBack = this.goBack.bind(this);
   }
 

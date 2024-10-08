@@ -28,6 +28,8 @@ import { ProductDetailComponent } from '../product-detail/product-detail.compone
 export class ProductItemComponent implements OnInit, OnDestroy {
   @Input() product!: IProduct;
 
+  owner = environment.owner;
+
   selectedProductAttribute: ProductAttributeClass | null = null;
 
   categoryOptionsAuto; //для работы c autocomplete категории
@@ -92,7 +94,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   isMainButtonHidden = true; //иногда, когда открывается диалог, необходимо скрыть MainButton телеграма, чтобы он не закрывал экран, а после диалога вернуть как было
   MainButtonText = ''; //в зависимости от того какой режим разные надписи на главной кнопке телеграма
 
-  mainButtonTextValid = "Отправить в PROКРАСОТУ";
+  mainButtonTextValid = "Отправить в "+this.owner.marketName;
   mainButtonTextProgress = "Отправка...";
   mainButtonTextInvalid = "Некорректно заполнены поля";
 

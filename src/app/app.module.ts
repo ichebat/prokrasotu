@@ -49,9 +49,9 @@ import { QRCodeModule } from 'angularx-qrcode';
 import { BrandLineListComponent } from './components/brand-line-list/brand-line-list.component';
 import { BrandSeriesListComponent } from './components/brand-series-list/brand-series-list.component';
 import { AboutComponent } from './pages/company/about/about.component';
-import { RequisitesComponent } from './pages/company/requisites/requisites.component';
 import { ImageCropperLoaderComponent } from './components/image-cropper-loader/image-cropper-loader.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
+import { AgreementComponent } from './pages/company/privacy/agreement/agreement.component';
 
 @NgModule({
   declarations: [
@@ -87,8 +87,8 @@ import { ProductDetailComponent } from './components/product-detail/product-deta
     BrandSeriesListComponent,
     BrandLineListComponent,
     AboutComponent,
-    RequisitesComponent,
     ProductDetailComponent,
+    AgreementComponent,
   ],
   bootstrap: [AppComponent],
   imports: [

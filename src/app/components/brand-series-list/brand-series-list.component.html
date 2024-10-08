@@ -5,19 +5,7 @@
     <mat-chip
       highlighted
       color="accent"
-      [routerLink]="
-        '/shop/' +
-        categoryName +
-        '/' +
-        typeName +
-        '/' +
-        brandName +
-        '/' +
-        brandLine +
-        '/' +
-        brandSeriesItem.translit
-      "
-      >{{ brandSeriesItem.name | uppercase }}</mat-chip
-    >
+      [routerLink]="'/shop/'+categoryName+'/'+typeName+'/'+brandName+'/'+brandLine+'/'+brandSeriesItem.translit"
+      >{{ brandSeriesItem.name | uppercase }}</mat-chip>
   }
 </mat-chip-listbox>

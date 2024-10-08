@@ -82,7 +82,7 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
     private http: HttpClient,
     private git: GitHubCdnService
   ) {
-    //если запустили телеграм бота по webAppDirectLink с параметром https://t.me/botusername/appname?startapp=someParamValue
+    //если запустили телеграм бота по прямой ссылке с параметром https://t.me/botusername/appname?startapp=someParamValue
     //то считываем someParamValue и парсим для перехода
     if (!this.telegramService.isRedirectedByStartParam)
       if (this.telegramService.StartParam) {

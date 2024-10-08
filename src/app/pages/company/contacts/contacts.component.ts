@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { NavigationService } from '../../../services/navigation.service';
 import { TelegramService } from '../../../services/telegram.service';
 import { environment } from '../../../../environments/environment';
@@ -9,7 +9,10 @@ import { QRCodeComponent } from 'angularx-qrcode';
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.scss',
 })
-export class ContactsComponent implements OnInit, OnDestroy {
+export class ContactsComponent implements OnInit, OnDestroy, AfterViewInit{
+  owner = environment.owner;
+
+
   constructor(
     public telegramService: TelegramService,
     private navigation: NavigationService,
@@ -35,7 +38,11 @@ export class ContactsComponent implements OnInit, OnDestroy {
     this.navigation.back();
   }
 
-  getUrlForTelegram() {
-    return environment.webAppDirectLink+"?start=_shop";
+  ngAfterViewInit(): void {
+    let top = document.getElementById('top');
+    if (top !== null) {
+      top.scrollIntoView();
+      top = null;
+    }
   }
 }

@@ -10,7 +10,7 @@ import { OrderComponent } from './pages/order/order.component';
 import { PrivacyComponent } from './pages/company/privacy/privacy.component';
 import { ContactsComponent } from './pages/company/contacts/contacts.component';
 import { AboutComponent } from './pages/company/about/about.component';
-import { RequisitesComponent } from './pages/company/requisites/requisites.component';
+import { AgreementComponent } from './pages/company/privacy/agreement/agreement.component';
 
 const routes: Routes = [
   { path: '', component: ShopComponent },
@@ -20,7 +20,7 @@ const routes: Routes = [
   { path: 'company/contacts', component: ContactsComponent },
   { path: 'company/about', component: AboutComponent },
   { path: 'company/privacy', component: PrivacyComponent },
-  { path: 'company/requisites', component: RequisitesComponent },
+  { path: 'company/privacy/agreement', component: AgreementComponent },
 
   { path: 'shop', component: ShopComponent },
   { path: 'shop/:category', component: ShopComponent },

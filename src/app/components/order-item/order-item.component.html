@@ -72,7 +72,9 @@
     </mat-card-content>
   </mat-card>
 
-  <app-contacts></app-contacts>
+  <!-- @if (!telegramService.isAdmin) { -->
+    <app-contacts-list></app-contacts-list>
+  <!-- } -->
 }
 
 <table
@@ -644,8 +646,13 @@
   </mat-form-field>
 
   <h3 *ngIf="getVisible('isAgeePersonalData') && order.id == 0">
+    Ознакомиться с соглашением на обработку персональных данныхо данных можно
+    <a routerLink="/company/privacy/agreement/">по ссылке</a>
+  </h3>
+
+  <h3 *ngIf="getVisible('isAgeePersonalData') && order.id == 0">
     Ознакомиться с политикой в отношении обработки персональных данных можно
-    <a target="_blank" routerLink="/company/privacy/">по ссылке</a>
+    <a routerLink="/company/privacy/">по ссылке</a>
   </h3>
 
   @if (totalAmountOrder > 0) {
@@ -658,7 +665,7 @@
     <p>{{ MainButtonText }}</p>
   }
 
-  @if (!telegramService.IsTelegramWebAppOpened) {
+  @if (!telegramService.IsTelegramWebAppOpened || telegramService.isAdmin) {
   <div class="buy-button pb">
    
     @if (getVisible("button_submit")) {
@@ -671,7 +678,7 @@
         type="submit"
       >
         @if (order.id == 0) {
-          Отправить в PROКРАСОТУ
+          Отправить в {{owner.marketName}}
         }
         @if (order.id > 0) {
           Обновить данные

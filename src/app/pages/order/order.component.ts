@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit, Signal, signal } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, Signal, signal } from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
 import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
@@ -15,7 +15,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './order.component.html',
   styleUrl: './order.component.scss',
 })
-export class OrderComponent implements OnInit, OnDestroy {
+export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
   //idParam;
 
   disableButton: boolean = false;
@@ -73,6 +73,15 @@ export class OrderComponent implements OnInit, OnDestroy {
     this.orderService.updateId(this.id);
 
     this.goBack = this.goBack.bind(this);
+  }
+
+  
+  ngAfterViewInit(): void {
+    let top = document.getElementById('top');
+    if (top !== null) {
+      top.scrollIntoView();
+      top = null;
+    }
   }
 
   ngOnInit(): void {

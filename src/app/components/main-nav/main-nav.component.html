@@ -103,14 +103,14 @@
                 }
               </span>
             </a>
-            <a mat-list-item routerLink="/company/requisites" (click)="toggleMenu()">
+            <!-- <a mat-list-item routerLink="/company/requisites" (click)="toggleMenu()">
               <span class="entry">
                 <mat-icon>assignment</mat-icon>
                 @if (!isCollapsed) {
                   <span>Наши реквизиты</span>
                 }
               </span>
-            </a>
+            </a> -->
             <a mat-list-item routerLink="/company/contacts" (click)="toggleMenu()">
               <span class="entry">
                 <mat-icon>contacts</mat-icon>
@@ -179,10 +179,19 @@
         </span>
       </a>
 
+      @if(owner.phoneLink){
+        <a mat-list-item (click)="toggleMenu()" [href]="'tel:+7'+owner.phoneLink" target="_blank">
+          <span class="entry">
+            <mat-icon>phonelink_ring</mat-icon>
+            <span>{{owner.phoneText}}</span>
+          </span>
+        </a>
+      }
+
       <a mat-list-item (click)="toggleMenu()" routerLink="/feedback">
         <span class="entry">
           <mat-icon>message</mat-icon>
-          <span>Связь с PROКРАСОТУ</span>
+          <span>Обратная связь</span>
         </span>
       </a>
     </mat-nav-list>

@@ -867,7 +867,7 @@
       <p>{{ MainButtonText }}</p>
     }
 
-    @if (!telegramService.IsTelegramWebAppOpened) {
+    @if (!telegramService.IsTelegramWebAppOpened || telegramService.isAdmin) {
     <div class="buy-button pb">
       @if (getVisible("button_submit")) {
         <button
@@ -877,7 +877,7 @@
           type="submit"
         >
           @if (product.id == 0) {
-            Отправить в PROКРАСОТУ
+            Отправить в {{owner.marketName}}
           }
           @if (product.id > 0) {
             Обновить данные

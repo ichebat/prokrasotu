@@ -43,6 +43,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   @Input() action: string = ''; //действие по которому строится контрол (accept, cancel, complete)
 
   form: FormGroup = new FormGroup({}); //реактивная форма
+
+  owner = environment.owner;
+
   private subscr_form: Subscription = Subscription.EMPTY;
 
   dataSource: MatTableDataSource<ICartItem>; //dataSource для mat-table на форме
@@ -83,7 +86,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   //когда нажимаем отправку кнопки становятся неактивными
   disableButton: boolean = false; //отключает кнопки на время отправки данных
 
-  mainButtonTextValid = "Отправить в PROКРАСОТУ";
+  mainButtonTextValid = "Отправить в "+this.owner.marketName;
   mainButtonTextProgress = "Отправка...";
   mainButtonTextInvalid = "Некорректно заполнены поля";
 
@@ -1377,7 +1380,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       if (this.order.id > 0) {
         this.telegramService.MainButton.setText('Обновить данные');
       } else {
-        this.telegramService.MainButton.setText('Отправить в PROКРАСОТУ');
+        this.telegramService.MainButton.setText('Отправить в '+this.owner.marketName);
       }
     } else if (
       this.getVisible('button_accept') &&

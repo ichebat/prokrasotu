@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 import { OrderService } from '../../services/order.service';
 import { ConfirmDialogDemoComponent } from '../../components/confirm-dialog-demo/confirm-dialog-demo.component';
 import { MatDialog } from '@angular/material/dialog';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-cart',
@@ -23,7 +24,9 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class CartComponent implements OnInit, OnDestroy {
 
-  mainButtonTextValid = "Оформить заказ в PROКРАСОТУ";
+  owner = environment.owner;
+
+  mainButtonTextValid = "Оформить заказ в "+this.owner.marketName;
   mainButtonTextProgress = "Отправка...";
   mainButtonTextInvalid = "Сначала добавьте товары в корзину";
 

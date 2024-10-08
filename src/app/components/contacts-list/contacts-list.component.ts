@@ -8,8 +8,6 @@ import { environment } from '../../../environments/environment';
 })
 export class ContactsListComponent {
 
-  getDirectLink(){
-    return environment.webAppDirectLink+"?start=_shop";
-  }
+  owner = environment.owner;
 
 }

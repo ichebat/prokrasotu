@@ -15,10 +15,10 @@
     <app-cart-item [cartItem]="cartItem" />
   }
 
-  @if (!telegramService.IsTelegramWebAppOpened){
+  @if (!telegramService.IsTelegramWebAppOpened  || telegramService.isAdmin){
   <div class="buy-button pb">    
       <button mat-flat-button  color="accent" (click)="sendData()">
-        Оформить заказ в PROКРАСОТУ
+        Оформить заказ в {{owner.marketName}}
       </button>
   </div>
 

@@ -5,6 +5,7 @@ import { ThemeSwitchService } from '../../services/theme-switch.service';
 import { ProductsService } from '../../services/products.service';
 import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-main-nav',
@@ -12,6 +13,9 @@ import { CartService } from '../../services/cart.service';
   styleUrl: './main-nav.component.scss',
 })
 export class MainNavComponent implements OnInit {
+
+  owner = environment.owner;
+  
   @ViewChild(MatSidenav) sidenav!: MatSidenav;
   isMobile = true;
   isCollapsed = true;
