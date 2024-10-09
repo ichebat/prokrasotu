@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IProduct } from '../../services/products.service';
+import { IProduct, ProductClass } from '../../services/products.service';
 
 @Component({
   selector: 'app-product-list',
@@ -9,7 +9,7 @@ import { IProduct } from '../../services/products.service';
 export class ProductListComponent {
   @Input() titleList = 'Angular';
   @Input() subtitleList = 'Angular';
-  @Input() products: IProduct[] = [];
+  @Input() products: ProductClass[] = [];
 
   /**
    *

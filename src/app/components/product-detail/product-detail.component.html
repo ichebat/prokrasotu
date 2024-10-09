@@ -79,7 +79,7 @@
       [targetHTMLElement]="'imgElement'"
       [gitHubFileName]="
         product.detail.mainImageUrl
-          ? product.detail.mainImageUrl
+          ? (getFileNameFromUrl(product.detail.mainImageUrl))
           : 'product_' +
             product.id +
             '_detail_mainImage_' +
@@ -166,7 +166,7 @@
                 >Это обязательное поле</mat-error
               >
               <mat-error *ngIf="key.get('key')?.hasError('minlength')"
-                >Минимум 2 символа</mat-error
+                >Минимум 1 символ</mat-error
               >
               <mat-error *ngIf="key.get('key')?.hasError('maxlength')"
                 >Максимум 50 символов</mat-error
@@ -191,7 +191,7 @@
             >
               <mat-expansion-panel-header>
                 <mat-panel-title>
-                  №{{ i + 1 }}: {{ attribute.get("description")?.value }}
+                  №{{ i + 1 }}: {{ product.detail.attributes[i].keyValues.join(' ') }}
                 </mat-panel-title>
               </mat-expansion-panel-header>
 
@@ -262,8 +262,8 @@
                         [id]="'imgDetailElement' + i"
                         mat-card-image
                         [src]="product.detail.attributes[i].imageUrl"
-                        [alt]="product.detail.attributes[i].description"
-                        [title]="product.detail.attributes[i].description"
+                        [alt]="product.detail.attributes[i].keyValues.join(' ')"
+                        [title]="product.detail.attributes[i].keyValues.join(' ')"
                         class="product-item-image"
                       />
                     </div>
@@ -279,7 +279,7 @@
                       [targetHTMLElement]="'imgDetailElement' + i"
                       [gitHubFileName]="
                         product.detail.attributes[i].imageUrl
-                          ? product.detail.attributes[i].imageUrl
+                          ? (getFileNameFromUrl(product.detail.attributes[i].imageUrl))
                           : 'product_' +
                             product.id +
                             '_detail_' +
@@ -340,7 +340,7 @@
                               *ngIf="
                                 keyValue.get('keyValue')?.hasError('minlength')
                               "
-                              >Минимум 2 символа</mat-error
+                              >Минимум 1 символ</mat-error
                             >
                             <mat-error
                               *ngIf="
@@ -353,7 +353,7 @@
                       }
                     </div>
 
-                    <mat-form-field appearance="outline">
+                    <!-- <mat-form-field appearance="outline">
                       <mat-label>Описание</mat-label>
                       <textarea
                         matInput
@@ -364,6 +364,7 @@
                         maxlength="500"
                         placeholder="Описание"
                         (ngModelChange)="descriptionChanging($event, i)"
+                        readonly="true"
                       >
                       </textarea>
                       @if (description.value) {
@@ -387,7 +388,7 @@
                         *ngIf="form.get('description')?.hasError('maxlength')"
                         >Максимум 500 символов</mat-error
                       >
-                    </mat-form-field>
+                    </mat-form-field> -->
 
                     <p>
                       Если указать цену 0 рублей, то будет взята цена из
@@ -445,6 +446,10 @@
           }
         </mat-accordion>
       </div>
+
+      @if (product.detail.keys.length > 0) {
+        <p>Заполнено места {{ getPercentFillGoogleSheetCell() | percent }}</p>
+      }
 
       <!-- @if (product.detail.keys.length > 0) {
         <p>Заполнено места {{ getPercentFillGoogleSheetCell() | percent }}</p>
@@ -610,8 +615,7 @@
       <br />
     }
 
-    <!-- @if (product.detail.keys.length > 0) {
-      <p>Заполнено места {{ getPercentFillGoogleSheetCell() | percent }}</p>
+    @if (product.detail.keys.length > 0) {
       <div class="buy-button-x3">
         <button
           mat-raised-button
@@ -626,7 +630,7 @@
         @if (attributes.controls.length > 0) {
           <button
             mat-raised-button
-            (click)="removeRow()"
+            (click)="removeRow(attributes.controls.length-1)"
             color="warn"
             type="button"
             class="mx mb"
@@ -636,6 +640,6 @@
           </button>
         }
       </div>
-    } -->
+    }
   }
 </form>

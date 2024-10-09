@@ -8,8 +8,8 @@ import {
   effect,
   signal,
 } from '@angular/core';
-import { IProduct, ProductAttributeClass, ProductClass, ProductDetailClass, ProductsService } from '../../services/products.service';
-import { CartService, ICartItem } from '../../services/cart.service';
+import { IProduct, IProductDetail, ProductAttributeClass, ProductClass, ProductDetailClass, ProductsService } from '../../services/products.service';
+import { CartItemClass, CartService, ICartItem } from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { environment } from '../../../environments/environment';
@@ -26,7 +26,7 @@ import { ProductDetailComponent } from '../product-detail/product-detail.compone
   styleUrl: './product-item.component.scss',
 })
 export class ProductItemComponent implements OnInit, OnDestroy {
-  @Input() product!: IProduct;
+  @Input() product!: ProductClass;
 
   owner = environment.owner;
 
@@ -230,7 +230,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(100),
-          Validators.pattern('[A-Za-zА-Яа-я0-9-:()!/,_ ]{2,100}'),
+          Validators.pattern('[A-Za-zА-Яа-я0-9-:()!/,_% ]{2,100}'),
         ],
       ],
       description: [
@@ -542,18 +542,18 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   //   }
   // }
 
-  isInCart(product: IProduct) {
+  isInCart(product: ProductClass) {
     return (
       this.cartService
         .$cart()
-        .items.findIndex((p) => p.product.id === product.id  && p.attribute?.description == this.selectedProductAttribute?.description) >= 0
+        .items.findIndex((p) => p.product.id === product.id  && p.attribute?.keyValues.join(' ') == this.selectedProductAttribute?.keyValues.join(' ')) >= 0
     );
   }
 
-  quantityInCart(product: IProduct) {
+  quantityInCart(product: ProductClass) {
     const searchItem = this.cartService
     .$cart()
-    .items.find((p) => p.product.id === product.id && p.attribute?.description == this.selectedProductAttribute?.description);
+    .items.find((p) => p.product.id === product.id && p.attribute?.keyValues.join(' ') == this.selectedProductAttribute?.keyValues.join(' '));
     return searchItem?searchItem.quantity:0;
   }
 
@@ -561,7 +561,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     if (this.product.id<=0) return;
     console.log('Add to cart');
 
-    const newItem: ICartItem = {
+    const newItem: CartItemClass = {
       product: this.product,
       attribute: this.selectedProductAttribute,
       quantity: 1,

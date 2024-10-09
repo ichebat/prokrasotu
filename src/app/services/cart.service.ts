@@ -14,8 +14,8 @@ export interface ICartItem {
 }
 
 export class CartItemClass implements ICartItem {
-  product: IProduct = new ProductClass(null);
-  attribute: IProductAttribute | null = null;
+  product: ProductClass = new ProductClass(null);
+  attribute: ProductAttributeClass | null = null;
   quantity: number = 0;
   checked: boolean = false;
   
@@ -31,7 +31,7 @@ export interface IShoppingCart {
 }
 
 export class ShoppingCartClass implements IShoppingCart {
-  items: ICartItem[] = [] as CartItemClass[];
+  items: CartItemClass[] = [] as CartItemClass[];
   totalAmount: number = 0;
   totalCount: number = 0;
   
@@ -53,13 +53,13 @@ export class CartService {
     },
   );
 
-  $cart = signal<IShoppingCart>({
-    items: [] as ICartItem[],
-    totalAmount: this.calculateTotalAmount([] as ICartItem[]),
-    totalCount: this.calculateTotalCount([] as ICartItem[]),
+  $cart = signal<ShoppingCartClass>({
+    items: [] as CartItemClass[],
+    totalAmount: this.calculateTotalAmount([] as CartItemClass[]),
+    totalCount: this.calculateTotalCount([] as CartItemClass[]),
   });
 
-  public calculateTotalAmount(items: ICartItem[]): number {
+  public calculateTotalAmount(items: CartItemClass[]): number {
     return items.reduce(
       (total, item) =>
         total +
@@ -101,14 +101,14 @@ export class CartService {
     return false;
   }
 
-  addItem(cartItem: ICartItem) {
+  addItem(cartItem: CartItemClass) {
 
-    var item = JSON.parse(JSON.stringify(cartItem)) as ICartItem;
+    var item = JSON.parse(JSON.stringify(cartItem)) as CartItemClass;
     item.product.detail = new ProductDetailClass(null); //чтобы не гонять лишнюю информацию по сети
     
     this.$cart.update((currentCart) => {
       let existingItem = currentCart.items.find(
-        (i) => (i.product.id === item.product.id && ((i.attribute == null)||(i.attribute.description == item.attribute?.description))),
+        (i) => (i.product.id === item.product.id && ((i.attribute == null)||(i.attribute.keyValues.join(' ') == item.attribute?.keyValues.join(' ')))),
       );
 
       if (!this.telegram.isAdmin)

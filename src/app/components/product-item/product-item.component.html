@@ -37,8 +37,8 @@
           <img
             mat-card-image
             [src]="selectedProductAttribute.imageUrl"
-            [alt]="selectedProductAttribute.description"
-            [title]="selectedProductAttribute.description"
+            [alt]="selectedProductAttribute.keyValues.join(' ')"
+            [title]="selectedProductAttribute.keyValues.join(' ')"
             class="product-item-image"
           />
         </div>
@@ -120,7 +120,7 @@
 
       @if (product.detail.mainImageDescription && product.detail.mainImageUrl) {
         <p>
-          <a
+          <!-- <a
             mat-button
             color="accent"
             (click)="
@@ -129,6 +129,14 @@
                 product.detail.mainImageUrl
               )
             "
+          >
+            {{ product.detail.mainImageDescription }}</a
+          > -->
+          <a
+            mat-button
+            color="accent"
+            [href]="product.detail.mainImageUrl"
+            target="_blank"
           >
             {{ product.detail.mainImageDescription }}</a
           >
@@ -170,7 +178,7 @@
               >
                 <strong>
                   {{ 
-                    attribute.description+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
+                    attribute.keyValues.join(' ')+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
                   }}
                 </strong
                 >
@@ -280,7 +288,7 @@
         type="button"
         class="mx mb"
       >
-        <mat-icon>delete</mat-icon> Удалить товар
+        <mat-icon>delete</mat-icon> Удалить карточку товара
       </button>
     </div>
   }

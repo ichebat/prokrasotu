@@ -82,7 +82,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.product.detail.attributes.forEach(attribute => {
       var ctrl = this.newAttribute();
       ctrl.get('imageUrl')?.setValue(attribute.imageUrl);
-      ctrl.get('description')?.setValue(attribute.description);
+      //ctrl.get('description')?.setValue(attribute.keyValues.join(' '));
       ctrl.get('price')?.setValue(attribute.price);
       ctrl.get('isActive')?.setValue(attribute.isActive);
       for (let index = 0; index < attribute.keyValues.length; index++) {
@@ -130,7 +130,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     return this.fb.group({
       key: [newkey,[
               Validators.required,
-              Validators.minLength(2),
+              Validators.minLength(1),
               Validators.maxLength(50),
             ]],
     })
@@ -140,7 +140,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   return this.fb.group({
     keyValue: [newvalue,[
             Validators.required,
-            Validators.minLength(2),
+            Validators.minLength(1),
             Validators.maxLength(50),
           ]],
   })
@@ -157,10 +157,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
               '^(http://www.|https://www.|http://|https://)?[a-z0-9]+([-.]{1}[a-z0-9]+)*.[a-z]{2,5}(:[0-9]{1,5})?(/.*)?$',
             ),
           ]],
-    description: ['',[
-            Validators.required, 
-            Validators.maxLength(500)
-          ]],
+    // description: ['',[
+    //         Validators.maxLength(500)
+    //       ]],
     price: [0,[Validators.required, Validators.min(0)]],    
     isActive: [false,[]],
     keyValues: this.fb.array([]),
@@ -274,7 +273,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
             message: 'Удаление?',
             description:
               'Следующий товар: [' +
-              this.product.name +' '+ this.product.detail.attributes[index].description+
+              this.product.name +' '+ this.product.detail.attributes[index].keyValues.join(' ')+
               '] будет удален безвозвратно. Подтвердите действие.',
           },
         },
@@ -324,18 +323,18 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.product.detail.mainImageDescription = value;
   }
   onDescriptionClear(index) {
-    if (index>=0 && !this.attributes.controls[index].disabled){  
-      this.product.detail.attributes[index].description = '';
-      (this.attributes.controls[index]).get('description')?.setValue('');
-    }
+    // if (index>=0 && !this.attributes.controls[index].disabled){  
+    //   this.product.detail.attributes[index].description = '';
+    //   (this.attributes.controls[index]).get('description')?.setValue('');
+    // }
   }
   descriptionChanging(event, index) {
-    const value = event;    
-    this.product.detail.attributes[index].description = value;
+    // const value = event;    
+    // this.product.detail.attributes[index].description = value;
   }
   onPriceClear(index) {
     if (index>=0 && !this.attributes.controls[index].disabled){  
-      this.product.detail.attributes[index].description = '';
+      //this.product.detail.attributes[index].description = '';
       (this.attributes.controls[index]).get('price')?.setValue(0);
     }
   }
@@ -381,7 +380,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   detailKeyValueChanging(event, i,j) {
      const value = event; 
      this.product.detail.attributes[i].keyValues[j] = value;
-     (this.attributes.controls[i]).get('description')?.setValue(this.product.detail.attributes[i].keyValues.join(' '));
+     //(this.attributes.controls[i]).get('description')?.setValue(this.product.detail.attributes[i].keyValues.join(' '));
 
   }
 
@@ -415,13 +414,21 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   getPercentFillGoogleSheetCell()
   {
-    const val = JSON.stringify(this.product.detail).length/50000;
+    //в одну ячейку google влезает 50 000 символов
+    //24000 ограничения WebHook telegram
+    const val = JSON.stringify(this.product.detail).length/24000;
     
     return val;
   }
 
   setStep(index: number) {
     this.step.set(index);
+  }
+
+  getFileNameFromUrl(url)
+  {
+    var fileName = url.split('/').slice(-1);
+    return fileName;
   }
 
 }

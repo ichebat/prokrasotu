@@ -68,6 +68,7 @@
       </div>
     }
 
+    
     @if(product.detail.attributes.length>0){
       
       <form [formGroup]="formSelectedAttribute">
@@ -90,7 +91,7 @@
               [disabled]="!attribute.isActive"
             >
                 {{ 
-                  attribute.description+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
+                  attribute.keyValues.join(' ')+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
                 }}
             </mat-option>
           </mat-select>
@@ -106,7 +107,6 @@
         </mat-form-field>
       </form>
     }
-    
   </mat-card-content>
   <div class="flex-fill"></div>
 

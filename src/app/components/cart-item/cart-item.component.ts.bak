@@ -39,7 +39,7 @@ export class CartItemComponent implements OnInit, OnDestroy {
 
   quantityInCart(product:IProduct)
   {
-    return this.cartService.$cart().items.find(p=>p.product.id === product.id && p.attribute?.keyValues.join(' ') == this.cartItem.attribute?.keyValues.join(' '))!.quantity;
+    return this.cartService.$cart().items.find(p=>p.product.id === product.id && p.attribute?.description == this.cartItem.attribute?.description)!.quantity;
   }
 
   addItem() {

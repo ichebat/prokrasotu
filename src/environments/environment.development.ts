@@ -50,6 +50,7 @@ export const environment = {
   gitHubCdnOwner: 'ichebat',
   gitHubCdnRepo: 'prokrasotucdn',
   gitHubCdnFolder: 'uploads',
+  gitHubImagePath: 'https://raw.githubusercontent.com/ichebat/prokrasotucdn/main/uploads/',
 
   owner: {
     form: 'ИП',

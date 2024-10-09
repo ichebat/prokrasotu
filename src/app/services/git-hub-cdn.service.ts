@@ -50,6 +50,8 @@ export class GitHubCdnService {
       var bodyStr = JSON.stringify(body);
       var headers = { authorization: `Bearer ${token}` };
 
+      console.log('fileName',fileName);
+
       if (!sha) console.log('PUT (new) image to GitHubCdn: ' + fileName);
       else console.log('PUT (update) image to GitHubCdn: ' + fileName);
 

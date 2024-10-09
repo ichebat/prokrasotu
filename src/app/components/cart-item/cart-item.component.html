@@ -8,9 +8,13 @@
 
     <mat-card-subtitle
       >{{ cartItem.product.name }}
-      {{
-        cartItem.attribute ? " (" + cartItem.attribute!.description + ")" : ""
-      }}</mat-card-subtitle
+      @if(cartItem.attribute && cartItem.attribute.keyValues){
+        {{cartItem.attribute.keyValues.join(' ')}}
+      }
+      <!-- {{
+        cartItem.attribute ? " (" + cartItem.attribute!.getDescription() + ")" : ""
+      }} -->
+      </mat-card-subtitle
     >
     <mat-card-subtitle>
       <span>{{ cartItem.quantity }} шт. </span>

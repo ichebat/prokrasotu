@@ -43,10 +43,12 @@ export const environment = {
   maxCartItemPosition: 10,
   pass: 'ProKrasotu2024!',
   gitHubCdnApiToken:
-    '4a445945584f725d4c59721c1c6f6f7c641b63741d194e68621e5d191c62794547725e5842414963684c776b5c5a1e62407e1b6f6a5d7a5f4a6c7a1a5447495447544a6f4719145d5a675e61576f667a19657e6a62476c1a4374776f43',
+    '4a445945584f725d4c59721c1c6f6f7c641b63741d4f5d7f775f49405e4a1f554072595a551c4b421559596b49466c59685458151968465a457f655a7f60787e5d547b5b1a5763581a64785e187b6c7d7e77616374597d5d4046424b6b',
+    
   gitHubCdnOwner: 'ichebat',
   gitHubCdnRepo: 'prokrasotucdn',
   gitHubCdnFolder: 'uploads',
+  gitHubImagePath: 'https://raw.githubusercontent.com/ichebat/prokrasotucdn/main/uploads/',
 
   owner: {
     form: 'ИП',

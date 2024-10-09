@@ -27,21 +27,30 @@ export enum ProductColumns {
 
 
 export interface IProductAttribute {
-  description: string; //название прибавится к названию продукта при выборе
+  //description: string; //название прибавится к названию продукта при выборе
   price: number; //если больше 0, то цена заменит цену продукта при выборе
   imageUrl: string; //если внесено, то заменит картинку продукта при выборе
   isActive: boolean; //возможно ли купить данный товар, если false, то временно отсутствует в продаже
   keyValues: string []; //словарь типа values[key] key берется из keys в IProductDetail
 }
 export class ProductAttributeClass implements IProductAttribute {
-  description: string = ''; //описание, сборное их keyValues, прибавляется к названию товара при выборе
+  // get description(): string{
+  //   return this.keyValues.join(' ');
+  // } 
+
+  //description: string=''; //описание, сборное их keyValues, прибавляется к названию товара при выборе
   price: number= 0; //цена
   imageUrl: string=''; //ссылка на изображение
   isActive: boolean = false; //возможно ли купить данный товар, если false, то временно отсутствует в продаже
   keyValues: string [] = [];
 
+  // getDescription(){
+  //   return this.keyValues?this.keyValues.join(' '):'';
+  // }
+
   constructor(obj) {
-    for (var prop in obj) this[prop] = obj[prop];
+    for (var prop in obj) this[prop] = obj[prop];    
+    //this.description = this.keyValues.join(' ');
   }
 }
 
@@ -79,6 +88,12 @@ export class ProductDetailClass implements IProductDetail {
 
   constructor(obj) {
     for (var prop in obj) this[prop] = obj[prop];
+    this.attributes.forEach(att => {
+      if (att.imageUrl.indexOf('http')<0)
+      {
+        att.imageUrl = environment.gitHubImagePath + att.imageUrl;
+      }
+    });
   }
 
   // isCorrect(){
@@ -271,13 +286,14 @@ export class ProductsService {
       this.$selectedBrandSeriesTranslit();
 
     if (productsAPIValue == undefined) {
-      return [] as IProduct[];
+      return [] as ProductClass[];
     } else {
       const filteredArray = productsAPIValue.filter((p) => {
         return (
           (p.name.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0          
           || p.artikul.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0
-          || (p.detail.attributes.find(a=>a.description.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0))
+          //|| (p.detail.attributes.find(a=>a.description.toLowerCase().indexOf(searchFilterValue.toLowerCase()) >= 0))
+          || (p.detail.attributes.find(a=>a.keyValues.find(key => key.toLowerCase().indexOf(searchFilterValue.toLowerCase())>=0)))
             ) &&
           ((searchFilterIsNewValue && p.isNew) || searchFilterIsNewValue == false) &&
           (transliterate(p.category).toString().toLowerCase() ===
@@ -298,7 +314,7 @@ export class ProductsService {
         );
       });
       //если пользуемся поиском без выбора типа то выводим первые 10 продуктов
-      return filteredArray; //searchFilterValue && !selectedTypeTranslitValue ? filteredArray.splice(0,10) : filteredArray;
+      return filteredArray as ProductClass[]; //searchFilterValue && !selectedTypeTranslitValue ? filteredArray.splice(0,10) : filteredArray;
       //return (searchFilterValue ) ? filteredArray.splice(filteredArray.length>10 ? 10: filteredArray.length-1) : filteredArray;
     }
   });
@@ -565,7 +581,7 @@ export class ProductsService {
             p.id.toString().toLowerCase() ===
             productIdValue.toString().toLowerCase()
           );
-        });
+        }) as ProductClass;
       }
     }
   });
@@ -876,11 +892,18 @@ export class ProductsService {
     actionName: string,
     product: IProduct,
   ): Observable<any> {
+    //console.log(product);
+    let tempProduct = structuredClone(product);
+    tempProduct.detail.attributes.forEach(att =>{
+      if (att.imageUrl.indexOf('http')==0){
+        att.imageUrl = att.imageUrl.replaceAll(environment.gitHubImagePath,'');
+      }
+    });
     return this.telegram.sendToGoogleAppsScript({
       chat_id: chat_id,
       userName: userName,
       action: actionName,
-      product: product,
+      product: tempProduct,
     });
   }
 

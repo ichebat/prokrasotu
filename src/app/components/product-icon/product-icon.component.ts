@@ -1,6 +1,6 @@
 import { Component, Input, NgZone, OnDestroy, OnInit } from '@angular/core';
-import { IProduct, ProductAttributeClass } from '../../services/products.service';
-import { CartService, ICartItem } from '../../services/cart.service';
+import { IProduct, ProductAttributeClass, ProductClass } from '../../services/products.service';
+import { CartItemClass, CartService, ICartItem } from '../../services/cart.service';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { environment } from '../../../environments/environment';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './product-icon.component.scss',
 })
 export class ProductIconComponent  implements OnInit, OnDestroy{
-  @Input() product!: IProduct;
+  @Input() product!: ProductClass;
 
   selectedProductAttribute: ProductAttributeClass | null = null;
   
@@ -55,7 +55,7 @@ export class ProductIconComponent  implements OnInit, OnDestroy{
 
   isInCart(product:IProduct)
   {
-    return this.cartService.$cart().items.findIndex(p=>p.product.id === product.id && p.attribute?.description == this.selectedProductAttribute?.description)>=0;
+    return this.cartService.$cart().items.findIndex(p=>p.product.id === product.id && p.attribute?.keyValues.join(' ') == this.selectedProductAttribute?.keyValues.join(' '))>=0;
    
   }
 
@@ -64,7 +64,7 @@ export class ProductIconComponent  implements OnInit, OnDestroy{
     //return this.cartService.$cart().items.find(p=>p.product.id === product.id)!.quantity;
     const searchItem = this.cartService
     .$cart()
-    .items.find((p) => p.product.id === product.id && p.attribute?.description == this.selectedProductAttribute?.description);
+    .items.find((p) => p.product.id === product.id && p.attribute?.keyValues.join(' ') == this.selectedProductAttribute?.keyValues.join(' '));
     return searchItem?searchItem.quantity:0;
   }
 
@@ -72,7 +72,7 @@ export class ProductIconComponent  implements OnInit, OnDestroy{
     if (this.product.id<=0) return;
     console.log('Add to cart');
     
-    const newItem: ICartItem = {
+    const newItem: CartItemClass = {
       product: this.product,
       attribute: this.selectedProductAttribute,
       quantity: 1,
