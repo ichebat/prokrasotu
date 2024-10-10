@@ -43,67 +43,85 @@
           />
         </div>
       }
-      <app-image-cropper-loader
-        [maintainAspectRatio]="true"
-        [containWithinAspectRatio]="true"
-        [aspectRatio]="1 / 1"
-        [resizeToWidth]="320"
-        [cropperMinWidth]="320"
-        [onlyScaleDown]="true"
-        [roundCropper]="false"
-        [canvasRotation]="0"
-        [targetHTMLElement]="'imgElement'"
-        [gitHubFileName]="'product_' + product.id + '.png'"
-        (onGitHubLoaded)="GitHubLoaded($event)"
-        (onGitHubLoading)="GitHubLoading($event)"
-      ></app-image-cropper-loader>
+
+      @if(telegramService.isAdmin && action == 'edit'){
+        <app-image-cropper-loader
+          [maintainAspectRatio]="true"
+          [containWithinAspectRatio]="true"
+          [aspectRatio]="1 / 1"
+          [resizeToWidth]="320"
+          [cropperMinWidth]="320"
+          [onlyScaleDown]="true"
+          [roundCropper]="false"
+          [canvasRotation]="0"
+          [targetHTMLElement]="'imgElement'"
+          [gitHubFileName]="'product_' + product.id + '.png'"
+          (onGitHubLoaded)="GitHubLoaded($event)"
+          (onGitHubLoading)="GitHubLoading($event)"
+        ></app-image-cropper-loader>
+      }
     }
 
     <mat-card-content>
-      @if (product.price! > 0) {
-        <p>
-          Цена действительна только для интернет-магазина и может отличаться от
-          цен в розничных магазинах
-        </p>
-
-        <div class="buy-button pb">
-          @if (product.discount == 0) {
-            <button mat-flat-button (click)="addItem()" color="primary">
-              В корзину за
-              {{
-                selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
-                  : (product.price | currency: "RUB" : "symbol-narrow")
-              }}
-            </button>
-          }
-          @if (product.discount > 0) {
+      @if (!selectedProductAttribute && product.price == 0) {
+        @if(minPrice()+maxPrice()>0)
+        {
+          <div class="buy-button">
             <button
-              mat-flat-button
-              matBadge="%"
-              matBadgeSize="large"
-              matBadgePosition="after"
-              matBadgeColor="accent"
-              (click)="addItem()"
-              color="primary"
-            >
-              В корзину за
-              <s>{{
-                selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
-                  : (product.price | currency: "RUB" : "symbol-narrow")
-              }}</s>
-              {{
-                ((selectedProductAttribute &&
-                selectedProductAttribute!.price > 0
-                  ? selectedProductAttribute!.price
-                  : product.price) /
-                  100) *
-                  (100 - product.discount) | currency: "RUB" : "symbol-narrow"
-              }}
+              mat-button
+              >
+              {{minPrice() == maxPrice()?(minPrice() | currency: "RUB" : "symbol-narrow"):'от '+(minPrice() | currency: "RUB" : "symbol-narrow")+' до '+(maxPrice() | currency: "RUB" : "symbol-narrow")}}
             </button>
-          }
-        </div>
+          </div>
+        }
+      }
+
+      @if((selectedProductAttribute && selectedProductAttribute!.price > 0) || product.price>0){
+        
+          <p>
+            Цена действительна только для интернет-магазина и может отличаться от
+            цен в розничных магазинах
+          </p>
+  
+          <div class="buy-button pb">
+            @if (product.discount == 0) {
+              <button mat-flat-button (click)="addItem()" color="primary">
+                В корзину за
+                {{
+                  selectedProductAttribute && selectedProductAttribute!.price > 0
+                    ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
+                    : (product.price | currency: "RUB" : "symbol-narrow")
+                }}
+              </button>
+            }
+            @if (product.discount > 0) {
+              <button
+                mat-flat-button
+                matBadge="%"
+                matBadgeSize="large"
+                matBadgePosition="after"
+                matBadgeColor="accent"
+                (click)="addItem()"
+                color="primary"
+              >
+                В корзину за
+                <s>{{
+                  selectedProductAttribute && selectedProductAttribute!.price > 0
+                    ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
+                    : (product.price | currency: "RUB" : "symbol-narrow")
+                }}</s>
+                {{
+                  ((selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0
+                    ? selectedProductAttribute!.price
+                    : product.price) /
+                    100) *
+                    (100 - product.discount) | currency: "RUB" : "symbol-narrow"
+                }}
+              </button>
+            }
+          </div>
+        
       }
       @if (product.description != "") {
         <p class="pre-line">{{ product.description }}</p>
@@ -120,18 +138,6 @@
 
       @if (product.detail.mainImageDescription && product.detail.mainImageUrl) {
         <p>
-          <!-- <a
-            mat-button
-            color="accent"
-            (click)="
-              downloadImage(
-                product.detail.mainImageDescription,
-                product.detail.mainImageUrl
-              )
-            "
-          >
-            {{ product.detail.mainImageDescription }}</a
-          > -->
           <a
             mat-button
             color="accent"
@@ -171,8 +177,18 @@
               [compareWith]="compareFunction"
               *ngIf="getVisible('selectedProductAttribute')"
             >
+            
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="dataFilterCtrl"
+                ngDefaultControl
+                placeholderLabel="Найти"
+                noEntriesFoundLabel="Ничего не найдено"
+              ></ngx-mat-select-search>
+            </mat-option>
+
               <mat-option
-                *ngFor="let attribute of product.detail.attributes"
+                *ngFor="let attribute of filteredData | async"
                 [value]="attribute"
                 [disabled]="!attribute.isActive"
               >
@@ -271,7 +287,7 @@
   </mat-card>
 </div>
 
-@if (telegramService.isAdmin) {
+@if (telegramService.isAdmin && action == 'edit') {
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />

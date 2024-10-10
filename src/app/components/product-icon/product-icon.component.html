@@ -1,8 +1,5 @@
-
 <mat-card class="product-icon mat-elevation-z5">
-  
   @if (product.imageUrl != "") {
-   
     <div
       class="product-image-host"
       [routerLink]="'/product/' + product.id + '/' + product.translit"
@@ -10,7 +7,7 @@
       <button mat-button disabled>{{ product.brand }}</button>
       <img
         mat-card-image
-        [src]="product.imageUrl"
+        [src]="((selectedProductAttribute && selectedProductAttribute.imageUrl)?(selectedProductAttribute.imageUrl):(product.imageUrl))"
         [alt]="product.name"
         [title]="product.name"
         class="product-image"
@@ -18,62 +15,82 @@
     </div>
   }
   <mat-card-content>
-    <div class="buy-button">
-      @if (product.discount == 0) {
-        <button
-          mat-button
-          [routerLink]="'/product/' + product.id + '/' + product.translit"
-        >
-          {{ selectedProductAttribute && selectedProductAttribute!.price > 0
-            ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
-            : (product.price | currency: "RUB" : "symbol-narrow") }}
-        </button>
-      }
-      @if (product.discount > 0) {
-        <button
-          mat-button
-          matBadge="%"
-          matBadgeSize="large"
-          matBadgePosition="after"
-          matBadgeColor="accent"
-          [routerLink]="'/product/' + product.id + '/' + product.translit"
-        >
-        <s>{{
-          selectedProductAttribute && selectedProductAttribute!.price > 0
-            ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
-            : (product.price | currency: "RUB" : "symbol-narrow")
-        }}</s>
-        {{
-          ((selectedProductAttribute &&
-          selectedProductAttribute!.price > 0
-            ? selectedProductAttribute!.price
-            : product.price) /
-            100) *
-            (100 - product.discount) | currency: "RUB" : "symbol-narrow"
-        }}
-        </button>
-      }
-    </div>
+    @if (!selectedProductAttribute && product.price == 0) {
+        @if(minPrice()+maxPrice()>0)
+        {
+          <div class="buy-button">
+            <button
+              mat-button
+              [routerLink]="'/product/' + product.id + '/' + product.translit">
+              {{minPrice() == maxPrice()?(minPrice() | currency: "RUB" : "symbol-narrow"):'от '+(minPrice() | currency: "RUB" : "symbol-narrow")+' до '+(maxPrice() | currency: "RUB" : "symbol-narrow")}}
+            </button>
+          </div>
+        }
+    }
+    
+    @if (
+      (selectedProductAttribute && selectedProductAttribute!.price > 0) ||
+      product.price > 0
+    ) {
+      <div class="buy-button">
+        @if (product.discount == 0) {
+          <button
+            mat-button
+            [routerLink]="'/product/' + product.id + '/' + product.translit"
+          >
+            {{
+              selectedProductAttribute && selectedProductAttribute!.price > 0
+                ? (selectedProductAttribute!.price
+                  | currency: "RUB" : "symbol-narrow")
+                : (product.price | currency: "RUB" : "symbol-narrow")
+            }}
+          </button>
+        }
+        @if (product.discount > 0) {
+          <button
+            mat-button
+            matBadge="%"
+            matBadgeSize="large"
+            matBadgePosition="after"
+            matBadgeColor="accent"
+            [routerLink]="'/product/' + product.id + '/' + product.translit"
+          >
+            <s>{{
+              selectedProductAttribute && selectedProductAttribute!.price > 0
+                ? (selectedProductAttribute!.price
+                  | currency: "RUB" : "symbol-narrow")
+                : (product.price | currency: "RUB" : "symbol-narrow")
+            }}</s>
+            {{
+              ((selectedProductAttribute && selectedProductAttribute!.price > 0
+                ? selectedProductAttribute!.price
+                : product.price) /
+                100) *
+                (100 - product.discount) | currency: "RUB" : "symbol-narrow"
+            }}
+          </button>
+        }
+      </div>
+    }
 
     @if (product.name != "") {
       <div
         class="mat-typography"
         [routerLink]="'/product/' + product.id + '/' + product.translit"
       >
-        
         {{
           (product.name | slice: 0 : 60) +
             (product.name.length > 60 ? "..." : "")
         }}
+        @if(selectedProductAttribute) {
+          {{selectedProductAttribute.keyValues.join(" ")}}
+        }
       </div>
     }
 
-    
-    @if(product.detail.attributes.length>0){
-      
+    @if (product.detail.attributes.length > 0) {
       <form [formGroup]="formSelectedAttribute">
-        <mat-form-field
-          appearance="outline">
+        <mat-form-field appearance="outline">
           <mat-label>Выберите</mat-label>
           <!-- <input
             *ngIf="false"
@@ -82,17 +99,34 @@
             [readonly]="true"
           /> -->
           <mat-select
+            #singleSelect
             formControlName="selectedProductAttribute"
             (selectionChange)="selectedProductAttributeChange($event.value)"
-            [compareWith]="compareFunction">
+            [compareWith]="compareFunction"
+          >
+            <mat-option>
+              <ngx-mat-select-search
+                [formControl]="dataFilterCtrl"
+                ngDefaultControl
+                placeholderLabel="Найти"
+                noEntriesFoundLabel="Ничего не найдено"
+              ></ngx-mat-select-search>
+            </mat-option>
+
             <mat-option
-              *ngFor="let attribute of product.detail.attributes"
+              *ngFor="let attribute of filteredData | async"
               [value]="attribute"
               [disabled]="!attribute.isActive"
             >
-                {{ 
-                  attribute.keyValues.join(' ')+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
-                }}
+              {{
+                attribute.keyValues.join(" ") +
+                  (attribute.price == 0 && product.price == 0
+                    ? " (бесплатно)"
+                    : " (" +
+                      ((attribute.price > 0 ? attribute.price : product.price)
+                        | currency: "RUB" : "symbol-narrow") +
+                      ")")
+              }}
             </mat-option>
           </mat-select>
           <mat-error
@@ -110,38 +144,63 @@
   </mat-card-content>
   <div class="flex-fill"></div>
 
-
   <mat-card-actions>
     @if (isInCart(product)) {
       <div class="buy-button-x3">
         <button mat-icon-button (click)="removeItem()">
           <mat-icon>remove</mat-icon>
-        </button> 
+        </button>
         <button mat-icon-button routerLink="/cart">
-          @if(quantityInCart(product) > 0){
+          @if (quantityInCart(product) > 0) {
             <mat-icon
-              [attr.aria-hidden]="false" aria-hidden="false"
+              [attr.aria-hidden]="false"
+              aria-hidden="false"
               matBadgeColor="accent"
               [matBadge]="quantityInCart(product)"
-              >shopping_cart</mat-icon>
+              >shopping_cart</mat-icon
+            >
           }
-          @if(quantityInCart(product) == 0){
+          @if (quantityInCart(product) == 0) {
             <mat-icon>shopping_cart</mat-icon>
           }
-        </button>        
+        </button>
         <button mat-icon-button color="accent" (click)="addItem()">
           <mat-icon>add</mat-icon>
         </button>
       </div>
     }
     @if (!isInCart(product)) {
-      <div class="buy-button">
-        <button mat-flat-button color="primary" (click)="addItem()">
-          В корзину
-        </button>
-      </div>
+      @if (!telegramService.isAdmin) {
+        <div class="buy-button-x3">
+          <button class="mx"
+            mat-mini-fab
+            color="primary"
+            (click)="addItem()"
+          >
+            <mat-icon>add_shopping_cart</mat-icon>
+          </button>
+          <!-- <button mat-flat-button color="primary" (click)="addItem()">
+            В корзину
+          </button> -->
+        </div>
+      }
+      @if (telegramService.isAdmin) {
+        <div class="buy-button-x3">
+          <button class="mx"
+            mat-mini-fab
+            color="primary"
+            (click)="addItem()"
+          >
+            <mat-icon>add_shopping_cart</mat-icon>
+          </button>
+          <button class="mx"
+            mat-mini-fab
+            color="accent"
+            [routerLink]="'/product/' + product.id + '/' + product.translit + '/edit'">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+      }
     }
-
-    
   </mat-card-actions>
 </mat-card>

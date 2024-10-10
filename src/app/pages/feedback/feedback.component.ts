@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy, OnInit, effect, inject, signal } from '@angular/core';
+import { AfterViewInit, Component, NgZone, OnDestroy, OnInit, effect, inject, signal } from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
 import { NavigationService } from '../../services/navigation.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -11,7 +11,7 @@ import { environment } from '../../../environments/environment';
   selector: 'app-feedback',
   templateUrl: './feedback.component.html',
 })
-export class FeedbackComponent implements OnInit, OnDestroy {
+export class FeedbackComponent implements OnInit, OnDestroy, AfterViewInit {
   feedback = signal('');
 
   isUserAgreePersonalData: boolean = false; //для галочки с ПД
@@ -170,6 +170,14 @@ export class FeedbackComponent implements OnInit, OnDestroy {
 
     this.navigation.back();
     
+  }
+
+  ngAfterViewInit(): void {
+    let top = document.getElementById('top');
+    if (top !== null) {
+      top.scrollIntoView();
+      top = null;
+    }
   }
 
   onClientPhoneClear() {

@@ -52,6 +52,7 @@ import { AboutComponent } from './pages/company/about/about.component';
 import { ImageCropperLoaderComponent } from './components/image-cropper-loader/image-cropper-loader.component';
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { AgreementComponent } from './pages/company/privacy/agreement/agreement.component';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @NgModule({
   declarations: [
@@ -102,7 +103,8 @@ import { AgreementComponent } from './pages/company/privacy/agreement/agreement.
     NgxMaskPipe,
     ShareButtonDirective,
     QRCodeModule,
-    ImageCropperLoaderComponent
+    ImageCropperLoaderComponent,
+    NgxMatSelectSearchModule
   ],
   providers: [
     TelegramService,

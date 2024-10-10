@@ -4,7 +4,7 @@
 
 @if (productsService.$product()) {
   
-  <app-product-item [product]="productsService.$product()!" />
+  <app-product-item [product]="productsService.$product()!" [action]="productsService.$action()"/>
 
   <!-- <mat-chip-listbox>
     <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>

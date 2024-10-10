@@ -259,6 +259,7 @@ export class ProductsService {
   private $selectedBrandTranslit = signal<string>('');
   private $selectedBrandLineTranslit = signal<string>('');
   private $selectedBrandSeriesTranslit = signal<string>('');
+  public $action = signal<string>('');
 
   //private $productsAPI = toSignal<IProduct[]>(this.getProducts());
   productsResponseChanged = new BehaviorSubject<void>(undefined);
@@ -860,7 +861,7 @@ export class ProductsService {
                 : false,
             });
           })
-          .filter((p) => (p.price > 0 && p.isActive) || this.telegram.isAdmin);
+          .filter((p) => ((p.price > 0 || p.detail.attributes.find(p=>p.price > 0)) && p.isActive) || this.telegram.isAdmin);
       }),
       catchError(this.handleError<IProduct[]>('getProducts', [])),
     );

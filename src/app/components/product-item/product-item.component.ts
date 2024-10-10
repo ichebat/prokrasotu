@@ -4,21 +4,45 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  ViewChild,
   computed,
   effect,
   signal,
 } from '@angular/core';
-import { IProduct, IProductDetail, ProductAttributeClass, ProductClass, ProductDetailClass, ProductsService } from '../../services/products.service';
-import { CartItemClass, CartService, ICartItem } from '../../services/cart.service';
+import {
+  IProduct,
+  IProductDetail,
+  ProductAttributeClass,
+  ProductClass,
+  ProductDetailClass,
+  ProductsService,
+} from '../../services/products.service';
+import {
+  CartItemClass,
+  CartService,
+  ICartItem,
+} from '../../services/cart.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { environment } from '../../../environments/environment';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { NavigationService } from '../../services/navigation.service';
-import { Subscription, distinctUntilChanged } from 'rxjs';
+import {
+  ReplaySubject,
+  Subject,
+  Subscription,
+  distinctUntilChanged,
+  takeUntil,
+} from 'rxjs';
 import { ProductDetailComponent } from '../product-detail/product-detail.component';
+import { MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'app-product-item',
@@ -27,6 +51,15 @@ import { ProductDetailComponent } from '../product-detail/product-detail.compone
 })
 export class ProductItemComponent implements OnInit, OnDestroy {
   @Input() product!: ProductClass;
+  @Input() action: string = ''; //действие по которому строится контрол (view, edit)
+
+  dataFilterCtrl: FormControl = new FormControl();
+  filteredData: ReplaySubject<ProductAttributeClass[]> = new ReplaySubject<
+    ProductAttributeClass[]
+  >(1);
+  @ViewChild('singleSelect', { static: true }) singleSelect: MatSelect =
+    {} as MatSelect;
+  _onDestroy = new Subject<void>();
 
   owner = environment.owner;
 
@@ -94,9 +127,9 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   isMainButtonHidden = true; //иногда, когда открывается диалог, необходимо скрыть MainButton телеграма, чтобы он не закрывал экран, а после диалога вернуть как было
   MainButtonText = ''; //в зависимости от того какой режим разные надписи на главной кнопке телеграма
 
-  mainButtonTextValid = "Отправить в "+this.owner.marketName;
-  mainButtonTextProgress = "Отправка...";
-  mainButtonTextInvalid = "Некорректно заполнены поля";
+  mainButtonTextValid = 'Отправить в ' + this.owner.marketName;
+  mainButtonTextProgress = 'Отправка...';
+  mainButtonTextInvalid = 'Некорректно заполнены поля';
 
   //здесь храним видимость и доступность к редактированию контролов реактивной формы
   FormControlsFlags: any = [
@@ -137,8 +170,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   ) {
     this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
 
-    this.categoryOptionsAuto = this.productService.$productCategories();;//this.productService.$productCategoriesMenuTree();
-    this.typeOptionsAuto = this.productService.$productTypes();//this.productService.$productTypesMenuTree();
+    this.categoryOptionsAuto = this.productService.$productCategories(); //this.productService.$productCategoriesMenuTree();
+    this.typeOptionsAuto = this.productService.$productTypes(); //this.productService.$productTypesMenuTree();
     this.brandOptionsAuto = this.productService.$productBrands();
     this.brandLineOptionsAuto = this.productService.$productBrandLines();
     this.brandSeriesOptionsAuto = this.productService.$productBrandSeriesList();
@@ -173,7 +206,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     //     );
     //   };
     // });
-
 
     //строим реактивную форму с валидацией
     this.form = fb.group({
@@ -220,10 +252,14 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           Validators.maxLength(50),
         ],
       ],
-      brandLine: [this.product?.brandLine, [Validators.minLength(2),
-        Validators.maxLength(50)]],
-      brandSeries: [this.product?.brandSeries, [Validators.minLength(2),
-        Validators.maxLength(50)]],
+      brandLine: [
+        this.product?.brandLine,
+        [Validators.minLength(2), Validators.maxLength(50)],
+      ],
+      brandSeries: [
+        this.product?.brandSeries,
+        [Validators.minLength(2), Validators.maxLength(50)],
+      ],
       name: [
         this.product?.name,
         [
@@ -257,49 +293,32 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       translit: [this.product?.translit, []],
       detail: [this.product?.detail, []],
       isActive: [this.product?.isActive, []],
-      
     });
 
     this.formSelectedAttribute = fb.group({
-      selectedProductAttribute: [this.selectedProductAttribute, this.product?.detail.attributes.length>0?[Validators.required]:[]],
+      selectedProductAttribute: [
+        this.selectedProductAttribute,
+        this.product?.detail.attributes.length > 0 ? [Validators.required] : [],
+      ],
     });
 
+    
   }
 
   //после конструктора необходимо заполнить форму начальными значениями
   setInitialValue() {
-    this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(this.selectedProductAttribute);
+    this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(
+      this.selectedProductAttribute,
+    );
 
-    if (!this.telegramService.isAdmin) return;
+    this.filteredData.next(this.product.detail.attributes.slice());
 
-    this.form.controls['id'].setValue(this.product?.id);
-    this.form.controls['url'].setValue(this.product?.url);
-    this.form.controls['artikul'].setValue(this.product?.artikul), //{value: this.product?.delivery, disabled: (this.product?.isAccepted || this.product?.isCompleted || this.product?.isCancelled)});
-    this.form.controls['category'].setValue(this.product?.category);
-    this.form.controls['type'].setValue(this.product?.type);
-    this.form.controls['brand'].setValue(this.product?.brand);
-    this.form.controls['brandLine'].setValue(this.product?.brandLine);
-    this.form.controls['brandSeries'].setValue(this.product?.brandSeries);
-    this.form.controls['name'].setValue(this.product?.name);
-    this.form.controls['description'].setValue(this.product?.description);
-    this.form.controls['dopolnitelno'].setValue(this.product?.dopolnitelno);
-    this.form.controls['imageUrl'].setValue(this.product?.imageUrl);
-    this.form.controls['price'].setValue(this.product?.price);
-    this.form.controls['discount'].setValue(this.product?.discount);
-    this.form.controls['isNew'].setValue(this.product?.isNew);
-    this.form.controls['translit'].setValue(this.product?.translit);
-    this.form.controls['detail'].setValue(this.product?.detail);
-    this.form.controls['isActive'].setValue(this.product?.isActive);
-    
-    
-    
-
-    //console.log('this.product',this.product);
+    //console.log(this.telegramService.IsTelegramWebAppOpened);
 
     //выставляем флаги отображения контролов
     this.FormControlsFlags.forEach((item) => {
       //1. ******************************************* */
-      //если создается новый заказ не через телеграм бота (через сайт)
+      //если создается новый продукт не через телеграм бота (через сайт)
       if (
         !this.telegramService.IsTelegramWebAppOpened &&
         this.product?.id == 0
@@ -309,6 +328,11 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
         //возможность редактирования следующих контролов будет изменена
         item.enabled = false;
+
+        if (item.controlName == 'selectedProductAttribute') {
+          item.visible = true && this.product.detail.attributes.length > 0;
+          item.enabled = true && this.product.detail.attributes.length > 0;
+        }
       }
 
       //2. ******************************************* */
@@ -324,10 +348,9 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         //возможность редактирования следующих контролов будет изменена
         item.enabled = true;
 
-        
         if (item.controlName == 'selectedProductAttribute') {
-          item.visible = true && this.product.detail.attributes.length>0;
-          item.enabled = true && this.product.detail.attributes.length>0;
+          item.visible = true && this.product.detail.attributes.length > 0;
+          item.enabled = true && this.product.detail.attributes.length > 0;
         }
       }
 
@@ -345,53 +368,88 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         item.enabled = true;
 
         if (item.controlName == 'selectedProductAttribute') {
-          item.visible = true && this.product.detail.attributes.length>0;
-          item.enabled = true && this.product.detail.attributes.length>0;
+          item.visible = true && this.product.detail.attributes.length > 0;
+          item.enabled = true && this.product.detail.attributes.length > 0;
         }
       }
 
       //4. ******************************************* */
       //если продукт редактируется не через телеграм бота (через сайт)
       else if (
-        !this.telegramService.IsTelegramWebAppOpened&&
+        !this.telegramService.IsTelegramWebAppOpened &&
         this.product?.id > 0
       ) {
         //такое запрещено, все скрываем и не редактируем
         item.visible = false;
         item.enabled = false;
+
+        if (item.controlName == 'selectedProductAttribute') {
+          item.visible = true && this.product.detail.attributes.length > 0;
+          item.enabled = true && this.product.detail.attributes.length > 0;
+        }
       }
       //КОНЕЦ. ******************************************* */
 
       //выключаем контролы
       if (!item.controlName.toString().startsWith('button_')) {
-        if (!item.enabled && this.form.controls[item.controlName]) this.form.controls[item.controlName].disable();
-        if (!item.enabled && this.formSelectedAttribute.controls[item.controlName]) this.formSelectedAttribute.controls[item.controlName].disable();
+        if (!item.enabled && this.form.controls[item.controlName])
+          this.form.controls[item.controlName].disable();
+        if (
+          !item.enabled &&
+          this.formSelectedAttribute.controls[item.controlName]
+        )
+          this.formSelectedAttribute.controls[item.controlName].disable();
       }
     });
+
+    if (!this.telegramService.isAdmin) return;
+
+    this.form.controls['id'].setValue(this.product?.id);
+    this.form.controls['url'].setValue(this.product?.url);
+    this.form.controls['artikul'].setValue(this.product?.artikul), //{value: this.product?.delivery, disabled: (this.product?.isAccepted || this.product?.isCompleted || this.product?.isCancelled)});
+      this.form.controls['category'].setValue(this.product?.category);
+    this.form.controls['type'].setValue(this.product?.type);
+    this.form.controls['brand'].setValue(this.product?.brand);
+    this.form.controls['brandLine'].setValue(this.product?.brandLine);
+    this.form.controls['brandSeries'].setValue(this.product?.brandSeries);
+    this.form.controls['name'].setValue(this.product?.name);
+    this.form.controls['description'].setValue(this.product?.description);
+    this.form.controls['dopolnitelno'].setValue(this.product?.dopolnitelno);
+    this.form.controls['imageUrl'].setValue(this.product?.imageUrl);
+    this.form.controls['price'].setValue(this.product?.price);
+    this.form.controls['discount'].setValue(this.product?.discount);
+    this.form.controls['isNew'].setValue(this.product?.isNew);
+    this.form.controls['translit'].setValue(this.product?.translit);
+    this.form.controls['detail'].setValue(this.product?.detail);
+    this.form.controls['isActive'].setValue(this.product?.isActive);
   }
 
   ngOnInit(): void {
-    if (this.telegramService.IsTelegramWebAppOpened){      
+    this.filteredData.next(this.product.detail.attributes.slice());
+    this.dataFilterCtrl.valueChanges
+      .pipe(takeUntil(this._onDestroy))
+      .subscribe(() => {
+        this.filterData();
+      });
+
+    if (this.telegramService.IsTelegramWebAppOpened) {
       this.telegramService.BackButton.show();
       this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
-      if (this.telegramService.isAdmin)
-      {
+      if (this.telegramService.isAdmin) {
         this.telegramService.MainButton.show();
         this.telegramService.MainButton.enable();
         this.telegramService.MainButton.onClick(this.sendData);
         this.telegramService.MainButton.setText(this.mainButtonTextValid);
-      }
-      else this.telegramService.MainButton.hide();
+      } else this.telegramService.MainButton.hide();
     }
 
-    
     this.setInitialValue();
-    
+
     this.subscr_selectedProductAttribute = this.formSelectedAttribute
-        .get('selectedProductAttribute')!
-        .valueChanges.subscribe((val) => {
-          this.selectedProductAttribute = val;
-        });
+      .get('selectedProductAttribute')!
+      .valueChanges.subscribe((val) => {
+        this.selectedProductAttribute = val;
+      });
 
     if (!this.telegramService.isAdmin) return;
 
@@ -415,7 +473,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.product.artikul = val;
       });
 
-      //Чтобы работал Autocomplete подписку не включаем
+    //Чтобы работал Autocomplete подписку не включаем
     // this.subscr_category = this.form
     //   .get('category')!
     //   .valueChanges.subscribe((val) => {
@@ -473,12 +531,11 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.product.isNew = val;
       });
     this.subscr_isActive = this.form
-        .get('isActive')!
-        .valueChanges.subscribe((val) => {
-          this.product.isActive = val;
-        });
-    
-    
+      .get('isActive')!
+      .valueChanges.subscribe((val) => {
+        this.product.isActive = val;
+      });
+
     this.subscr_translit = this.form
       .get('translit')!
       .valueChanges.subscribe((val) => {
@@ -490,18 +547,38 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.onHandleUpdate();
   }
 
+  filterData() {
+    if (
+      !this.product.detail.attributes ||
+      this.product.detail.attributes.length == 0
+    ) {
+      return;
+    }
+    let search = this.dataFilterCtrl.value;
+    if (!search) {
+      this.filteredData.next(this.product.detail.attributes.slice());
+      return;
+    } else {
+      search = search.toLowerCase();
+    }
+    this.filteredData.next(
+      this.product.detail.attributes.filter(
+        (x: any) => x.keyValues.join(' ').toLowerCase().indexOf(search) > -1,
+      ),
+    );
+  }
+
   //отвязываем кнопки
   ngOnDestroy(): void {
-    if (this.telegramService.IsTelegramWebAppOpened){      
+    if (this.telegramService.IsTelegramWebAppOpened) {
       this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
 
-      if (this.telegramService.isAdmin)
-        {
-          this.telegramService.MainButton.hide();
-          this.telegramService.MainButton.offClick(this.sendData);
-          this.isMainButtonHidden = true;          
-        }
+      if (this.telegramService.isAdmin) {
+        this.telegramService.MainButton.hide();
+        this.telegramService.MainButton.offClick(this.sendData);
+        this.isMainButtonHidden = true;
+      }
     }
 
     this.subscr_form.unsubscribe();
@@ -523,8 +600,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.subscr_isActive.unsubscribe();
     this.subscr_selectedProductAttribute.unsubscribe();
     this.subscr_translit.unsubscribe();
-
-    
   }
 
   // //проверка валидности и скрытие/отображение главной кнопки
@@ -546,19 +621,29 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     return (
       this.cartService
         .$cart()
-        .items.findIndex((p) => p.product.id === product.id  && p.attribute?.keyValues.join(' ') == this.selectedProductAttribute?.keyValues.join(' ')) >= 0
+        .items.findIndex(
+          (p) =>
+            p.product.id === product.id &&
+            p.attribute?.keyValues.join(' ') ==
+              this.selectedProductAttribute?.keyValues.join(' '),
+        ) >= 0
     );
   }
 
   quantityInCart(product: ProductClass) {
     const searchItem = this.cartService
-    .$cart()
-    .items.find((p) => p.product.id === product.id && p.attribute?.keyValues.join(' ') == this.selectedProductAttribute?.keyValues.join(' '));
-    return searchItem?searchItem.quantity:0;
+      .$cart()
+      .items.find(
+        (p) =>
+          p.product.id === product.id &&
+          p.attribute?.keyValues.join(' ') ==
+            this.selectedProductAttribute?.keyValues.join(' '),
+      );
+    return searchItem ? searchItem.quantity : 0;
   }
 
   addItem() {
-    if (this.product.id<=0) return;
+    if (this.product.id <= 0) return;
     console.log('Add to cart');
 
     const newItem: CartItemClass = {
@@ -568,72 +653,76 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       checked: true,
     };
 
-    if (this.product.detail.attributes.length>0 && !this.selectedProductAttribute) {
+    if (
+      this.product.detail.attributes.length > 0 &&
+      !this.selectedProductAttribute
+    ) {
       this.zone.run(() => {
-      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-        ConfirmDialogDemoComponent,
-        {
-          data: {
-            message: 'Сначала выберите товар',
-            description:
-              'Выберите товар из списка, чтобы добавить в корзину',
-            showCancelButton: false,
+        const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+          ConfirmDialogDemoComponent,
+          {
+            data: {
+              message: 'Сначала выберите товар',
+              description: 'Выберите товар из списка, чтобы добавить в корзину',
+              showCancelButton: false,
+            },
           },
-        },
-      );
-      dialogRef.afterClosed().subscribe((result) => {
-        return;
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+          return;
+        });
       });
-    });
     }
 
     if (this.cartService.checkMaxCartItemPosition(newItem)) {
       this.zone.run(() => {
-      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-        ConfirmDialogDemoComponent,
-        {
-          data: {
-            message: 'Достигнуто ограничение',
-            description:
-              'Нельзя добавить более ' +
-              environment.maxCartItemPosition.toString() +
-              ' шт. одного товара в корзину.',
-            showCancelButton: false,
+        const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+          ConfirmDialogDemoComponent,
+          {
+            data: {
+              message: 'Достигнуто ограничение',
+              description:
+                'Нельзя добавить более ' +
+                environment.maxCartItemPosition.toString() +
+                ' шт. одного товара в корзину.',
+              showCancelButton: false,
+            },
           },
-        },
-      );
-      dialogRef.afterClosed().subscribe((result) => {
-        return;
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+          return;
+        });
       });
-    });
     }
     if (this.cartService.checkMaxCartItems(newItem)) {
       this.zone.run(() => {
-      const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
-        ConfirmDialogDemoComponent,
-        {
-          data: {
-            message: 'Достигнуто ограничение',
-            description:
-              'Нельзя добавить более ' +
-              environment.maxCartItems.toString() +
-              ' разных товаров в корзину.',
-            showCancelButton: false,
+        const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
+          ConfirmDialogDemoComponent,
+          {
+            data: {
+              message: 'Достигнуто ограничение',
+              description:
+                'Нельзя добавить более ' +
+                environment.maxCartItems.toString() +
+                ' разных товаров в корзину.',
+              showCancelButton: false,
+            },
           },
-        },
-      );
-      dialogRef.afterClosed().subscribe((result) => {
-        return;
+        );
+        dialogRef.afterClosed().subscribe((result) => {
+          return;
+        });
       });
-    });
-    } 
-    else 
-    if ((this.product.detail.attributes.length>0 && this.selectedProductAttribute) || this.product.detail.attributes.length==0)
-    this.cartService.addItem(newItem);
+    } else if (
+      (this.product.detail.attributes.length > 0 &&
+        this.selectedProductAttribute) ||
+      this.product.detail.attributes.length == 0
+    )
+      this.cartService.addItem(newItem);
   }
 
   removeItem() {
-    if (this.product.id<=0) return;
+    if (this.product.id <= 0) return;
     console.log('Remove from cart');
 
     const newItem: ICartItem = {
@@ -647,17 +736,19 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
 
   getUrl() {
-    return this.router.url;
+    const thisUrl = this.router.url;
+    if (thisUrl.indexOf('#') >= 0) return thisUrl.split('#')[0];
+    else return thisUrl;
   }
 
   //https://api.telegram.org/bot[TOKEN]/sendMessage?chat_id=[CHAT_ID]&text=[TEXT]&reply_markup={"inline_keyboard": [[{"text": "hi", "callback_data": "hi"}]]}
   //https://stackoverflow.com/questions/70997956/how-to-send-a-message-via-url-with-inline-buttons
 
   //функция отправки данных (id ==0 для нового продукта, id>0 для редактирования)
-  sendData(method='update') {
+  sendData(method = 'update') {
     if (!this.telegramService.isAdmin) return;
 
-    if(!this.form.valid && method=='update'){
+    if (!this.form.valid && method == 'update') {
       this.telegramService.MainButton.setText(this.mainButtonTextInvalid);
       this.telegramService.MainButton.disable();
       setTimeout(() => {
@@ -665,11 +756,11 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.telegramService.MainButton.enable();
         return;
       }, 5000);
-      return;    
+      return;
     }
 
     //при загрузке картинки на гитхаб возникает отправка, которой надо дождаться
-    if(this.disableButton && method=='update'){
+    if (this.disableButton && method == 'update') {
       this.telegramService.MainButton.setText(this.mainButtonTextProgress);
       this.telegramService.MainButton.disable();
       setTimeout(() => {
@@ -677,13 +768,13 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.telegramService.MainButton.enable();
         return;
       }, 5000);
-      return;    
+      return;
     }
 
     if (
       this.product.id > 0 &&
-      this.telegramService.isAdmin 
-      && method == 'remove'
+      this.telegramService.isAdmin &&
+      method == 'remove'
     ) {
       this.disableButton = true;
       this.telegramService.MainButton.setText(this.mainButtonTextProgress);
@@ -725,33 +816,32 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             console.log('removeProduct error', err);
           },
           complete: () => {
-
             //обновляем корзину
             let flagCart = false;
-              this.cartService.$cart.update((currentCart) => {
-                const existingItem = currentCart.items.find(
-                  (i) => i.product.id === this.product.id,
-                );
-                if (!existingItem) {
-                  return currentCart;
-                } else {
-                  existingItem.quantity = 0;
-                  flagCart = true;
-                }
-
-                currentCart.items = currentCart.items.filter(
-                  (p) => p.quantity > 0,
-                );
-
-                currentCart.totalCount = this.cartService.calculateTotalCount(
-                  currentCart.items,
-                );
-                currentCart.totalAmount = this.cartService.calculateTotalAmount(
-                  currentCart.items,
-                );
-
+            this.cartService.$cart.update((currentCart) => {
+              const existingItem = currentCart.items.find(
+                (i) => i.product.id === this.product.id,
+              );
+              if (!existingItem) {
                 return currentCart;
-              });
+              } else {
+                existingItem.quantity = 0;
+                flagCart = true;
+              }
+
+              currentCart.items = currentCart.items.filter(
+                (p) => p.quantity > 0,
+              );
+
+              currentCart.totalCount = this.cartService.calculateTotalCount(
+                currentCart.items,
+              );
+              currentCart.totalAmount = this.cartService.calculateTotalAmount(
+                currentCart.items,
+              );
+
+              return currentCart;
+            });
 
             //обновляем корзину в таблице
             if (flagCart && this.telegramService.Id) {
@@ -785,7 +875,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         });
     }
 
-    
     //добавление нового товара делается кнопкой submit
 
     if (
@@ -793,8 +882,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.getVisible('button_submit') &&
       this.getEnabled('button_submit') &&
       this.form.valid &&
-      this.telegramService.isAdmin
-      && method == 'update'
+      this.telegramService.isAdmin &&
+      method == 'update'
     ) {
       this.disableButton = true;
       this.telegramService.MainButton.setText(this.mainButtonTextProgress);
@@ -849,8 +938,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
       this.getVisible('button_submit') &&
       this.getEnabled('button_submit') &&
       this.form.valid &&
-      this.telegramService.isAdmin
-      && method == 'update'
+      this.telegramService.isAdmin &&
+      method == 'update'
     ) {
       this.disableButton = true;
       this.telegramService.MainButton.setText(this.mainButtonTextProgress);
@@ -894,7 +983,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           complete: () => {
             //обновляем корзину
             let flagCart = false;
-            
+
             // this.cartService.$cart.update((currentCart) => {
             //   const existingItem = currentCart.items.find(
             //     (i) => i.product.id === item.product.id,
@@ -922,8 +1011,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
             //   return currentCart;
             // });
-            
-           
 
             //обновляем корзину в таблице
             if (flagCart && this.telegramService.Id) {
@@ -948,7 +1035,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
                   },
                 });
             }
-            
+
             this.onHandleUpdate();
             console.log('updateProduct complete');
             this.router.navigate(['/']);
@@ -967,6 +1054,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         itemName.toString().toLowerCase(),
     );
     if (item) result = item.visible;
+
+    //console.log(itemName,result);
     return result;
   }
 
@@ -1000,8 +1089,9 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     // }
 
     if (
-      this.telegramService.IsTelegramWebAppOpened && !this.navigation.isHistoryAvailable)
-    {
+      this.telegramService.IsTelegramWebAppOpened &&
+      !this.navigation.isHistoryAvailable
+    ) {
       console.log('Закрываем Tg');
       this.telegramService.tg.close();
     }
@@ -1107,72 +1197,111 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     }
   }
 
-  public GitHubLoaded(event: any):void {
+  public GitHubLoaded(event: any): void {
     //console.log('Loaded GitHub: ', event);
     const newImageUrl = event.content.download_url;
     if (!this.form.controls['imageUrl'].disabled && newImageUrl) {
       this.product.imageUrl = newImageUrl;
       this.form.controls['imageUrl'].setValue(this.product.imageUrl);
     }
-    
-  } 
+  }
 
-  public GitHubLoading(event: boolean):void {
+  public GitHubLoading(event: boolean): void {
     //console.log('GitHubLoading',event)
     this.disableButton = event;
-  } 
+  }
 
   categoryChanging(query: string) {
-    this.categoryOptionsAuto = this.productService.$productCategoriesMenuTree().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+    this.categoryOptionsAuto = this.productService
+      .$productCategoriesMenuTree()
+      .filter(
+        (p) =>
+          p.name
+            .toString()
+            .toLowerCase()
+            .indexOf(query.toString().toLowerCase()) >= 0,
+      );
   }
-  categoryChanged() {}  
+  categoryChanged() {}
   typeChanging(query: string) {
-    this.typeOptionsAuto = this.productService.$productTypesMenuTree().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+    this.typeOptionsAuto = this.productService
+      .$productTypesMenuTree()
+      .filter(
+        (p) =>
+          p.name
+            .toString()
+            .toLowerCase()
+            .indexOf(query.toString().toLowerCase()) >= 0,
+      );
   }
-  typeChanged() {}  
+  typeChanged() {}
   brandChanging(query: string) {
-    this.brandOptionsAuto = this.productService.$productBrands().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+    this.brandOptionsAuto = this.productService
+      .$productBrands()
+      .filter(
+        (p) =>
+          p.name
+            .toString()
+            .toLowerCase()
+            .indexOf(query.toString().toLowerCase()) >= 0,
+      );
   }
   brandChanged() {}
   brandLineChanging(query: string) {
-    this.brandLineOptionsAuto = this.productService.$productBrandLines().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+    this.brandLineOptionsAuto = this.productService
+      .$productBrandLines()
+      .filter(
+        (p) =>
+          p.name
+            .toString()
+            .toLowerCase()
+            .indexOf(query.toString().toLowerCase()) >= 0,
+      );
   }
   brandLineChanged() {}
   brandSeriesChanging(query: string) {
-    this.brandSeriesOptionsAuto = this.productService.$productBrandSeriesList().filter(p=>p.name.toString().toLowerCase().indexOf(query.toString().toLowerCase())>=0);
+    this.brandSeriesOptionsAuto = this.productService
+      .$productBrandSeriesList()
+      .filter(
+        (p) =>
+          p.name
+            .toString()
+            .toLowerCase()
+            .indexOf(query.toString().toLowerCase()) >= 0,
+      );
   }
   brandSeriesChanged() {}
 
-  testClick(){
+  testClick() {
     console.log(this.product);
   }
 
   downloadImage(fileName, url) {
-  if (this.telegramService.IsTelegramWebAppOpened)
-      {
-        this.telegramService.sendToGoogleAppsScript(
-          {
-            chat_id: this.telegramService.Id,
-            photo: url,
-            caption: fileName,
-            action: "sendphoto",
-          }
-        ).subscribe({
+    if (this.telegramService.IsTelegramWebAppOpened) {
+      this.telegramService
+        .sendToGoogleAppsScript({
+          chat_id: this.telegramService.Id,
+          photo: url,
+          caption: fileName,
+          action: 'sendphoto',
+        })
+        .subscribe({
           next: (data) => {
             const sendphoto_response = data;
             console.log('sendphoto data', data);
 
-            if (sendphoto_response?.status == 'success' &&
+            if (
+              sendphoto_response?.status == 'success' &&
               sendphoto_response?.data?.action.toString().toLowerCase() ==
-                'sendphoto')
+                'sendphoto'
+            )
               this.zone.run(() => {
                 const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
                   ConfirmDialogDemoComponent,
                   {
                     data: {
                       message: 'Информационное сообщение',
-                      description:
-                      sendphoto_response.message,
+                      description: sendphoto_response.message,
                       showCancelButton: false,
                     },
                   },
@@ -1189,22 +1318,23 @@ export class ProductItemComponent implements OnInit, OnDestroy {
             console.log('sendphoto complete');
           },
         });
-  
-      }
+    }
   }
-
 
   //для корректного отображения select контрола необходима функция сравнения
   compareFunction(o1: any, o2: any) {
     if (o1 == null || o2 == null) return false;
-    return o1.description.toString() == o2.description.toString();
+    return (
+      o1.keyValues.join(' ').toLowerCase().toString() ==
+      o2.keyValues.join(' ').toLowerCase().toString()
+    );
   }
 
   selectedProductAttributeChange(item: ProductAttributeClass | null) {
     this.selectedProductAttribute = item;
   }
 
-  removeProduct(){
+  removeProduct() {
     this.zone.run(() => {
       const dialogRef = this.dialog.open<ConfirmDialogDemoComponent>(
         ConfirmDialogDemoComponent,
@@ -1226,19 +1356,30 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     });
   }
 
-  detailFormChanged(event: any):void {
+  detailFormChanged(event: any): void {
     //console.log('detailFormChanged',event)
     //console.log('this.form.status',this.form.status);
 
-    if (event === false){
-      this.form.controls['detail'].setErrors({'incorrect': true});
-    }
-    else
-    {
+    if (event === false) {
+      this.form.controls['detail'].setErrors({ incorrect: true });
+    } else {
       this.form.controls['detail'].setErrors(null);
     }
-    
-  } 
+  }
 
-  
+  minPrice(){
+    let result = this.product.price;
+    this.product.detail.attributes.forEach(p=>{
+      if((p.price>0 && p.price<result) || result == 0) result = p.price;
+    });
+    return result;
+  }
+
+  maxPrice(){
+    let result = this.product.price;
+    this.product.detail.attributes.forEach(p=>{
+      if((p.price>0 && p.price>result) || result == 0) result = p.price;
+    });
+    return result;
+  }
 }

@@ -84,6 +84,7 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {
     //если запустили телеграм бота по прямой ссылке с параметром https://t.me/botusername/appname?startapp=someParamValue
     //то считываем someParamValue и парсим для перехода
+    //проверяем тут, так как по умолчанию роут стоит на компонент Shop и запуск по ссылке приложения зайдет сюда
     if (!this.telegramService.isRedirectedByStartParam)
       if (this.telegramService.StartParam) {
         let routeUrl = this.telegramService.StartParam;

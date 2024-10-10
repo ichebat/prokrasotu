@@ -30,7 +30,16 @@
             <span class="no-wrap">{{ owner.yandexMapText }}</span>
           </a>
         </mat-nav-list>
-      }
+    }
+    @if(owner.startBotUrl){
+        <p>
+            <app-share-buttons
+                [url]="owner.startBotUrl"
+                [title]="owner.marketName"
+                [description]="owner.marketDescription"
+            ></app-share-buttons>
+        </p>
+    }
   </mat-card-content>
 </mat-card>
 

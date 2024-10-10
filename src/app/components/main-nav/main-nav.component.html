@@ -194,6 +194,16 @@
           <span>Обратная связь</span>
         </span>
       </a>
+      <a mat-list-item (click)="toggleMenu()"
+      shareButton="telegram" 
+      [url]="owner.startBotUrl"
+      [title]="owner.marketName"
+      [description]="owner.marketName">
+        <span class="entry">
+          <mat-icon>share</mat-icon>
+          <span>Поделиться ссылкой</span>
+        </span>
+      </a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
