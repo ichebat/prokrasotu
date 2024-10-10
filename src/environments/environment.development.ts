@@ -56,7 +56,7 @@ export const environment = {
     form: 'ИП',
     name: 'Чеботарева Наталья Сергеевна',
     INN: '026100700987',
-    marketDescription: 'Магазин профессиональной косметики',
+    marketDescription: 'Магазин профессиональной косметики в г.Ишимбай',
     marketName: 'PROКРАСОТУ',
     marketAddress: 'г.Ишимбай, ТЦ Лето, Стахановская 35, Секция С6',
     telegramBot: 'ProKrasotuBot',
