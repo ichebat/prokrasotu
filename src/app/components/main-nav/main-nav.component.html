@@ -197,8 +197,8 @@
       <a mat-list-item (click)="toggleMenu()"
       shareButton="telegram" 
       [url]="owner.startBotUrl"
-      [title]="owner.marketName"
-      [description]="owner.marketName">
+      [title]="owner.marketName+' '+owner.marketDescription"
+      [description]="owner.marketName+' '+owner.marketDescription">
         <span class="entry">
           <mat-icon>share</mat-icon>
           <span>Поделиться ссылкой</span>

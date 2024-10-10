@@ -8,8 +8,8 @@
         @if (product.id > 0) {
           <app-share-buttons
             [url]="getUrl()"
-            [title]="product.name"
-            [description]="product.name"
+            [title]="owner.marketName+' '+owner.marketDescription+': '+product.name"
+            [description]="owner.marketName+' '+owner.marketDescription+': '+product.name"
           ></app-share-buttons>
         }
       </mat-card-title>
