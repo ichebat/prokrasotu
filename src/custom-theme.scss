@@ -128,6 +128,13 @@ $prokrasotu-dark-theme: mat.m2-define-dark-theme(
   }
   }
 
+.mat-mdc-form-field .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above  {
+  color: white;
+}
+
+
+
+
   // a {
   //   text-decoration: none;
   //   color: mat.get-color-from-palette($prokrasotu-palette-dark-accent);
