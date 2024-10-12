@@ -89,7 +89,7 @@ export class ProductDetailClass implements IProductDetail {
   constructor(obj) {
     for (var prop in obj) this[prop] = obj[prop];
     this.attributes.forEach(att => {
-      if (att.imageUrl.indexOf('http')<0)
+      if (att.imageUrl && att.imageUrl.indexOf('http')<0)
       {
         att.imageUrl = environment.gitHubImagePath + att.imageUrl;
       }

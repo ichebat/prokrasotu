@@ -160,7 +160,7 @@
               }
               <mat-hint align="end"
                 >Введите название для свойства [{{ i + 1 }}]
-                {{ key.get("key")?.value.length }}/50</mat-hint
+                {{ key.get("key")?.value.length }}/75</mat-hint
               >
               <mat-error *ngIf="key.get('key')?.hasError('required')"
                 >Это обязательное поле</mat-error
@@ -169,7 +169,7 @@
                 >Минимум 1 символ</mat-error
               >
               <mat-error *ngIf="key.get('key')?.hasError('maxlength')"
-                >Максимум 50 символов</mat-error
+                >Максимум 75 символов</mat-error
               >
             </mat-form-field>
           </div>
@@ -271,9 +271,9 @@
                       [maintainAspectRatio]="true"
                       [containWithinAspectRatio]="false"
                       [aspectRatio]="1 / 1"
-                      [resizeToWidth]="320"
-                      [cropperMinWidth]="160"
-                      [onlyScaleDown]="true"
+                      [resizeToWidth]="160"
+                      [cropperMinWidth]="80"
+                      [onlyScaleDown]="false"
                       [roundCropper]="false"
                       [canvasRotation]="0"
                       [targetHTMLElement]="'imgDetailElement' + i"
@@ -303,8 +303,9 @@
                             <mat-label
                               >Введите {{ product.detail.keys[j] }}</mat-label
                             >
-                            <input
-                              matNativeControl
+                            <textarea
+                            matNativeControl
+                            cdkTextareaAutosize
                               [formControlName]="'keyValue'"
                               #keyValue
                               [placeholder]="
@@ -313,7 +314,7 @@
                               (ngModelChange)="
                                 detailKeyValueChanging($event, i, j)
                               "
-                            />
+                            ></textarea>
                             @if (keyValue.get("keyValue")?.value) {
                               <button
                                 matSuffix
@@ -328,7 +329,7 @@
                               >Введите [{{ product.detail.keys[j] }}]
                               {{
                                 keyValue.get("keyValue")?.value.length
-                              }}/50</mat-hint
+                              }}/75</mat-hint
                             >
                             <mat-error
                               *ngIf="
@@ -346,7 +347,7 @@
                               *ngIf="
                                 keyValue.get('keyValue')?.hasError('maxlength')
                               "
-                              >Максимум 50 символов</mat-error
+                              >Максимум 75 символов</mat-error
                             >
                           </mat-form-field>
                         </div>
@@ -420,7 +421,7 @@
                         >Это обязательное поле</mat-error
                       >
                       <mat-error *ngIf="attribute.get('price')?.hasError('min')"
-                        >Скидка (руб.) должна быть больше 0</mat-error
+                        >Цена (руб.) должна быть больше 0</mat-error
                       >
                     </mat-form-field>
 
@@ -429,7 +430,7 @@
                       <input
                         style="display: none"
                         matNativeControl
-                        formControlName="isActive"
+                        formControlName="isActive"                        
                       />
                       <mat-checkbox
                         formControlName="isActive"
@@ -549,6 +550,7 @@
                   mat-icon-button
                   matTooltip="Добавить продукт"
                   type="button"
+                  color="primary"
                   (click)="addRow()"
                   [disabled]="!form.valid || disableButton"
                 >

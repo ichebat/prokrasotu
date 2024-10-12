@@ -32,7 +32,7 @@
           class="product-item-image"
         />
       </div>
-      @if (selectedProductAttribute) {
+      @if (selectedProductAttribute && selectedProductAttribute.imageUrl) {
         <div class="product-image-host">
           <img
             mat-card-image
@@ -44,7 +44,7 @@
         </div>
       }
 
-      @if(telegramService.isAdmin && action == 'edit'){
+      @if(telegramService.isAdmin &&  (action == 'edit' || product.id == 0)){
         <app-image-cropper-loader
           [maintainAspectRatio]="true"
           [containWithinAspectRatio]="true"
@@ -86,12 +86,15 @@
           <div class="buy-button pb">
             @if (product.discount == 0) {
               <button mat-flat-button (click)="addItem()" color="primary">
-                В корзину за
+                В корзину 
+                @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
+                за
                 {{
                   selectedProductAttribute && selectedProductAttribute!.price > 0
                     ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
                     : (product.price | currency: "RUB" : "symbol-narrow")
-                }}
+                }}  
+                }
               </button>
             }
             @if (product.discount > 0) {
@@ -104,7 +107,9 @@
                 (click)="addItem()"
                 color="primary"
               >
-                В корзину за
+                В корзину
+                @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
+                за
                 <s>{{
                   selectedProductAttribute && selectedProductAttribute!.price > 0
                     ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
@@ -117,7 +122,8 @@
                     : product.price) /
                     100) *
                     (100 - product.discount) | currency: "RUB" : "symbol-narrow"
-                }}
+                }}  
+                } 
               </button>
             }
           </div>
@@ -247,12 +253,15 @@
           </button> -->
           @if (product.discount == 0) {
             <button mat-flat-button (click)="addItem()" color="primary">
-              В корзину за
+              В корзину
+              @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
+               за
               {{
                 selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? selectedProductAttribute!.price
+                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
                   : (product.price | currency: "RUB" : "symbol-narrow")
               }}
+              }
             </button>
           }
           @if (product.discount > 0) {
@@ -265,10 +274,12 @@
               (click)="addItem()"
               color="primary"
             >
-              В корзину за
+              В корзину
+              @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
+               за
               <s>{{
                 selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? selectedProductAttribute!.price
+                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
                   : (product.price | currency: "RUB" : "symbol-narrow")
               }}</s>
               {{
@@ -279,6 +290,7 @@
                   100) *
                   (100 - product.discount) | currency: "RUB" : "symbol-narrow"
               }}
+              }
             </button>
           }
         </div>
@@ -287,7 +299,7 @@
   </mat-card>
 </div>
 
-@if (telegramService.isAdmin && action == 'edit') {
+@if (telegramService.isAdmin && (action == 'edit' || product.id == 0)) {
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />

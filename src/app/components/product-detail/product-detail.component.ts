@@ -12,6 +12,8 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ConfirmDialogDemoComponent } from '../confirm-dialog-demo/confirm-dialog-demo.component';
 import { Subscription, distinctUntilChanged } from 'rxjs';
 
+import * as paletteHelper from './paletteHelper.json';
+
 export interface DialogData {  
   message: string;
   description: string;
@@ -26,6 +28,8 @@ export interface DialogData {
 export class ProductDetailComponent implements OnInit, OnDestroy {
   @Input() product!: ProductClass;
   @Output() public onDetailChanged: EventEmitter<any> = new EventEmitter<any>();
+
+  paletteHeplerData:any = (paletteHelper as any).default;
 
   step = signal(-1);
 
@@ -58,6 +62,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         //console.log(this.form.status);
         this.onDetailChanged.emit(this.form.valid);
       });
+
+    //console.log(this.paletteHeplerData);
   }
 
   ngOnDestroy(): void {
@@ -131,7 +137,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       key: [newkey,[
               Validators.required,
               Validators.minLength(1),
-              Validators.maxLength(50),
+              Validators.maxLength(75),
             ]],
     })
  }
@@ -141,7 +147,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     keyValue: [newvalue,[
             Validators.required,
             Validators.minLength(1),
-            Validators.maxLength(50),
+            Validators.maxLength(75),
           ]],
   })
 }
@@ -380,6 +386,25 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   detailKeyValueChanging(event, i,j) {
      const value = event; 
      this.product.detail.attributes[i].keyValues[j] = value;
+
+     //если вводим тон/оттенок то автоподставляем из хелпера
+     if (this.product.detail.keys[j].replaceAll(' ','').toLowerCase()=='тон/оттенок')
+     {
+      const indexOfName = this.product.detail.keys.findIndex(p=>p.toLowerCase()=='название');
+      if (indexOfName>=0){
+        const helperData = this.paletteHeplerData.palette.find(p=>p['Тон/Оттенок']==value);
+        if (helperData){
+          //console.log('helperData',helperData);
+
+          ((this.attributes.controls[i]).get('keyValues') as FormArray).controls[indexOfName].get('keyValue')?.setValue(helperData['Название']);
+          (this.attributes.controls[i]).get('imageUrl')?.setValue(helperData['imageUrl']);
+        }
+        else{
+          ((this.attributes.controls[i]).get('keyValues') as FormArray).controls[indexOfName].get('keyValue')?.setValue('');
+          (this.attributes.controls[i]).get('imageUrl')?.setValue('');
+        }
+      }
+     }
      //(this.attributes.controls[i]).get('description')?.setValue(this.product.detail.attributes[i].keyValues.join(' '));
 
   }
