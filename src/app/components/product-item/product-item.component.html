@@ -306,7 +306,7 @@
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
-  @if (product.id > 0) {
+  @if (product.id > 0 && product.id != productService.$maxId()+1) {
     <h2>Удаление товара</h2>
     <div class="buy-button-x3">
       <button

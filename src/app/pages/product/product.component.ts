@@ -57,9 +57,6 @@ export class ProductComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  getUrl() {
-    return this.router.url;
-  }
   ngOnDestroy(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
       this.telegramService.BackButton.hide();

@@ -274,6 +274,19 @@ export class ProductsService {
 
   telegram = inject(TelegramService);
 
+  $maxId = computed(() => {
+    const productsAPIValue = this.$productsAPI();
+    if (productsAPIValue == undefined) {
+      return 0;
+    } else {
+      let result = 0;
+      productsAPIValue.forEach(p=>{
+        if(p.id>result) result = p.id;
+      });
+      return result;
+    }
+  });
+
   //получаем список продуктов с фильтром
   $products = computed(() => {
     const productsAPIValue = this.$productsAPI();

@@ -160,7 +160,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
   constructor(
     private cartService: CartService,
-    private productService: ProductsService,
+    public productService: ProductsService,
     public telegramService: TelegramService,
     public dialog: MatDialog,
     private router: Router,
@@ -175,6 +175,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.brandOptionsAuto = this.productService.$productBrands();
     this.brandLineOptionsAuto = this.productService.$productBrandLines();
     this.brandSeriesOptionsAuto = this.productService.$productBrandSeriesList();
+
+    
 
     // //подписываемся на изменения формы, для скрытия/отображения MainButton
     // this.subscr_form = this.form.statusChanges
@@ -266,7 +268,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(100),
-          Validators.pattern('[A-Za-zА-Яа-я0-9-:()!/,_% ]{2,100}'),
+          Validators.pattern('[A-Za-zА-ЯЁа-яё0-9-:()!/,_% ]{2,100}'),
         ],
       ],
       description: [
@@ -307,6 +309,14 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
   //после конструктора необходимо заполнить форму начальными значениями
   setInitialValue() {
+
+    if (this.product && this.product.id == 0){
+      console.log('!!!!!!!!!!!!!!!!!!!!!!');
+      this.product.id = this.productService.$maxId()+1;
+      this.action = 'edit';
+      console.log('new id of product: '+this.product.id);
+    }
+
     this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(
       this.selectedProductAttribute,
     );
@@ -736,7 +746,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
 
   getUrl() {
-    const thisUrl = this.router.url;
+    const thisUrl = this.router.url.slice(0,63);
     if (thisUrl.indexOf('#') >= 0) return thisUrl.split('#')[0];
     else return thisUrl;
   }

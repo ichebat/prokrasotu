@@ -56,7 +56,7 @@ export class FeedbackComponent implements OnInit, OnDestroy, AfterViewInit {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(50),
-          Validators.pattern('[A-Za-zА-Яа-я0-9-_ ]{2,50}'),
+          Validators.pattern('[A-Za-zА-ЯЁа-яё0-9-_ ]{2,50}'),
         ],
       ],
       feedbackMessage: [
