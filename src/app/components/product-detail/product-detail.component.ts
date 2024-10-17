@@ -36,7 +36,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   form: FormGroup = new FormGroup({}); //реактивная форма
   private subscr_form: Subscription = Subscription.EMPTY;
 
-  dataSource: MatTableDataSource<any> = new MatTableDataSource([] as any[]);;
+  dataSource: MatTableDataSource<any> = new MatTableDataSource([] as any[]);
   displayedColumns: string[] = []; //список колонок для отображения
 
   myDateNumber: number = new Date().getTime();

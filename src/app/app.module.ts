@@ -53,6 +53,10 @@ import { ImageCropperLoaderComponent } from './components/image-cropper-loader/i
 import { ProductDetailComponent } from './components/product-detail/product-detail.component';
 import { AgreementComponent } from './pages/company/privacy/agreement/agreement.component';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { DeliveryComponent } from './pages/delivery/delivery.component';
+import { DeliveryListComponent } from './components/delivery-list/delivery-list.component';
+import { DeliveryItemComponent } from './components/delivery-item/delivery-item.component';
+import { DeliveryEditComponent } from './pages/delivery/delivery-edit/delivery-edit.component';
 
 @NgModule({
   declarations: [
@@ -90,6 +94,10 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
     AboutComponent,
     ProductDetailComponent,
     AgreementComponent,
+    DeliveryComponent,
+    DeliveryListComponent,
+    DeliveryItemComponent,
+    DeliveryEditComponent,
   ],
   bootstrap: [AppComponent],
   imports: [

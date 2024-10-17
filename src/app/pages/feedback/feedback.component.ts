@@ -61,7 +61,8 @@ export class FeedbackComponent implements OnInit, OnDestroy, AfterViewInit {
       ],
       feedbackMessage: [
         "",
-        [Validators.required, Validators.maxLength(500)],
+        [Validators.required,
+          Validators.pattern('^((?!(http|ftp|https)).)*$'), Validators.maxLength(500)],
       ],
       isAgeePersonalData: [
         this.isUserAgreePersonalData,

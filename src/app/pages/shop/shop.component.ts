@@ -94,6 +94,9 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
     this.goBack = this.goBack.bind(this);
+    
+    
+    
   }
   ngAfterViewInit(): void {    
     let top = document.getElementById('top');
@@ -101,6 +104,16 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
       top.scrollIntoView();
       top = null;
     }
+
+    // console.log(this.productsService.$productCategory(),this.productsService.$productType(),this.productsService.$productTypes());
+
+    // if (!this.productsService.$productType() && this.productsService.$productTypes().length == 1)
+    //   {
+    //     console.log('redirect единственный тип');
+    //     this.productsService.updateSelectedTypeTranslit(this.productsService.$productTypes()[0].translit);
+    //     this.router.navigate(['/shop/'+this.productsService.$productCategory()?.translit+'/'+this.productsService.$productTypes()[0].translit]);
+    //   }
+   
   }
 
   

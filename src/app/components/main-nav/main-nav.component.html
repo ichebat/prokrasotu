@@ -194,6 +194,12 @@
           <span>Обратная связь</span>
         </span>
       </a>
+      <a mat-list-item (click)="toggleMenu()" routerLink="/delivery">
+        <span class="entry">
+          <mat-icon>local_shipping</mat-icon>
+          <span>Доставка</span>
+        </span>
+      </a>
       <a mat-list-item (click)="toggleMenu()"
       shareButton="telegram" 
       [url]="owner.startBotUrl"
@@ -211,5 +217,10 @@
     <div class="container">
       <router-outlet></router-outlet>
     </div>
+    <div class="footer" #footer>
+      your footer
+    </div>
   </mat-sidenav-content>
+
+  
 </mat-sidenav-container>

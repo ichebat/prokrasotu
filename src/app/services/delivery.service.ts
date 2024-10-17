@@ -1,8 +1,9 @@
-import { Injectable, computed } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { Observable, catchError, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { TelegramService } from './telegram.service';
 
 export interface IDelivery {
   id: number;
@@ -39,7 +40,19 @@ export class DeliveryService {
 
   urlDelivery = environment.getDeliveryFromGoogleAsJSONUrl;
 
-  private $deliveryAPI = toSignal<IDelivery[]>(this.getDelivery());
+  deliveryResponseChanged = new BehaviorSubject<void>(undefined);
+  //private $deliveryAPI = toSignal<IDelivery[]>(this.getDelivery());
+  private $deliveryAPI = toSignal<IDelivery[]>(
+    this.deliveryResponseChanged.pipe(
+      switchMap(() =>
+      this.getDelivery(),
+      ),
+    ),
+    { initialValue: null },
+  );
+
+  private $deliveryId = signal<string>('');  
+  public $action = signal<string>('');
 
   $delivery = computed(() => {
     const deliveryAPIValue = this.$deliveryAPI();
@@ -53,6 +66,53 @@ export class DeliveryService {
     }
   });
 
+  $maxId = computed(() => {
+    const deliveryAPIValue = this.$deliveryAPI();
+    if (deliveryAPIValue == undefined) {
+      return 0;
+    } else {
+      let result = 0;
+      deliveryAPIValue.forEach(p=>{
+        if(p.id>result) result = p.id;
+      });
+      return result;
+    }
+  });
+
+  //выбранная доставка при переходе по маршруту /delivery/:id используется для редактирования
+  $deliveryItem = computed(() => {
+    const deliveryAPIValue = this.$deliveryAPI();
+    const deliveryIdValue = this.$deliveryId();
+    if (deliveryAPIValue == undefined) {
+      return null;
+    } else 
+    {
+      if (!deliveryIdValue || parseInt(deliveryIdValue) <= 0 || deliveryIdValue.toLowerCase() == 'new') {
+        return {
+          id: 0,
+          name: '',
+          description: '',
+          amount: 0,
+          freeAmount: 0,
+          isActive: false,
+          isAddressRequired: false,
+          dadataFilter: '',
+          clientMessage: '',          
+        };
+      } else {
+        //console.log('deliveryIdValue',deliveryIdValue);
+        return deliveryAPIValue.find((p) => {
+          return (
+            p.id.toString().toLowerCase() ===
+            deliveryIdValue.toString().toLowerCase()
+          );
+        }) as DeliveryClass;
+      }
+    }
+  });
+
+
+  telegram = inject(TelegramService);
 
   constructor(private _http: HttpClient,) { }
 
@@ -90,13 +150,40 @@ export class DeliveryService {
             amount: row.c[3] ? row.c[3].v : '',
             freeAmount: row.c[4] ? row.c[4].v : '',
             dadataFilter: row.c[5] ? row.c[5].v : '',
-            isActive: row.c[6] ? row.c[6].v.toString() == '1' : false,
-            isAddressRequired: row.c[7] ? row.c[7].v.toString() == '1' : false,
+            //isActive: row.c[6] ? row.c[6].v.toString() == '1' : false,
+            isActive: (row.c[6] && row.c[6].v === true)?true:false,
+            isAddressRequired: (row.c[7] && row.c[7].v === true)?true:false,
+            //isAddressRequired: row.c[7] ? row.c[7].v.toString() == '1' : false,
             clientMessage: row.c[8] ? row.c[8].v : '',
           };
         });
       }),
       catchError(this.handleError<IDelivery[]>('getDelivery', []))
     );
+  }
+
+  updateId(id) {
+    this.$deliveryId.set(id);
+  }
+
+  updateDeliveryApi() {
+    this.deliveryResponseChanged.next();
+  }
+
+  public sendDeliveryToGoogleAppsScript(
+    chat_id: string,
+    userName: string,
+    actionName: string,
+    delivery: IDelivery,
+  ): Observable<any> {
+    //console.log(delivery);
+    let tempDelivery = structuredClone(delivery);
+    
+    return this.telegram.sendToGoogleAppsScript({
+      chat_id: chat_id,
+      userName: userName,
+      action: actionName,
+      delivery: tempDelivery,
+    });
   }
 }

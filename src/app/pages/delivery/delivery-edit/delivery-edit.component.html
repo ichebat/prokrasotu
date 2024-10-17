@@ -1,0 +1,12 @@
+<mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+  </mat-chip-listbox>
+
+  @if (deliveryService.$deliveryItem()) {
+  
+    <app-delivery-item [delivery]="deliveryService.$deliveryItem()!"  [action]="deliveryService.$action()"/>
+  
+    <!-- <mat-chip-listbox>
+      <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+    </mat-chip-listbox> -->
+  }

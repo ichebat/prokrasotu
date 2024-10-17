@@ -168,7 +168,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private zone: NgZone,
   ) {
-    this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
+    //this.goBack = this.goBack.bind(this); //функция по кнопке "назад" телеграм
 
     this.categoryOptionsAuto = this.productService.$productCategories(); //this.productService.$productCategoriesMenuTree();
     this.typeOptionsAuto = this.productService.$productTypes(); //this.productService.$productTypesMenuTree();
@@ -268,7 +268,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           Validators.required,
           Validators.minLength(2),
           Validators.maxLength(100),
-          Validators.pattern('[A-Za-zА-ЯЁа-яё0-9-:()!/,_% ]{2,100}'),
+          Validators.pattern('[A-Za-zА-ЯЁа-яё0-9-:()!/,/._% ]{2,100}'),
         ],
       ],
       description: [
@@ -310,12 +310,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   //после конструктора необходимо заполнить форму начальными значениями
   setInitialValue() {
 
-    if (this.product && this.product.id == 0){
-      console.log('!!!!!!!!!!!!!!!!!!!!!!');
-      this.product.id = this.productService.$maxId()+1;
-      this.action = 'edit';
-      console.log('new id of product: '+this.product.id);
-    }
+    
 
     this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(
       this.selectedProductAttribute,
@@ -442,16 +437,24 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.filterData();
       });
 
+    if (this.product && this.product.id == 0){
+      this.product.id = this.productService.$maxId()+1;
+      this.action = 'edit';
+      console.log('new id of product: '+this.product.id);
+    }
+
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.show();
-      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
-      if (this.telegramService.isAdmin) {
+      // this.telegramService.BackButton.show();
+      // this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+      if (this.telegramService.isAdmin && this.action == 'edit') {
         this.telegramService.MainButton.show();
         this.telegramService.MainButton.enable();
         this.telegramService.MainButton.onClick(this.sendData);
         this.telegramService.MainButton.setText(this.mainButtonTextValid);
       } else this.telegramService.MainButton.hide();
     }
+
+    
 
     this.setInitialValue();
 
@@ -581,8 +584,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   //отвязываем кнопки
   ngOnDestroy(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.hide();
-      this.telegramService.BackButton.offClick(this.goBack);
+      // this.telegramService.BackButton.hide();
+      // this.telegramService.BackButton.offClick(this.goBack);
 
       if (this.telegramService.isAdmin) {
         this.telegramService.MainButton.hide();
@@ -888,7 +891,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     //добавление нового товара делается кнопкой submit
 
     if (
-      this.product.id == 0 &&
+      (this.product.id == 0 || this.product.id == this.productService.$maxId()+1) &&
       this.getVisible('button_submit') &&
       this.getEnabled('button_submit') &&
       this.form.valid &&
@@ -944,7 +947,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     }
 
     if (
-      this.product.id > 0 &&
+      (this.product.id > 0 && this.product.id != this.productService.$maxId()+1) &&
       this.getVisible('button_submit') &&
       this.getEnabled('button_submit') &&
       this.form.valid &&

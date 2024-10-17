@@ -624,10 +624,11 @@ export class ProductsService {
     if (typesValue == undefined) {
       return null;
     } else {
+      const typesCount = typesValue.length; //если в категории только один тип, то он должен выбраться автоматически
       return typesValue.find((p) => {
         return (
-          p.translit.toString().toLowerCase() ===
-            selectedTypeTranslitValue.toString().toLowerCase() &&
+          (p.translit.toString().toLowerCase() ===
+            selectedTypeTranslitValue.toString().toLowerCase() || typesCount == 1) &&
           p.category.translit.toString().toLowerCase() ===
             selectedCategoryTranslitValue.toString().toLowerCase()
         );

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IOrder } from '../../services/order.service';
+import { OrderClass } from '../../services/order.service';
 
 @Component({
   selector: 'app-order-list',
@@ -9,7 +9,7 @@ import { IOrder } from '../../services/order.service';
 export class OrderListComponent {
   @Input() titleList = 'Angular';
   @Input() subtitleList = 'Angular';
-  @Input() orders: IOrder[] = [];
+  @Input() orders: OrderClass[] = [];
   
 
 }

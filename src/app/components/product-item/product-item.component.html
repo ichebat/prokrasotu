@@ -4,14 +4,14 @@
   <mat-card appearance="outlined" class="product-item mat-elevation-z5">
     <mat-card-header>
       <mat-card-title
-        >{{ product.name }}
+        >
         @if (product.id > 0) {
           <app-share-buttons
             [url]="getUrl()"
             [title]="owner.marketName+' '+owner.marketDescription+': '+product.name"
             [description]="owner.marketName+' '+owner.marketDescription+': '+product.name"
           ></app-share-buttons>
-        }
+        }{{ product.name }}
       </mat-card-title>
       <mat-card-subtitle
         >{{ product.brand }}
@@ -516,7 +516,7 @@
         >Минимум 2 символа</mat-error
       >
       <mat-error *ngIf="form.get('artikul')?.hasError('maxlength')"
-        >Максимум 10 символов</mat-error
+        >Максимум 50 символов</mat-error
       >
     </mat-form-field>
 

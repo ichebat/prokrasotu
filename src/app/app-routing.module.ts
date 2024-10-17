@@ -11,6 +11,8 @@ import { PrivacyComponent } from './pages/company/privacy/privacy.component';
 import { ContactsComponent } from './pages/company/contacts/contacts.component';
 import { AboutComponent } from './pages/company/about/about.component';
 import { AgreementComponent } from './pages/company/privacy/agreement/agreement.component';
+import { DeliveryComponent } from './pages/delivery/delivery.component';
+import { DeliveryEditComponent } from './pages/delivery/delivery-edit/delivery-edit.component';
 
 const routes: Routes = [
   { path: '', component: ShopComponent },
@@ -36,6 +38,8 @@ const routes: Routes = [
   { path: 'order', component: OrderComponent },
   { path: 'order/:id', component: OrderComponent },
   { path: 'order/:id/:action', component: OrderComponent },
+  { path: 'delivery', component: DeliveryComponent },
+  { path: 'delivery/:id/:action', component: DeliveryEditComponent },
 
   //Wild Card Route for 404 request
   { path: '**', pathMatch: 'full', component: PagenotfoundComponent },

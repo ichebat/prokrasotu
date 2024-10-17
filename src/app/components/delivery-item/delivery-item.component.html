@@ -1,0 +1,294 @@
+@if (telegramService.isAdmin && (action == 'edit' || delivery.id == 0)) {
+    @if (delivery.id > 0 && delivery.id != deliveryService.$maxId()+1) {
+        <h2>Удаление способа доставки</h2>
+        <div class="buy-button-x3">
+          <button
+            mat-raised-button
+            (click)="removeDelivery()"
+            color="warn"
+            type="button"
+            class="mx mb"
+          >
+            <mat-icon>delete</mat-icon> Удалить способ доставки
+          </button>
+        </div>
+      }
+
+      @if (delivery.id > 0) {
+        <h2>Редактирование способа доставки</h2>
+      }
+      @if (delivery.id == 0) {
+        <h2>Создание нового способа доставки</h2>
+      }
+      <h3>
+        <mat-icon color="accent">warning</mat-icon>
+        Внимание, редактирование способа доставки доступно только для администратора. Меняйте
+        информацию с умом.
+      </h3>
+
+      <form [formGroup]="form" (ngSubmit)="sendData()">
+        <input type="hidden" formControlName="name" />
+        <mat-form-field appearance="outline" *ngIf="getVisible('name')">
+            <mat-label>Введите название</mat-label>
+            <textarea
+              matInput
+              matNativeControl
+              cdkTextareaAutosize
+              formControlName="name"
+              #name
+              placeholder="Введите название"
+              [readonly]="!getEnabled('name')"
+            ></textarea>
+            @if (name.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                [disabled]="!getEnabled('name')"
+                (click)="onNameClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-hint align="end"
+              >Введите название {{ name.value.length }}/100</mat-hint
+            >
+            <mat-error *ngIf="form.get('name')?.hasError('required')"
+              >Это обязательное поле</mat-error
+            >
+            <mat-error *ngIf="form.get('name')?.hasError('minlength')"
+              >Минимум 2 символа</mat-error
+            >
+            <mat-error *ngIf="form.get('name')?.hasError('maxlength')"
+              >Максимум 100 символов</mat-error
+            >
+            <mat-error
+              *ngIf="
+                !form.get('name')?.hasError('minlength') &&
+                !form.get('name')?.hasError('maxlength') &&
+                form.get('name')?.hasError('pattern')
+              "
+            >
+              Разрешено использование букв, цифр, символов - : () , ! _</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="getVisible('description')">
+            <mat-label>Введите описание</mat-label>
+            <textarea
+              matInput
+              matNativeControl
+              cdkTextareaAutosize
+              formControlName="description"
+              #description
+              placeholder="Введите описание"
+              [readonly]="!getEnabled('description')"
+            ></textarea>
+            @if (description.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                [disabled]="!getEnabled('description')"
+                (click)="onDescriptionClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-hint align="end"
+              >Введите описание {{ description.value.length }}/5000</mat-hint
+            >
+            <mat-error *ngIf="form.get('description')?.hasError('required')"
+              >Это обязательное поле</mat-error
+            >
+            <mat-error *ngIf="form.get('description')?.hasError('minlength')"
+              >Минимум 2 символа</mat-error
+            >
+            <mat-error *ngIf="form.get('description')?.hasError('maxlength')"
+              >Максимум 5000 символов</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="getVisible('clientMessage')">
+            <mat-label>Введите сообщение клиенту</mat-label>
+            <textarea
+              matInput
+              matNativeControl
+              cdkTextareaAutosize
+              formControlName="clientMessage"
+              #clientMessage
+              placeholder="Введите сообщение клиенту"
+              [readonly]="!getEnabled('clientMessage')"
+            ></textarea>
+            @if (clientMessage.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                [disabled]="!getEnabled('clientMessage')"
+                (click)="onClientMessageClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-hint align="end"
+              >Введите сообщение клиенту {{ clientMessage.value.length }}/5000</mat-hint
+            >
+            <mat-error *ngIf="form.get('clientMessage')?.hasError('required')"
+              >Это обязательное поле</mat-error
+            >
+            <mat-error *ngIf="form.get('clientMessage')?.hasError('minlength')"
+              >Минимум 2 символа</mat-error
+            >
+            <mat-error *ngIf="form.get('clientMessage')?.hasError('maxlength')"
+              >Максимум 5000 символов</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="getVisible('isAddressRequired')">
+            <mat-label>Обязательный ввод адреса?</mat-label>
+            <input
+              style="display: none"
+              matNativeControl
+              formControlName="isAddressRequired"
+              [readonly]="!getEnabled('isAddressRequired')"
+            />
+            <mat-checkbox
+              formControlName="isAddressRequired"
+              #isAddressRequired
+              placeholder="Обязательный ввод адреса?"
+              >Обязательный ввод адреса?</mat-checkbox
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="getVisible('amount')">
+            <mat-label>Введите стоимость доставки (руб.)</mat-label>
+            <input
+              type="number"
+              matNativeControl
+              formControlName="amount"
+              #amount
+              placeholder="Введите стоимость доставки (руб.)"
+              [readonly]="!getEnabled('amount')"
+            />
+            @if (amount.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                [disabled]="!getEnabled('amount')"
+                (click)="onAmountClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-hint align="end">Введите стоимость доставки (руб.)</mat-hint>
+            <mat-error *ngIf="form.get('amount')?.hasError('required')"
+              >Это обязательное поле</mat-error
+            >
+            <mat-error *ngIf="form.get('amount')?.hasError('min')"
+              >Стоимость доставки (руб.) не может быть меньше 0</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="getVisible('freeAmount')">
+            <mat-label>Сумма бесплатной доставки (руб.)</mat-label>
+            <input
+              type="number"
+              matNativeControl
+              formControlName="freeAmount"
+              #freeAmount
+              placeholder="Введите сумму бесплатной доставки (руб.)"
+              [readonly]="!getEnabled('freeAmount')"
+            />
+            @if (freeAmount.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                [disabled]="!getEnabled('freeAmount')"
+                (click)="onFreeAmountClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-hint align="end">Введите сумму бесплатной доставки (руб.)</mat-hint>
+            <mat-error *ngIf="form.get('freeAmount')?.hasError('required')"
+              >Это обязательное поле</mat-error
+            >
+            <mat-error *ngIf="form.get('freeAmount')?.hasError('min')"
+              >Сумма бесплатной доставки (руб.) не может быть меньше 0</mat-error
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="getVisible('isActive')">
+            <mat-label>Доступно для выбора?</mat-label>
+            <input
+              style="display: none"
+              matNativeControl
+              formControlName="isActive"
+              [readonly]="!getEnabled('isActive')"
+            />
+            <mat-checkbox
+              formControlName="isActive"
+              #isActive
+              placeholder="Доступно для выбора?"
+              >Доступно для выбора?</mat-checkbox
+            >
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" *ngIf="getVisible('dadataFilter')">
+            <mat-label>Введите фильтр сервиса DaDaTa</mat-label>
+            <input
+              matNativeControl
+              formControlName="dadataFilter"
+              #dadataFilter
+              placeholder="Введите фильтр сервиса DaDaTa"
+              [readonly]="!getEnabled('dadataFilter')"
+            />
+            @if (dadataFilter.value) {
+              <button
+                matSuffix
+                mat-icon-button
+                type="button"
+                [disabled]="!getEnabled('dadataFilter')"
+                (click)="onDadataFilterClear()"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-hint align="end"
+              >Введите фильтр сервиса DaDaTa {{ dadataFilter.value.length }}/100</mat-hint
+            >
+            <mat-error *ngIf="form.get('dadataFilter')?.hasError('required')"
+              >Это обязательное поле</mat-error
+            >
+            <mat-error *ngIf="form.get('dadataFilter')?.hasError('minlength')"
+              >Минимум 2 символа</mat-error
+            >
+            <mat-error *ngIf="form.get('dadataFilter')?.hasError('maxlength')"
+              >Максимум 100 символов</mat-error
+            >
+          </mat-form-field>
+
+          @if (!telegramService.IsTelegramWebAppOpened || telegramService.isAdmin) {
+            <div class="buy-button pb">
+              @if (getVisible("button_submit")) {
+                <button
+                  mat-flat-button
+                  [disabled]="!form.valid || disableButton || !getEnabled('button_submit')"
+                  color="accent"
+                  type="submit"
+                >
+                  @if (delivery.id == 0) {
+                    Отправить в {{owner.marketName}}
+                  }
+                  @if (delivery.id > 0) {
+                    Обновить данные
+                  }
+                </button>
+              }
+            </div>
+            }
+      </form>
+}

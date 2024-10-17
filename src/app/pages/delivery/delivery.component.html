@@ -1,0 +1,23 @@
+<mat-chip-listbox>
+    <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+</mat-chip-listbox>
+
+<h2>Оформление и доставка заказов</h2>
+
+@for (item of owner.deliveryInfo; track $index) {
+    <p>{{ item }}</p>
+}
+
+@if (deliveryService.$delivery()!.length > 0) {
+
+    <app-delivery-list 
+        [titleList]="owner.marketDescription+' '+owner.marketName"
+        [subtitleList]="'Предлагает следующие варианты доставки'"
+        [deliveryList]="deliveryService.$delivery()!"
+      />
+    
+      <mat-chip-listbox>
+        <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+      </mat-chip-listbox>
+    
+    }
