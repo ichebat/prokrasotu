@@ -8,7 +8,10 @@ const TimeZoneHours = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRa
 const chat_id_master = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRange("B7").getValue();//chat id на который будут приходить уведомления от бота
 const max_archive_length = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRange("B8").getValue();//если у пользователя больше заказов чем эта величина то старые завершенные будут уходить в архив
 const PROVIDER_TOKEN = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRange("B9").getValue();//Токен провайдера для оплаты
-
+const max_cart_length = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRange("B10").getValue();//если у пользователя корзина не обновлялась более Х дней то запись удаляется
+const use_telegram_payment = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRange("B11").getValue();//формировать или нет ссылку на оплату через телеграм
+const use_developer_button = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRange("B12").getValue();//показывать кнопку с контактами разработчика
+const text_developer_button = SpreadsheetApp.openById(DOC_ID).getSheetByName("SD").getRange("B13").getValue();//показывать кнопку с контактами разработчика
 
 
 const thisBotName = "ProKrasotuBot"; // имя бота (без @) для отправки администратору при начальной настройке полномочий (чтобы не запутаться)
@@ -23,19 +26,21 @@ const CMD_ROW_GET = 2;
 const CMD_ROW_FILTER = 3;
 const CMD_ROW_DELETE = 4;
 
+/* ПОРЯДОК ЛИСТОВ НЕ НАРУШАТЬ! */
+
 const LOG_SHEET_NAME = 'Лог';
-const CART_SHEET_NAME = 'Корзина';
 const PRODUCT_SHEET_NAME = 'Продукты'
+const CART_SHEET_NAME = 'Корзина';
 const DELIVERY_SHEET_NAME = 'Доставка'
 const ORDER_SHEET_NAME = 'Заказы'
 const ARCHIVE_ORDER_SHEET_NAME = 'Заказы архив'
 
 const LOG_SHEET_INDEX = 0;
-const CART_SHEET_INDEX = 1;
-const PRODUCT_SHEET_INDEX = 2
-const DELIVERY_SHEET_INDEX = 3
-const ORDER_SHEET_INDEX = 4
-const ARCHIVE_ORDER_SHEET_INDEX = 5
+const PRODUCT_SHEET_INDEX = 1;
+const CART_SHEET_INDEX = 2;
+const DELIVERY_SHEET_INDEX = 3;
+const ORDER_SHEET_INDEX = 4;
+const ARCHIVE_ORDER_SHEET_INDEX = 5;
 
 
 //Листы, которые требуется создать
@@ -44,7 +49,7 @@ const SHEETS_TO_CREATE = [LOG_SHEET_NAME,PRODUCT_SHEET_NAME,CART_SHEET_NAME,DELI
 
 const COLUMNS_ARRAY =[
   ["Лог последнего действия"],
-  ["Номер по порядку", "Ссылка, для автозагрузки данных", "Артикул", "Категория", "Подкатегория (тип)", "Бренд", "Название", "Описание", "Дополнительно", "Ссылка на картинку", "Цена (руб.)", "Скидка (%)", "Новинка?"],
+  ["Код", "Ссылка, для автозагрузки данных", "Артикул", "Категория", "Подкатегория (тип)", "Бренд", "Линейка бренда", "Серия бренда", "Название", "Описание", "Дополнительно", "Ссылка на картинку", "Цена (руб.)", "Скидка (%)", "Новинка?", "Детали", "Доступно к покупке?"],
   ["Код", "chat_id", "Имя в телеграм", "Дата обновления", " Корзина (JSON)" ],
   ["Код", "Название доставки", "Описание", "Стоимость", "Бесплатно при сумме заказа", "Строка для быстрого поиска в dadata", "Использовать доставку (0 - нет, 1 - да)","Требуется ввод адреса (0 - нет, 1 - да)", "Сообщение клиенту"],
   //["Код","chat_id","Имя в telegram","Дата обновления","Список продуктов","Итого цена","Итого кол-во","Имя клиента","Имя клиента в telegram","Телефон клиента","Адрес доставки","Доставка","Дата заказа","Подтвержден в магазине?","Дата подтверждения","Заказ выполнен?","Дата выполнения","Заказ отклонен?","Дата отклонения","Причина отклонения","Заказ корректировался в магазине?","Дата корректировки","Описание корректировки","Примечание к заказу"]
@@ -83,6 +88,33 @@ var payload = {
 'text': msg,
 'parse_mode': 'HTML'
 } 
+var data = {
+"method": "post",
+"payload": payload
+}
+
+try{
+  UrlFetchApp.fetch('https://api.telegram.org/bot' + API_TOKEN + '/', data);
+}
+catch(e){};
+//UrlFetchApp.fetch('https://api.telegram.org/bot' + API_TOKEN + '/', data);
+}
+
+function sendPhoto (photo, caption, chat_id)
+{
+  //все равно пустой текст не отправится
+  if (photo == "") return;
+
+//Отправляет фото в тлг по ссылке из photo. На вход функции дать сообщение и ID чата, в который нужно провести отправку
+var payload = {
+'method': 'sendPhoto',
+'chat_id': String(chat_id),
+'caption': String(caption),
+'photo': String(photo),
+'parse_mode': 'HTML'
+} 
+
+console.log(payload);
 var data = {
 "method": "post",
 "payload": payload
@@ -222,6 +254,12 @@ catch(e){};
 
 
 function testFunction(){
+  var searchArray = Array(COLUMNS_ARRAY[PRODUCT_SHEET_INDEX].length).fill("");
+  searchArray[0] = '73'
+  console.log([searchArray]);
+  var product_row = updateTableRow( PRODUCT_SHEET_NAME, [searchArray], [0], CMD_ROW_GET);
+  if (product_row != null) console.log(product_row);
+
   //var result = "";
   var chat_id = "1376405450";
   //[{ label: 'Invoice Title', amount: 100 * 100 }], // Разбивка цен, сериализованный список компонентов в формате JSON 100 копеек * 100 = 100 рублей
@@ -305,23 +343,121 @@ function testFunction(){
 //      "contentLength": 3291
 // });
 
-doGet({
-     "parameters": {
-          "chat_id": [
-               "619864883"
-          ],
-          "action": [
-               "getOrders"
-          ]
-     },
-     "parameter": {
-          "chat_id": "619864883",
-          "action": "getOrders"
-     },
-     "queryString": "action=getOrders&chat_id=619864883",
-     "contextPath": "",
-     "contentLength": -1
-});
+// doGet({
+//      "parameters": {
+//           "chat_id": [
+//                "619864883"
+//           ],
+//           "action": [
+//                "getOrders"
+//           ]
+//      },
+//      "parameter": {
+//           "chat_id": "619864883",
+//           "action": "getOrders"
+//      },
+//      "queryString": "action=getOrders&chat_id=619864883",
+//      "contextPath": "",
+//      "contentLength": -1
+// });
+
+//   doPost({
+//      "update_id": 360414272,
+//      "callback_query": {
+//           "id": "6002427890971472025",
+//           "from": {
+//                "id": 1397549149,
+//                "is_bot": false,
+//                "first_name": "anassz",
+//                "username": "qhffgb",
+//                "language_code": "ru",
+//                "is_premium": true
+//           },
+//           "message": {
+//                "message_id": 1570,
+//                "from": {
+//                     "id": 6995875250,
+//                     "is_bot": true,
+//                     "first_name": "ProKrasotuBot",
+//                     "username": "prokrasotubot"
+//                },
+//                "chat": {
+//                     "id": 1397549149,
+//                     "first_name": "anassz",
+//                     "username": "qhffgb",
+//                     "type": "private"
+//                },
+//                "date": 1728740854,
+//                "text": "💸 Ваш заказ обработан в магазине и ожидает оплаты.\nНомер заказа: 20\nСостав заказа:\n▶ [PEER] Крем-краска для волос EXTRA RED  (undefined) [ESTEL]: ₽252.00  * 6 шт.\nСумма товаров: ₽1512.00\nПозиций: 6 шт.\nАдрес доставки: ну там где я живу \nДоставка: Доставка по г.Ишимбай\nСтоимость доставки: ₽200.00\nБесплатная доставка при сумме заказа выше: ₽2000.00\nДата заказа: 12.10.2024 18:46\nГотов к оплате: 12.10.2024 18:47",
+//                "entities": [
+//                     {
+//                          "offset": 0,
+//                          "length": 51,
+//                          "type": "bold"
+//                     },
+//                     {
+//                          "offset": 52,
+//                          "length": 16,
+//                          "type": "bold"
+//                     },
+//                     {
+//                          "offset": 86,
+//                          "length": 7,
+//                          "type": "italic"
+//                     },
+//                     {
+//                          "offset": 93,
+//                          "length": 70,
+//                          "type": "italic"
+//                     },
+//                     {
+//                          "offset": 93,
+//                          "length": 31,
+//                          "type": "bold"
+//                     },
+//                     {
+//                          "offset": 219,
+//                          "length": 18,
+//                          "type": "italic"
+//                     },
+//                     {
+//                          "offset": 380,
+//                          "length": 14,
+//                          "type": "bold"
+//                     }
+//                ],
+//                "reply_markup": {
+//                     "inline_keyboard": [
+//                          [
+//                               {
+//                                    "text": "👀 Посмотреть заказ [20]",
+//                                    "web_app": {
+//                                         "url": "https://ichebat.github.io/prokrasotu/order/20"
+//                                    }
+//                               }
+//                          ],
+//                          [
+//                               {
+//                                    "text": "💸 Оплатить заказ [20] через Telegram",
+//                                    "callback_data": "payOrder#20"
+//                               }
+//                          ],
+//                          [
+//                               {
+//                                    "text": "😥 Отменить заказ [20]",
+//                                    "web_app": {
+//                                         "url": "https://ichebat.github.io/prokrasotu/order/20/cancel"
+//                                    }
+//                               }
+//                          ]
+//                     ]
+//                }
+//           },
+//           "chat_instance": "2881395387264631968",
+//           "data": "payOrder#20"
+//      }
+// });
+
 }
 
 function doGet(e){
@@ -332,7 +468,7 @@ function doGet(e){
   //подключаем moment.js для работы с датами
   eval(UrlFetchApp.fetch(MOMENTJS_link).getContentText());
   var update = e;
-  updateTableRow( "Лог", [[(moment().format('DD.MM.YYYY HH:mm:ss SSS'))+"\n"+JSON.stringify(update, null, 5)]], [], CMD_ROW_UPDATE);//логируем 
+  updateTableRow( "Лог", [[(moment().format('DD.MM.YYYY HH:mm:ss'))+"\n"+JSON.stringify(update, null, 5)]], [], CMD_ROW_UPDATE);//логируем 
 
   
 
@@ -349,7 +485,7 @@ function doGet(e){
   {
     if (chat_id)
     {
-      var cart_row = updateTableRow( CART_SHEET_NAME, [[0, chat_id, "",(moment().format('DD.MM.YYYY HH:mm:ss SSS')), ""]], [1], CMD_ROW_GET);
+      var cart_row = updateTableRow( CART_SHEET_NAME, [[0, chat_id, "",(moment().format('DD.MM.YYYY HH:mm:ss')), ""]], [1], CMD_ROW_GET);
       if (cart_row != null) cart = cart_row[0][4]; 
       result = cart;
     }
@@ -365,9 +501,9 @@ function doGet(e){
       
       //if (chat_id == chat_id_master) //для master возвращаем все заказы
       if (isAdmin)
-        order_rows = updateTableRow( ORDER_SHEET_NAME, [[0, "", "",(moment().format('DD.MM.YYYY HH:mm:ss SSS')), ""]], [], CMD_ROW_FILTER);
+        order_rows = updateTableRow( ORDER_SHEET_NAME, [[0, "", "",(moment().format('DD.MM.YYYY HH:mm:ss')), ""]], [], CMD_ROW_FILTER);
         else //иначе последние 10 для выбранного chat_id
-        order_rows = updateTableRow( ORDER_SHEET_NAME, [[0, chat_id, "",(moment().format('DD.MM.YYYY HH:mm:ss SSS')), ""]], [1], CMD_ROW_FILTER);
+        order_rows = updateTableRow( ORDER_SHEET_NAME, [[0, chat_id, "",(moment().format('DD.MM.YYYY HH:mm:ss')), ""]], [1], CMD_ROW_FILTER);
       if (order_rows != null) 
       {
         console.log(order_rows.length);
@@ -404,8 +540,8 @@ function doGet(e){
 
 function doPost(e) {
   //если используем moment то не забудь подключить библиотеку через fetch
-  
-  //return;
+   //updateTableRow( "Лог", [[(moment().format('DD.MM.YYYY HH:mm:ss'))+"\n"+JSON.stringify(e, null, 5)]], [], CMD_ROW_UPDATE);//логируем 
+   //return;
   
   //подключаем moment.js для работы с датами
   eval(UrlFetchApp.fetch(MOMENTJS_link).getContentText());
@@ -414,7 +550,7 @@ function doPost(e) {
   var update = JSON.parse(e.postData.contents);
   //var update = e; //вернуть строку как было выше
 
-  updateTableRow( "Лог", [[(moment().format('DD.MM.YYYY HH:mm:ss SSS'))+"\n"+JSON.stringify(update, null, 5)]], [], CMD_ROW_UPDATE);//логируем 
+  updateTableRow( "Лог", [[(moment().format('DD.MM.YYYY HH:mm:ss'))+"\n"+JSON.stringify(update, null, 5)]], [], CMD_ROW_UPDATE);//логируем 
 
     /*****
      * 
@@ -506,8 +642,8 @@ function doPost(e) {
      * 
      */
   if (update.hasOwnProperty('message') && update.message.hasOwnProperty('successful_payment')){
-    var msgForClient = "Заказ успешно оплачен!";
-    var msgForSeller = "Поступила оплата за заказ.";
+    var msgForClient = "🥳 Заказ успешно оплачен!";
+    var msgForSeller = "🥳 Поступила оплата за заказ.";
     
     {
       var chat_id = "";
@@ -549,13 +685,39 @@ function doPost(e) {
           order.clientPayDate = new Date();
           order.clientPayInfo = JSON.stringify(update.message.successful_payment);
 
-          updateTableRow( ORDER_SHEET_NAME, [[orderId, order.clientTgChatId, order.clientTgName,(moment().format('DD.MM.YYYY HH:mm:ss SSS')), JSON.stringify(order)]], [0], CMD_ROW_UPDATE);
+          updateTableRow( ORDER_SHEET_NAME, [[orderId, order.clientTgChatId, order.clientTgName,(moment().format('DD.MM.YYYY HH:mm:ss')), JSON.stringify(order)]], [0], CMD_ROW_UPDATE);
 
-          send("<b>"+msgForClient+"</b>", chat_id);
+          KEYBOARD_ON_CHAT = {}; 
+          KEYBOARD_ON_CHAT.parse_mode = "HTML"
+          KEYBOARD_ON_CHAT.inline_keyboard = [];
+
+          KEYBOARD_ON_CHAT_ADMIN = {}; 
+          KEYBOARD_ON_CHAT_ADMIN.parse_mode = "HTML"
+          KEYBOARD_ON_CHAT_ADMIN.inline_keyboard = [];
+
+          var index = 0;
+            
+          index = KEYBOARD_ON_CHAT.inline_keyboard.length;
+          KEYBOARD_ON_CHAT.inline_keyboard[index] = [];
+          KEYBOARD_ON_CHAT.inline_keyboard[index][0] = {
+            text:   "👀 Посмотреть заказ ["+orderId.toString()+"]",
+            web_app: {"url": WEB_APP_URL+"/order/"+orderId.toString()}
+          };
+
+          send_key("<b>"+msgForClient+"</b>\n"+getOrderDescription(order, 0), chat_id, KEYBOARD_ON_CHAT);
+          //send("<b>"+msgForClient+"</b>", chat_id);
+
+          index = KEYBOARD_ON_CHAT_ADMIN.inline_keyboard.length;
+          KEYBOARD_ON_CHAT_ADMIN.inline_keyboard[index] = [];
+          KEYBOARD_ON_CHAT_ADMIN.inline_keyboard[index][0] = {
+            text:   "👀 Посмотреть заказ ["+orderId.toString()+"]",
+            web_app: {"url": WEB_APP_URL+"/order/"+orderId.toString()}
+          };
           
           chat_id_master.toString().split(';').forEach(chat_id_item=>{
             if ((""+chat_id_item.trim()).length >0){
-              send("<b>"+msgForSeller+"</b>\n"+getOrderDescription(order, 1), chat_id_item);
+              send_key("<b>"+msgForSeller+"</b>\n"+getOrderDescription(order, 1), chat_id_item, KEYBOARD_ON_CHAT_ADMIN);
+              //send("<b>"+msgForSeller+"</b>\n"+getOrderDescription(order, 1), chat_id_item);
             }
           });
         }       
@@ -620,7 +782,7 @@ function doPost(e) {
 
     isAdmin = checkIsAdmin(chat_id) || checkIsAdmin(user);
 
-    var date = moment('01.01.1970').add(msg.date, 'seconds').add(TimeZoneHours, 'hours').format('DD.MM.YYYY HH:mm:ss SSS');//(msg.date/86400)+25569.125;
+    var date = moment('01.01.1970').add(msg.date, 'seconds').add(TimeZoneHours, 'hours').format('DD.MM.YYYY HH:mm:ss');//(msg.date/86400)+25569.125;
 
     /*if (update.callback_query){
     send("Callback!; ", chat_id, API_TOKEN); 
@@ -725,6 +887,38 @@ function doPost(e) {
       }      
     }
 
+    /*****
+     * 
+     * 
+     * 
+     * 
+     * Пользователь нажал на кнопку "получить изображение"
+     * 
+     * 
+     * 
+     */
+    if (action.toString().toLowerCase()=='sendphoto')
+    {
+      var chat_id = "";
+      if (update.hasOwnProperty('chat_id')) chat_id = update.chat_id;
+      
+      var photo = "";
+      if (update.hasOwnProperty('photo')) photo = update.photo;
+      
+      var caption = "";
+      if (update.hasOwnProperty('caption')) caption = update.caption;
+
+      //если сообщение заполнено полностью пересылаем на админский чат
+      if ((chat_id != "" && chat_id != null) && (photo != "" && photo != null) && (caption != "" && caption != null) )
+      {
+          send("<b>🖼 Чтобы посмотреть ["+caption+"], нажмите на ссылку:</b>\n"+
+            photo, chat_id);
+        sendPhoto (photo, caption, chat_id)    
+        actionResult = {status: "success", message: "Ссылка на скачивание ["+caption+"] отправлена вам в Telegram", data: {action: action}};    
+        //send(photo, chat_id);
+      }      
+    }
+
 
     /*****
      * 
@@ -752,12 +946,12 @@ function doPost(e) {
 
       if (cart && cart.items && cart.items.length>0)
       {
-        updateTableRow( CART_SHEET_NAME, [[0, chat_id, userName,(moment().format('DD.MM.YYYY HH:mm:ss SSS')), JSON.stringify(cart)]], [1], CMD_ROW_UPDATE);
+        updateTableRow( CART_SHEET_NAME, [[0, chat_id, userName,(moment().format('DD.MM.YYYY HH:mm:ss')), JSON.stringify(cart)]], [1], CMD_ROW_UPDATE);
         actionResult = {status: "success", message: "Корзина обновлена", data: {action: action}};
       }
       else
       {
-        updateTableRow( CART_SHEET_NAME, [[0, chat_id, userName,(moment().format('DD.MM.YYYY HH:mm:ss SSS')), JSON.stringify(cart)]], [1], CMD_ROW_DELETE);
+        updateTableRow( CART_SHEET_NAME, [[0, chat_id, userName,(moment().format('DD.MM.YYYY HH:mm:ss')), JSON.stringify(cart)]], [1], CMD_ROW_DELETE);
         actionResult = {status: "success", message: "Корзина очищена", data: {action: action}};
       }
     }
@@ -810,7 +1004,7 @@ function doPost(e) {
           msgForClient = "Удален заказ. Номер заказа: "+id.toString();
           msgForSeller = "Удален заказ. Номер заказа: "+id.toString();
           
-          updateTableRow( ORDER_SHEET_NAME, [[id, order_chat_id, order_userName,(moment().format('DD.MM.YYYY HH:mm:ss SSS')), JSON.stringify(order)]], [0,1], CMD_ROW_DELETE);
+          updateTableRow( ORDER_SHEET_NAME, [[id, order_chat_id, order_userName,(moment().format('DD.MM.YYYY HH:mm:ss')), JSON.stringify(order)]], [0,1], CMD_ROW_DELETE);
           actionResult = {status: "success", message: msgForClient, data: {action: action, id: id}};
           
           if (order_chat_id) 
@@ -845,7 +1039,7 @@ function doPost(e) {
         if (order.hasOwnProperty('isCancelled')) isCancelled = order.isCancelled;
 
         //происходит обновления записи по id, если addorder то заказ прилетает с id=0
-        var order_row = updateTableRow( ORDER_SHEET_NAME, [[id, order_chat_id, order_userName,(moment().format('DD.MM.YYYY HH:mm:ss SSS')), JSON.stringify(order)]], [0], CMD_ROW_UPDATE);
+        var order_row = updateTableRow( ORDER_SHEET_NAME, [[id, order_chat_id, order_userName,(moment().format('DD.MM.YYYY HH:mm:ss')), JSON.stringify(order)]], [0], CMD_ROW_UPDATE);
         actionResult = {status: "success", message: msgForClient, data: {action: action, id: id}};
 
         if (action.toString().toLowerCase()=='addorder')
@@ -865,7 +1059,7 @@ function doPost(e) {
             msgForClient = "👏 Ваш заказ направлен в обработку в магазин.";
             msgForSeller = "👏 Поступил новый заказ.";
 
-            updateTableRow( ORDER_SHEET_NAME, [[id, order_chat_id, order_userName,(moment().format('DD.MM.YYYY HH:mm:ss SSS')), JSON.stringify(order)]], [0], CMD_ROW_UPDATE);
+            updateTableRow( ORDER_SHEET_NAME, [[id, order_chat_id, order_userName,(moment().format('DD.MM.YYYY HH:mm:ss')), JSON.stringify(order)]], [0], CMD_ROW_UPDATE);
             actionResult = {status: "success", message: msgForClient, data: {action: action, id: id}};
 
             KEYBOARD_ON_CHAT = {}; 
@@ -998,12 +1192,16 @@ function doPost(e) {
               msgForClient = "💸 Ваш заказ обработан в магазине и ожидает оплаты.";
               msgForSeller = "💸 Статус заказа изменен [Ожидает оплаты].";
 
-              index = KEYBOARD_ON_CHAT.inline_keyboard.length;
-              KEYBOARD_ON_CHAT.inline_keyboard[index] = [];
-              KEYBOARD_ON_CHAT.inline_keyboard[index][0] = {
-                text:   "💸 Оплатить заказ ["+id.toString()+"] через Telegram",
-                callback_data: "payOrder#"+id.toString(),              
-              };
+              if (use_telegram_payment)
+              {
+                index = KEYBOARD_ON_CHAT.inline_keyboard.length;
+                KEYBOARD_ON_CHAT.inline_keyboard[index] = [];
+                KEYBOARD_ON_CHAT.inline_keyboard[index][0] = {
+                  text:   "💸 Оплатить заказ ["+id.toString()+"] через Telegram",
+                  callback_data: "payOrder#"+id.toString(),              
+                };
+              }
+
             }
 
             if (isCancelled){
@@ -1115,7 +1313,7 @@ function doPost(e) {
     //addproduct - создание товара
     //removeproduct - удаление товара
     //updateproduct - обновление товара
-    if (action.toString().toLowerCase()=='addproduct' || action.toString().toLowerCase()=='updateproduct')
+    if (action.toString().toLowerCase()=='addproduct' || action.toString().toLowerCase()=='updateproduct' || action.toString().toLowerCase()=='removeproduct')
     {
       var msgForClient = "";
       var msgForSeller = "";
@@ -1129,7 +1327,6 @@ function doPost(e) {
       var product = "";
       if (update.hasOwnProperty('product')) product = update.product;
       
-      
       if (action.toString().toLowerCase()=='removeproduct')
       {
         
@@ -1139,9 +1336,15 @@ function doPost(e) {
         if (id > 0) {
           msgForClient = "Удален продукт. Номер продукта: "+id.toString();
           msgForSeller = "Удален продукт. Номер продукта: "+id.toString();
+
+          var searchArray = Array(COLUMNS_ARRAY[PRODUCT_SHEET_INDEX].length).fill("");
+          searchArray[0] = id;
           
-          updateTableRow( PRODUCT_SHEET_NAME, [[id, Array(COLUMNS_ARRAY[PRODUCT_SHEET_INDEX].length-1).fill("")]], [0], CMD_ROW_DELETE);
+          //updateTableRow( PRODUCT_SHEET_NAME, [[id, Array(COLUMNS_ARRAY[PRODUCT_SHEET_INDEX].length-1).fill("")]], [0], CMD_ROW_DELETE);
+          updateTableRow( PRODUCT_SHEET_NAME, [searchArray], [0], CMD_ROW_DELETE);
           actionResult = {status: "success", message: msgForClient, data: {action: action, id: id}};
+
+          removeFromAllCartItems(product);
           
           //send("<b>"+msgForSeller+"</b>", chat_id_master);
           chat_id_master.toString().split(';').forEach(chat_id_item=>{
@@ -1167,16 +1370,16 @@ function doPost(e) {
           msgForSeller += " "+productName;
         }
 
-        //происходит обновления записи по id, если addorder то заказ прилетает с id=0
-        var product_row = updateTableRow( PRODUCT_SHEET_NAME, [[id, product.url, product.artikul, product.category, product.type, product.brand, product.brandLine, product.brandSeries, product.name, product.description, product.dopolnitelno, product.imageUrl, product.price, product.discount, product.isNew]], [0], CMD_ROW_UPDATE);
+        //происходит обновления записи по id, если addproduct то продукт прилетает с id=0
+        var product_row = updateTableRow( PRODUCT_SHEET_NAME, [[id, product.url, product.artikul, product.category, product.type, product.brand, product.brandLine, product.brandSeries, product.name, product.description, product.dopolnitelno, product.imageUrl, product.price, product.discount, product.isNew, JSON.stringify(product.detail), product.isActive]], [0], CMD_ROW_UPDATE);
         actionResult = {status: "success", message: msgForSeller, data: {action: action, id: id}};
 
-        if (action.toString().toLowerCase()=='addorder')
+        if (action.toString().toLowerCase()=='addproduct')
         {
 
           
           
-          //если НОВЫЙ заказ прилетел с id=0, то надо еще раз обновить строку, перезаписав order.id
+          //если НОВЫЙ продукт прилетел с id=0, то надо еще раз обновить строку, перезаписав id
           if (product_row != null) 
           {
             id = product_row[0][0];
@@ -1188,7 +1391,7 @@ function doPost(e) {
             msgForClient = "👏 Добавлен новый продукт.";
             msgForSeller = "👏 Добавлен новый продукт.";
 
-            updateTableRow( PRODUCT_SHEET_NAME, [[id, product.url, product.artikul, product.category, product.type, product.brand, product.brandLine, product.brandSeries, product.name, product.description, product.dopolnitelno, product.imageUrl, product.price, product.discount, product.isNew]], [0], CMD_ROW_UPDATE);
+            updateTableRow( PRODUCT_SHEET_NAME, [[id, product.url, product.artikul, product.category, product.type, product.brand, product.brandLine, product.brandSeries, product.name, product.description, product.dopolnitelno, product.imageUrl, product.price, product.discount, product.isNew, JSON.stringify(product.detail), product.isActive]], [0], CMD_ROW_UPDATE);
             actionResult = {status: "success", message: msgForClient, data: {action: action, id: id}};
 
             KEYBOARD_ON_CHAT_ADMIN = {}; 
@@ -1237,6 +1440,155 @@ function doPost(e) {
             KEYBOARD_ON_CHAT_ADMIN.inline_keyboard[index][0] = {
               text:   "👀 Посмотреть продукт ["+id.toString()+"]",
               web_app: {"url": WEB_APP_URL+"/product/"+id.toString()}
+            };
+
+            
+
+            actionResult = {status: "success", message: msgForSeller, data: {action: action, id: id}};
+
+            //send_key("<b>"+msgForSeller+"</b>", chat_id_master, KEYBOARD_ON_CHAT_ADMIN);                       
+            chat_id_master.toString().split(';').forEach(chat_id_item=>{
+              if ((""+chat_id_item.trim()).length >0){
+                send_key("<b>"+msgForSeller+"</b>", chat_id_item, KEYBOARD_ON_CHAT_ADMIN);
+              }
+            });
+            
+          }
+        }
+      }
+      
+    }
+
+    /*****
+     * 
+     * 
+     * 
+     * 
+     * пришел запрос на изменение доставки
+     * 
+     * 
+     * 
+     * 
+     * 
+     */
+    //Работа с доставкой
+    //adddelivery - создание доставки
+    //removedelivery - удаление доставки
+    //updatedelivery - обновление доставки
+    if (action.toString().toLowerCase()=='adddelivery' || action.toString().toLowerCase()=='updatedelivery' || action.toString().toLowerCase()=='removedelivery')
+    {
+      var msgForClient = "";
+      var msgForSeller = "";
+
+      var chat_id = "";
+      if (update.hasOwnProperty('chat_id')) chat_id = update.chat_id;
+      
+      var userName = "";
+      if (update.hasOwnProperty('userName')) userName = update.userName;
+      
+      var delivery = "";
+      if (update.hasOwnProperty('delivery')) delivery = update.delivery;
+      
+      if (action.toString().toLowerCase()=='removedelivery')
+      {
+        var id = "";
+        if (delivery.hasOwnProperty('id')) id = delivery.id;
+        if (id > 0) {
+          msgForClient = "Удален способ доставки. Номер доставки: "+id.toString();
+          msgForSeller = "Удален способ доставки. Номер доставки: "+id.toString();
+
+          var searchArray = Array(COLUMNS_ARRAY[DELIVERY_SHEET_INDEX].length).fill("");
+          searchArray[0] = id;
+          
+          updateTableRow( DELIVERY_SHEET_NAME, [searchArray], [0], CMD_ROW_DELETE);
+          actionResult = {status: "success", message: msgForClient, data: {action: action, id: id}};
+
+          chat_id_master.toString().split(';').forEach(chat_id_item=>{
+            if ((""+chat_id_item.trim()).length >0){
+              send("<b>"+msgForSeller+"</b>", chat_id_item);
+            }
+          });
+
+        }
+      }
+      else
+      {
+        msgForClient = "Скорректирован способ доставки.";
+        msgForSeller = "Скорректирован способ доставки.";
+
+        var id = "";
+        if (delivery.hasOwnProperty('id')) id = delivery.id;
+
+        var deliveryName = "";
+        if (delivery.hasOwnProperty('name')) deliveryName = delivery.name;
+        if ((""+deliveryName.toString()).length>0) {
+          msgForClient += " "+deliveryName;
+          msgForSeller += " "+deliveryName;
+        }
+
+        //происходит обновления записи по id, если adddelivery то доставка прилетает с id=0
+        var delivery_row = updateTableRow( DELIVERY_SHEET_NAME, [[id, delivery.name, delivery.description, delivery.amount, delivery.freeAmount, delivery.dadataFilter, delivery.isActive, delivery.isAddressRequired, delivery.clientMessage]], [0], CMD_ROW_UPDATE);
+        actionResult = {status: "success", message: msgForSeller, data: {action: action, id: id}};
+
+        if (action.toString().toLowerCase()=='adddelivery')
+        {
+
+          
+          
+          //если НОВЫЙ способ доставки прилетел с id=0, то надо еще раз обновить строку, перезаписав id
+          if (delivery_row != null) 
+          {
+            id = delivery_row[0][0];
+            delivery.id = delivery_row[0][0];
+          }
+
+          //новая строка получила номер
+          if (id > 0) {
+            msgForClient = "👏 Добавлен новый способ доставки.";
+            msgForSeller = "👏 Добавлен новый способ доставки.";
+
+            updateTableRow( DELIVERY_SHEET_NAME, [[id, delivery.name, delivery.description, delivery.amount, delivery.freeAmount, delivery.dadataFilter, delivery.isActive, delivery.isAddressRequired, delivery.clientMessage]], [0], CMD_ROW_UPDATE);
+            actionResult = {status: "success", message: msgForClient, data: {action: action, id: id}};
+
+            KEYBOARD_ON_CHAT_ADMIN = {}; 
+            KEYBOARD_ON_CHAT_ADMIN.parse_mode = "HTML"
+            KEYBOARD_ON_CHAT_ADMIN.inline_keyboard = [];
+
+            var index = 0;
+            
+            index = KEYBOARD_ON_CHAT_ADMIN.inline_keyboard.length;
+            KEYBOARD_ON_CHAT_ADMIN.inline_keyboard[index] = [];
+            KEYBOARD_ON_CHAT_ADMIN.inline_keyboard[index][0] = {
+              text:   "👀 Посмотреть доставку ["+id.toString()+"]",
+              //callback_data: "В магазин callback_data",
+              web_app: {"url": WEB_APP_URL+"/delivery/"+id.toString()+'/edit'}
+            };
+
+            //у магазина больше кнопок            
+            chat_id_master.toString().split(';').forEach(chat_id_item=>{
+              if ((""+chat_id_item.trim()).length >0){
+                send_key("<b>"+msgForSeller+"</b>", chat_id_item, KEYBOARD_ON_CHAT_ADMIN);
+              }
+            });
+          }
+        }
+
+        //редактирование способа доставки 
+        if (action.toString().toLowerCase()=='updatedelivery')
+        { 
+          if (id > 0) {
+
+            KEYBOARD_ON_CHAT_ADMIN = {}; 
+            KEYBOARD_ON_CHAT_ADMIN.parse_mode = "HTML"
+            KEYBOARD_ON_CHAT_ADMIN.inline_keyboard = [];
+
+            var index = 0;
+
+            index = KEYBOARD_ON_CHAT_ADMIN.inline_keyboard.length;
+            KEYBOARD_ON_CHAT_ADMIN.inline_keyboard[index] = [];
+            KEYBOARD_ON_CHAT_ADMIN.inline_keyboard[index][0] = {
+              text:   "👀 Посмотреть доставку ["+id.toString()+"]",
+              web_app: {"url": WEB_APP_URL+"/delivery/"+id.toString()+'/edit'}
             };
 
             
@@ -1309,6 +1661,25 @@ function doAction(chat_id, message_id, text, isCallBackButton, user)
   {
     
     var start_param = text.split(' ')[1].replaceAll('_','/');
+    var productInfo = '';
+    var photoUrl = '';
+    if (start_param.indexOf('/product/')>=0){
+      const found = start_param.match(/(?<=\/product\/)\d*/);
+      if (found && found.length>0){
+        var searchArray = Array(COLUMNS_ARRAY[PRODUCT_SHEET_INDEX].length).fill("");
+        searchArray[0] = found;
+
+        var product_row = updateTableRow( PRODUCT_SHEET_NAME, [searchArray], [0], CMD_ROW_GET);
+        if (product_row != null) {
+          productInfo = product_row[0][8];
+          photoUrl = product_row[0][11];
+        }
+      }
+    }
+
+    if (photoUrl && productInfo) {
+      sendPhoto(photoUrl,"",chat_id);
+    }
     
     KEYBOARD_ON_CHAT = {}; 
     KEYBOARD_ON_CHAT.inline_keyboard = [];
@@ -1322,7 +1693,7 @@ function doAction(chat_id, message_id, text, isCallBackButton, user)
                 "url": WEB_APP_URL+start_param
               }
             };
-    send_key("Для перехода по ссылке - нажмите кнопку ниже", chat_id, KEYBOARD_ON_CHAT);
+    send_key((productInfo?"Для просмотра <b>"+productInfo+"</b>":"Для перехода по ссылке")+" - нажмите кнопку ниже", chat_id, KEYBOARD_ON_CHAT);
     //send_key("Нажмите кнопку <b>[📨 Отправить сообщение]</b> для связи с магазином", chat_id, KEYBOARD);
   }
   else
@@ -1351,10 +1722,9 @@ function doAction(chat_id, message_id, text, isCallBackButton, user)
   {
     send_reply("Тестовый запрос", chat_id, message_id);
   }
-  else
-
+  else 
   //пользователь нажал кнопку оплатить заказ
-  if (text.indexOf("payOrder#")>=0 && isCallBackButton)
+  if (text.indexOf("payOrder#")==0 && isCallBackButton)
   {
     var orderId = 0;
     try
@@ -1382,9 +1752,13 @@ function doAction(chat_id, message_id, text, isCallBackButton, user)
           
           var pricesList = [];
           order.items.forEach(p=>{
+            var itemPrice = 0;
+            itemPrice = (p.attribute && p.attribute.price>0) ? p.attribute.price : p.product.price;
+            
+
             var pricesListItem = {
-              label: p.product.name+((p.product.discount>0)?(" со скидкой "+p.product.discount+"%"):(""))+": "+p.quantity+" шт.",
-              amount: 100*(p.product.price / 100) * (100 - p.product.discount) * p.quantity
+              label: p.product.name+(p.attribute ? " ("+p.attribute.description +") ":"")+((p.product.discount>0)?(" со скидкой "+p.product.discount+"%"):(""))+": "+p.quantity+" шт.",
+              amount: 100*(itemPrice / 100) * (100 - p.product.discount) * p.quantity
             };
             pricesList.push(pricesListItem);
           });
@@ -1423,6 +1797,12 @@ function doAction(chat_id, message_id, text, isCallBackButton, user)
 
 
   }
+  else   
+  //пользователь нажал кнопку хочу себе такого бота
+  if (text.indexOf("give-it-to-me")==0 && isCallBackButton && use_developer_button == true)
+  {
+    send(text_developer_button, chat_id);
+  }
   else
   
   //вариант по умолчанию подразумевает вывод стартового меню
@@ -1459,8 +1839,18 @@ function doAction(chat_id, message_id, text, isCallBackButton, user)
     KEYBOARD_ON_CHAT.inline_keyboard[index] = [];
     KEYBOARD_ON_CHAT.inline_keyboard[index][0] = {
       text:   "📱 Контакты",
-      web_app: {"url": WEB_APP_URL+"/contacts"}
-    };
+      web_app: {"url": WEB_APP_URL+"/company/contacts"}
+    };    
+
+    if (use_developer_button == true)
+    {
+      index = KEYBOARD_ON_CHAT.inline_keyboard.length;
+      KEYBOARD_ON_CHAT.inline_keyboard[index] = [];
+      KEYBOARD_ON_CHAT.inline_keyboard[index][0] = {
+        text:   "🤖 Понравился бот, хочу себе такой же!",
+        callback_data: "give-it-to-me"
+      };
+    }
 
     send_key(HELLO_BOT_STRING, chat_id, KEYBOARD_ON_CHAT);
     }
@@ -1479,15 +1869,21 @@ function getOrderDescription(order, mode)
   if (items != null && items.length >0)
   { 
     result += "Состав заказа:\n"
+
+    
     
     items.forEach(item=>{
+      var itemPrice = 0;
+      itemPrice = (item.attribute && item.attribute.price>0) ? item.attribute.price : item.product.price;
+
       result += 
       "▶ <i>"
       +(item.product.artikul ? "["+item.product.artikul +"] ":"")
       +(item.product.name ? "<b>"+item.product.name +"</b> ":"")
+      +(item.attribute ? " ("+item.attribute.description +") ":"")
       +(item.product.brand ? "["+item.product.brand +"]: ":": ")
-      +(item.product.price ? Utilities.formatString("₽%.2f", item.product.price) +" ":"")
-      +(item.product.discount && item.product.discount>0 ? "- "+Utilities.formatString("₽%.2f", item.product.discount) +"% = "+Utilities.formatString("₽%.2f", (item.product.price/100)*(100 - item.product.discount)):"")
+      +(itemPrice>0 ? Utilities.formatString("₽%.2f", itemPrice) +" " : "")
+      +(item.product.discount && item.product.discount>0 ? "- "+Utilities.formatString("₽%.2f", item.product.discount) +"% = "+Utilities.formatString("₽%.2f", (itemPrice/100)*(100 - item.product.discount)):"")
       +(item.quantity ? " * "+item.quantity.toString() +" шт.</i>\n":"</i>\n")      
       
     }); 
@@ -1692,6 +2088,26 @@ function archiveOldOrders()
   var count_ispay_orders = 0; //тут посчитаем кол-во оплаченных заказов.
   var count_not_accepted_orders = 0; //тут посчитаем кол-во заказов в обработке заказов.
 
+  var cart_rows = null;
+  //считываем все корзины с листа
+  cart_rows = updateTableRow( CART_SHEET_NAME, [Array(COLUMNS_ARRAY[CART_SHEET_INDEX].length).fill("")], [], CMD_ROW_FILTER);
+  if (cart_rows != null) 
+  {
+    cart_rows.forEach(row => {
+      
+      //если корзина давно не обновлялась
+      if (Math.abs(Math.round((new Date() - new Date(row[3])) / (1000 * 60 * 60 * 24)))>max_cart_length)
+      {
+        //console.log(row);
+        var searchArray = Array(COLUMNS_ARRAY[CART_SHEET_INDEX].length).fill("");
+        searchArray[0] = row[0];
+
+        //updateTableRow( CART_SHEET_NAME, [[row[0],Array(COLUMNS_ARRAY[CART_SHEET_INDEX].length-1).fill("")]],[0], CMD_ROW_DELETE);
+        updateTableRow( CART_SHEET_NAME, [searchArray],[0], CMD_ROW_DELETE);
+      }
+    });
+  }
+  
   var order_rows = null;
   //считываем все заказы с листа
   order_rows = updateTableRow( ORDER_SHEET_NAME, [Array(COLUMNS_ARRAY[ORDER_SHEET_INDEX].length).fill("")], [], CMD_ROW_FILTER);
@@ -1701,12 +2117,10 @@ function archiveOldOrders()
 
     //обработка
     var flag = true;
+    var flagForCounters = true;
     while (flag)
     {
       flag = false;
-      count_active_orders = 0;
-      count_ispay_orders = 0;
-      count_not_accepted_orders = 0;
       order_rows.forEach(row => {
         var UID = 0;
         try
@@ -1716,9 +2130,9 @@ function archiveOldOrders()
         if (UID>0)
         {
           var order = JSON.parse(row[4]);
-          if (!order.isAccepted) count_not_accepted_orders+=1;
-          if (!order.isCompleted && !order.isCancelled) count_active_orders+=1;
-          if (!order.isCompleted && !order.isCancelled && !order.isClientPay) count_ispay_orders+=1;
+          if (!order.isAccepted && flagForCounters) count_not_accepted_orders+=1;
+          if (!order.isCompleted && !order.isCancelled && flagForCounters) count_active_orders+=1;
+          if (!order.isCompleted && !order.isCancelled && order.isClientPay && flagForCounters) count_ispay_orders+=1;
 
           if (order && order.isCompleted == true || order.isCancelled == true)
           {
@@ -1731,6 +2145,7 @@ function archiveOldOrders()
           }
         }
       });
+      flagForCounters = false;
     }
 
     if (count_active_orders>0){
@@ -1793,7 +2208,10 @@ function archiveOldOrders()
                 var items_str = "";
                 var item_index = 1;
                 order[col_name].forEach(item=>{
-                  items_str += ((item_index>1)?("\n"):(""))+item_index+") "+item.product.name+" "+((item.product.artikul)?("арт."+item.product.artikul):(""))+" "+item.quantity+" шт. по "+((item.product.price / 100) * (100 - item.product.discount))+" руб."+((item.product.discount>0)?(" со скидкой "+item.product.discount+"%"):(""));
+                  var itemPrice = 0;
+                  itemPrice = (item.attribute && item.attribute.price>0) ? item.attribute.price : item.product.price;
+                  
+                  items_str += ((item_index>1)?("\n"):(""))+item_index+") "+item.product.name+" "+((item.product.artikul)?("арт."+item.product.artikul):(""))+" "+item.quantity+" шт. по "+((itemPrice / 100) * (100 - item.product.discount))+" руб."+((item.product.discount>0)?(" со скидкой "+item.product.discount+"%"):(""));
                   item_index++;
                 });
                 archive_rows[index][j] = items_str;//JSON.stringify(order[col_name]);
@@ -1850,6 +2268,13 @@ function formatPhoneNumber(phone)
 }
 
 function udpateAllCartItems(product){
+  //Если продукт сложный - убираем его из корзин пользователей
+  if (product && product.detail.attributes.length>0){
+    removeFromAllCartItems(product);
+    return;
+  }
+
+  //в других случаях обновляем цены
   var cart_rows = updateTableRow( CART_SHEET_NAME, [Array(COLUMNS_ARRAY[CART_SHEET_INDEX].length).fill("")], [], CMD_ROW_FILTER);
   if (cart_rows != null) 
   {
@@ -1864,7 +2289,6 @@ function udpateAllCartItems(product){
           flag = true;          
           totalAmount = totalAmount + product.price*item.quantity;
           item.product = product;
-
         }
         else
         totalAmount = totalAmount + item.product.price*item.quantity;
@@ -1877,6 +2301,40 @@ function udpateAllCartItems(product){
         console.log("Обновляем корзины пользователей для "+row[0]);
         updateTableRow( CART_SHEET_NAME, [row], [0], CMD_ROW_UPDATE);
       }       
+    });
+
+
+  }
+}
+
+function removeFromAllCartItems(product){
+  var cart_rows = updateTableRow( CART_SHEET_NAME, [Array(COLUMNS_ARRAY[CART_SHEET_INDEX].length).fill("")], [], CMD_ROW_FILTER);
+  if (cart_rows != null) 
+  {
+    
+    cart_rows.forEach(row =>{
+      var totalAmount = 0;
+      var totalCount = 0;
+      
+      var cart = JSON.parse(row[4]);
+      var flag = cart.items.findIndex(p=>p.product.id == product.id)>=0;
+      if (!flag) return;
+
+      cart.items = cart.items.filter(p=>p.product.id == product.id);
+      
+      cart.items.forEach(item=>{        
+        totalAmount = totalAmount + item.product.price*item.quantity;
+        totalCount = totalCount + item.quantity;
+      });
+
+      
+        cart.totalAmount = totalAmount;
+        cart.totalCount = totalCount;
+        //console.log(cart);
+        row[4] = JSON.stringify(cart);
+        console.log("Обновляем корзины пользователей для "+row[0]);
+        updateTableRow( CART_SHEET_NAME, [row], [0], CMD_ROW_UPDATE);
+             
     });
 
 
@@ -1928,7 +2386,7 @@ function clearSheetsData()
   // }); 
 }
 
-function getProductsParams(productName, brand){
+function getProductsParams(url,productName, brand){
   var productCategory = '';
   var productType = '';
   var productBrand = '';
@@ -1981,8 +2439,17 @@ function getProductsParams(productName, brand){
   //1. Косметика для женщин 
   if((productCategory=="") && 
     (
-      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('otium')>=0)
+      ((brand.toString().toLowerCase()=="estel") && (""+url).toLowerCase().indexOf('princess-essex')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('de luxe')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('otium')>=0)
       ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('haute couture')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('заряди')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('essex')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('princess')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('s-os')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('extra red')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('fashion')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('lumen')>=0)
     ))
   {
     productCategory = "Косметика для женщин";
@@ -2071,6 +2538,23 @@ function getProductsParams(productName, brand){
   }
 
   
+  //  1.2. Окрашивание
+  if((productType=="") && 
+  (productCategory=="Косметика для женщин") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+url).toLowerCase().indexOf('princess-essex')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('essex')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('s-os')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('extra red')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('fashion')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('lumen')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('de luxe')>=0)
+    ))
+  {
+    productType = "Окрашивание";
+  }
+
+  
   /*****
    * 
    * 
@@ -2150,7 +2634,10 @@ function getProductsParams(productName, brand){
   //    Otium 
   if((productBrandLine=="") && 
     (
-      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('otium')>=0)
+      
+      ((brand.toString().toLowerCase()=="estel") && (""+url).toLowerCase().indexOf('otium')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('otium')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('заряди')>=0)
     ))
   {
     productBrandLine = "Otium";
@@ -2159,7 +2646,8 @@ function getProductsParams(productName, brand){
   //  Alpha Professional   
   if((productBrandLine=="") && 
     (
-      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('alpha pro')>=0)
+      ((brand.toString().toLowerCase()=="estel") && (""+url).toLowerCase().indexOf('alpha-pro')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('alpha pro')>=0)
       ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('аlpha pro')>=0)
     ))
   {
@@ -2169,7 +2657,8 @@ function getProductsParams(productName, brand){
   //  Alpha Homme   
   if((productBrandLine=="") && 
     (
-      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('alpha')>=0)
+      ((brand.toString().toLowerCase()=="estel") && (""+url).toLowerCase().indexOf('alpha')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('alpha')>=0)
       ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('аlpha')>=0)
       ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('homme')>=0)
       ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('нomme')>=0)
@@ -2194,6 +2683,30 @@ function getProductsParams(productName, brand){
     ))
   {
     productBrandLine = "Genwood";
+  }
+
+  //  Princess Essex
+  if((productBrandLine=="") && 
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+url).toLowerCase().indexOf('princess-essex')>=0)
+      // ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('princess essex')>=0)
+      // ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('s-os')>=0)
+      // ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('extra red')>=0)
+      // ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('fashion')>=0)
+      // ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('lumen')>=0)
+    ))
+  {
+    productBrandLine = "Princess Essex";
+  }
+
+  //  De Luxe
+  if((productBrandLine=="") && 
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+url).toLowerCase().indexOf('de-luxe')>=0)
+      //||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('de luxe')>=0)
+    ))
+  {
+    productBrandLine = "De Luxe";
   }
 
   
@@ -2230,6 +2743,224 @@ function getProductsParams(productName, brand){
     productBrandSeries = "Заряди";
   }
 
+  
+
+  //      Princess Essex - Коллекция Chrome 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('chrome')>=0)
+    ))
+  {
+    productBrandSeries = "Коллекция Chrome";
+  }
+
+  //      Princess Essex - Осветляющая серия S-OS 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('s-os')>=0)
+    ))
+  {
+    productBrandSeries = "Осветляющая серия S-OS";
+  }
+
+  //      Princess Essex - Extra Red 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('extra red')>=0)
+    ))
+  {
+    productBrandSeries = "Extra Red";
+  }
+
+  //      Princess Essex - Fashion 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('fashion')>=0)
+    ))
+  {
+    productBrandSeries = "Fashion";
+  } 
+
+  //      Princess Essex - Lumen 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('lumen')>=0)
+    ))
+  {
+    productBrandSeries = "Lumen";
+  }  
+
+  //      Princess Essex - Корректор 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('correct')>=0)
+    ))
+  {
+    productBrandSeries = "Корректор";
+  }  
+
+  //      Princess Essex - Оксигенты и активаторы 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('оксигент')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('активатор')>=0)
+    ))
+  {
+    productBrandSeries = "Оксигенты и активаторы";
+  }
+  
+  //      Princess Essex - Техническая группа 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="Princess Essex") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('пудра')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('шампунь')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('бальзам')>=0)
+    ))
+  {
+    productBrandSeries = "Техническая группа";
+  }
+
+
+//      De luxe - Коллекция High Blond 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('high blond')>=0)
+    ))
+  {
+    productBrandSeries = "High Blond";
+  }
+
+//      De luxe - Коллекция High Flash 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('high flash')>=0)
+    ))
+  {
+    productBrandSeries = "High Flash";
+  }
+
+  //      De luxe - Extra Red 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('extra red')>=0)
+    ))
+  {
+    productBrandSeries = "Extra Red";
+  }
+
+  //      De luxe - Pastel 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('pastel')>=0)
+    ))
+  {
+    productBrandSeries = "Pastel";
+  } 
+
+  //      De luxe - Silver 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('silver')>=0)
+    ))
+  {
+    productBrandSeries = "Silver";
+  }  
+
+  //      De luxe - Sense Extra Red 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('sense extra red')>=0)
+    ))
+  {
+    productBrandSeries = "Sense Extra Red";
+  }  
+
+  //      De luxe - Sense Clear Blond 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('sense clear blond')>=0)
+    ))
+  {
+    productBrandSeries = "Sense Clear Blond";
+  }  
+
+  //      De luxe - Sense 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('sense')>=0)
+    ))
+  {
+    productBrandSeries = "Sense";
+  }   
+
+  
+  //      De luxe - Корректор 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('correct')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('корректор')>=0)
+    ))
+  {
+    productBrandSeries = "Корректор";
+  }
+
+  
+
+  //      De luxe - Оксигенты и активаторы 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('оксигент')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('активатор')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('оксидант')>=0)
+    ))
+  {
+    productBrandSeries = "Оксигенты и активаторы";
+  }
+
+  
+  //      De luxe - Техническая группа 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('пудра')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('шампунь')>=0)
+      ||((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('бальзам')>=0)
+    ))
+  {
+    productBrandSeries = "Техническая группа";
+  }
+  
+
+  //      De luxe - Основная палитра 
+  if((productBrandSeries=="") && 
+  (productBrandLine=="De Luxe") &&
+    (
+      ((brand.toString().toLowerCase()=="estel") && (""+productName).toLowerCase().indexOf('luxe')>=0)
+    ))
+  {
+    productBrandSeries = "Основная палитра";
+  }
+
+  
+
 
 
   return {
@@ -2258,19 +2989,17 @@ function ParseDataFromHTML() {
   var colPrice        = 12;
   var colDiscount     = 13;
   var colIsNew        = 14;
-  // var colArtikul2     = 15;
-  // var colImageUrl2    = 16;
+  var colDetail       = 15;
+  var colIsActive     = 16;
 
   //всего колонок
-  var numColsReport = colIsNew+1;
+  var numColsReport = colIsActive+1;
 
   var spreadsheet = SpreadsheetApp.openById(DOC_ID);
   var worksheet   = spreadsheet.getSheetByName(PRODUCT_SHEET_NAME);
   var rows        = worksheet.getDataRange().getNumRows(); //число строк на листе  
   var vals        = worksheet.getSheetValues(1, 1, rows, numColsReport);  //диапазон проверяемых данных
   Logger.log(vals.length);
-
-  var secondProduct = []; //тут будут создаваться строки для вторичных продуктов
 
   for (var row = 1; row < vals.length; row++) {
 
@@ -2320,7 +3049,9 @@ function ParseDataFromHTML() {
         if ((""+vals[row][colImageUrl]).length === 0) vals[row][colImageUrl] = "https://cehko.ru"+$('.zoom').first().attr().href;
         if ((""+vals[row][colDiscount]).length === 0) vals[row][colDiscount] = 0;
         if ((""+vals[row][colPrice]).length === 0) vals[row][colPrice] = 0;
-        if ((""+vals[row][colIsNew]).length === 0) vals[row][colIsNew] = "Нет";
+        if ((""+vals[row][colIsNew]).length === 0) vals[row][colIsNew] = false;
+        if ((""+vals[row][colDetail]).length === 0) vals[row][colDetail] = '';
+        if ((""+vals[row][colIsActive]).length === 0) vals[row][colIsActive] = true;
 
         //Logger.log("https://cehko.ru"+$('.zoom').attr().href);
 
@@ -2450,10 +3181,11 @@ function ParseDataFromHTML() {
       {
         Logger.log("Строка (estel.pro) с №: "+ vals[row][colId]);
         msgProductUpdate ="";
-        var isSecondProductLoaded = false;
+
         changed = true;
         const contentText = UrlFetchApp.fetch(url).getContentText();
-        const $ = Cheerio.load(contentText);                
+        let $ = Cheerio.load(contentText); 
+        
         
         if ((""+vals[row][colBrand]).length === 0) {vals[row][colBrand] = 'ESTEL'; 
           msgProductUpdate+="Brand: "+vals[row][colBrand]+";\n"}
@@ -2471,22 +3203,6 @@ function ParseDataFromHTML() {
               //Logger.log($(element).children('.product-param-text').first().text());
             }
           });
-
-          if (vals[row][colArtikul].toString().split(';').length>1)
-          {
-            index2 = secondProduct.length;
-            secondProduct[index2] = vals[row].reduce((newArray, element) => {
-              newArray.push(element);
-              return newArray;
-            }, []);
-
-            secondProduct[index2][colId] = 0;
-            secondProduct[index2][colArtikul] = vals[row][colArtikul].toString().split(';')[1].trim();
-            secondProduct[index2][colName] = vals[row][colName];
-            secondProduct[index2][colBrand] = vals[row][colBrand];
-            vals[row][colArtikul] = vals[row][colArtikul].toString().split(';')[0].trim();
-            isSecondProductLoaded = true;
-          } 
           msgProductUpdate+="Artikul: "+vals[row][colArtikul]+";\n"         
         } 
 
@@ -2497,18 +3213,16 @@ function ParseDataFromHTML() {
         });
         if ((""+vals[row][colDescription]).length === 0) {vals[row][colDescription] = $('.card-info-text').text(); 
           msgProductUpdate+="Description: "+vals[row][colDescription]+";\n"}
-        if (isSecondProductLoaded) secondProduct[index2][colDescription] = vals[row][colDescription];
 
         if ((""+vals[row][colDiscount]).length === 0) vals[row][colDiscount] = 0;
-        if (isSecondProductLoaded) secondProduct[index2][colDiscount] = vals[row][colDiscount];
         if ((""+vals[row][colPrice]).length === 0) vals[row][colPrice] = 0;
-        if (isSecondProductLoaded) secondProduct[index2][colPrice] = vals[row][colPrice];
-        if ((""+vals[row][colIsNew]).length === 0) vals[row][colIsNew] = "Нет";
-        if (isSecondProductLoaded) secondProduct[index2][colIsNew] = vals[row][colIsNew];
+        if ((""+vals[row][colIsNew]).length === 0) vals[row][colIsNew] = false;
+        if ((""+vals[row][colDetail]).length === 0) vals[row][colDetail] = '';
+        if ((""+vals[row][colIsActive]).length === 0) vals[row][colIsActive] = true;
 
-        // //Logger.log("https://cehko.ru"+$('.zoom').attr().href);
+        
 
-        var productsParameters = getProductsParams(vals[row][colName],vals[row][colBrand]);
+        var productsParameters = getProductsParams(url,vals[row][colName],vals[row][colBrand]);
 
         if ((""+vals[row][colCategory]).length === 0) {vals[row][colCategory] = productsParameters.category;
           msgProductUpdate+="Category: "+vals[row][colCategory]+";\n"}  
@@ -2518,10 +3232,6 @@ function ParseDataFromHTML() {
           msgProductUpdate+="BrandLine: "+vals[row][colBrandLine]+";\n"}  
         if ((""+vals[row][colBrandSeries]).length === 0) {vals[row][colBrandSeries] = productsParameters.brandSeries;
           msgProductUpdate+="BrandSeries: "+vals[row][colBrandSeries]+";\n"}  
-        if (isSecondProductLoaded) secondProduct[index2][colCategory] = vals[row][colCategory];
-        if (isSecondProductLoaded) secondProduct[index2][colType] = vals[row][colType];
-        if (isSecondProductLoaded) secondProduct[index2][colBrandLine] = vals[row][colBrandLine];
-        if (isSecondProductLoaded) secondProduct[index2][colBrandSeries] = vals[row][colBrandSeries];
 
         
              
@@ -2533,15 +3243,6 @@ function ParseDataFromHTML() {
             {              
                 
 
-              if (isSecondProductLoaded && $(element).children('.product-param-text').first().text().trim().split(';').length>1){
-                var firstV = $(element).children('.product-param-text').first().text().trim().split(';')[0].trim();
-                var secondV = $(element).children('.product-param-text').first().text().trim().split(';')[1].trim();
-                vals[row][colDopolnitelno] +=(((""+vals[row][colDopolnitelno]).length > 0)?("\n"):("")) +$(element).children('.product-param-title').first().text().trim()+" "+ firstV;
-                secondProduct[index2][colDopolnitelno] +=(((""+secondProduct[index2][colDopolnitelno]).length > 0)?("\n"):("")) +$(element).children('.product-param-title').first().text().trim()+" "+ secondV;
-                vals[row][colName] = vals[row][colName]+" ("+firstV+")";
-                secondProduct[index2][colName] = secondProduct[index2][colName]+" ("+secondV+")";
-              }
-              else
               vals[row][colDopolnitelno] +=(((""+vals[row][colDopolnitelno]).length > 0)?("\n"):("")) +$(element).children('.product-param-title').first().text().trim()+" "+ $(element).children('.product-param-text').first().text().trim();
               //Logger.log($(element).children('.product-param-title').first().text().trim()+" "+ $(element).children('.product-param-text').first().text().trim());              
             }
@@ -2551,60 +3252,24 @@ function ParseDataFromHTML() {
           msgProductUpdate+="Dopolnitelno: "+vals[row][colDopolnitelno]+";\n"             
         }  
 
-        //Logger.log("!"+($('.rsImg').length>0 && true));
+        
         if ((""+vals[row][colImageUrl]).length === 0 && $('.rsImg').length>0) {vals[row][colImageUrl] = "https://estel.pro"+$('.rsImg').first().attr().href; 
           msgProductUpdate+="ImageUrl: "+vals[row][colImageUrl]+";\n"}       
-        if ((""+vals[row][colImageUrl]).length === 0 && $('.card-img-wrap-single').children('img').length>0) {vals[row][colImageUrl] = "https://estel.pro"+$('.card-img-wrap-single').children('img').first().attr().src;
-          msgProductUpdate+="ImageUrl: "+vals[row][colImageUrl]+";\n"}  
-        if (isSecondProductLoaded){
-          secondProduct[index2][colImageUrl] = vals[row][colImageUrl];
-          if ($('.rsImg').length>1){
-            var index = 0;
-            $('.rsImg').each(function(i, elm) {
-              if (index == 1) secondProduct[index2][colImageUrl] = "https://estel.pro"+$(this).attr().href;              
-              index++;
-            });
-          }
-          //если картинка 1000 мл прицепилась к другому продукту то меняем местами
-          //Logger.log(secondProduct[index2][colImageUrl].toString().indexOf('1000'));
-          if ((secondProduct[index2][colImageUrl].toString().indexOf('1000')>=0 && secondProduct[index2][colName].toString().indexOf('1000')<0) 
-          || (vals[row][colImageUrl].toString().indexOf('1000')>=0 && vals[row][colName].toString().indexOf('1000')<0))
-          {
-            Logger.log("Меянем");
-            var tempUrl = secondProduct[index2][colImageUrl].toString();
-            secondProduct[index2][colImageUrl] = vals[row][colImageUrl];
-            vals[row][colImageUrl] = tempUrl;
-          }
-        }
+        if ((""+vals[row][colImageUrl]).length === 0 && $('.card-img-wrap-single').children('img').length>0) {
+          if ($('.card-img-wrap-single').children('img').first().attr().src.toString().indexOf('files')>0) 
+            vals[row][colImageUrl] = "https://estel.pro"+$('.card-img-wrap-single').children('img').first().attr().src;
+          else
+          if ($('.card-img-wrap-single').children('img').first().attr('data-pagespeed-lazy-src') && $('.card-img-wrap-single').children('img').first().attr('data-pagespeed-lazy-src').indexOf('files')>0) vals[row][colImageUrl] = "https://estel.pro"+$('.card-img-wrap-single').children('img').first().attr('data-pagespeed-lazy-src');
+        
+          msgProductUpdate+="ImageUrl: "+vals[row][colImageUrl]+";\n"} 
 
-       
-        // //проверка на несколько артикулов, на сайте estel.pro иногда (шампуни бальзамы) 250 и 1000 объем лежат в одной карточке, надо создать две
-        // if (vals[row][colArtikul].toString().split(';').length>1 && $('.rsImg').length>1){
-
-        //   var colImageUrl2="";
-
-        //   var index = 0;
-        //   $('.rsImg').each(function(i, elm) {
-        //     if (index == 1) colImageUrl2 = $(this).attr().href;
-        //     //console.log($(this).attr().href) // for testing do text() 
-        //     index++;
-        //   });
-          
-        //   if((""+colImageUrl2).length > 0 && colImageUrl2.toString().toLocaleLowerCase() != vals[row][colImageUrl].toString().toLocaleLowerCase()){
-            
-        //     vals[row][colImageUrl] = vals[row][colImageUrl] +";"+ "https://estel.pro"+colImageUrl2; 
-        //   }
-            
-        //   msgProductUpdate+="ImageUrl: "+vals[row][colImageUrl]+";\n"
-
-        // }
+          //Logger.log("!"+($('.rsImg').length>0 && true));
       }
 
       if (msgProductUpdate.length>0)
       {
         Logger.log(msgProductUpdate);
         // Logger.log(vals[row]);
-        // Logger.log(secondProduct[index2]);
       }
 
       //Logger.log(worksheet.getRange(row+1,1, 1, 12).getValues());
@@ -2637,13 +3302,7 @@ function ParseDataFromHTML() {
       matrix[0] = [];
       matrix[0] =vals[row];
       //Logger.log(matrix);
-      worksheet.getRange(row+1,1,1, numColsReport).setValues(matrix);
-      if (secondProduct.length>0)
-      {        
-        secondProduct.forEach(item =>{
-          updateTableRow( PRODUCT_SHEET_NAME, [item], [colUrl, colArtikul], CMD_ROW_UPDATE);
-        })
-      }
+      worksheet.getRange(row+1,1,1, numColsReport).setValues(matrix);      
     }
   }
   
