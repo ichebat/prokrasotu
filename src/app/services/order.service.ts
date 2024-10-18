@@ -122,7 +122,7 @@ export class OrderService {
       if ((!orderIdValue || parseInt(orderIdValue) <= 0) && cartValue) {
         return {
           id: 0,
-          items: cartValue.items.filter((p) => p.checked),
+          items: structuredClone(cartValue.items.filter((p) => p.checked)),
           totalAmount: this.calculateTotalAmount(
             cartValue.items.filter((p) => p.checked) as ICartItem[],
           ),
@@ -410,7 +410,7 @@ export class OrderService {
         (order.isClientPay ? ' [Оплачено online]' : '');
     else if (order.isCancelled)
       result =
-        'Заказ отклонен. ' +
+        'Заказ отменен. ' +
         new Date(order.cancellationDate).toLocaleDateString() +
         (order.cancellationReason
           ? ' Причина: ' + order.cancellationReason

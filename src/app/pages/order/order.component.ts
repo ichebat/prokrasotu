@@ -72,10 +72,14 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.orderService.updateId(this.id);
 
+    //console.log('ctor',this.orderService.$order());
+    // this.orderService.calculateTotalAmount(this.orderService.$order()?.items!);
+    // this.orderService.calculateTotalCount(this.orderService.$order()?.items!);
+
     this.goBack = this.goBack.bind(this);
   }
 
-  
+
   ngAfterViewInit(): void {
     let top = document.getElementById('top');
     if (top !== null) {

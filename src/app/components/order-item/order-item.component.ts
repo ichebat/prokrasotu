@@ -32,6 +32,8 @@ import { ProductSearchComponent } from '../product-search/product-search.compone
 import { MatTableDataSource } from '@angular/material/table';
 import { environment } from '../../../environments/environment';
 import { DeliveryService, IDelivery } from '../../services/delivery.service';
+import { AgreementComponent } from '../../pages/company/privacy/agreement/agreement.component';
+import { PrivacyComponent } from '../../pages/company/privacy/privacy.component';
 
 @Component({
   selector: 'app-order-item',
@@ -950,7 +952,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //функция подтверждение заказа в магазине
   acceptOrder() {
-    //принятым считается заказ который не был принят ранее и не отклонен
+    //принятым считается заказ который не был принят ранее и не отменен
     if (!this.getVisible('button_accept') || !this.getEnabled('button_accept'))
       return;
 
@@ -995,7 +997,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //функция отмены заказа
   cancelOrder() {
-    //отклонить можно если не отклонялся ранее
+    //отменить можно если не отменяли ранее
     if (!this.getVisible('button_cancel') || !this.getEnabled('button_cancel'))
       return;
 
@@ -1029,7 +1031,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //функция завершения заказа
   completeOrder() {
-    //завершить можно если заказ был принят и не отклонялся позднее
+    //завершить можно если заказ был принят и не отменялся позднее
     if (
       !this.getVisible('button_complete') ||
       !this.getEnabled('button_complete')
@@ -1711,5 +1713,41 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       }
     });
   });
+  }
+
+  showModalAgreement(){
+    this.zone.run(() => {
+      const dialogRef = this.dialog.open<AgreementComponent>(
+        AgreementComponent,
+        {
+          data: {
+            message: '',
+            description: '',
+            showCancelButton: false,
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        return;
+      });
+    });
+  }
+
+  showModalPrivacy(){
+    this.zone.run(() => {
+      const dialogRef = this.dialog.open<PrivacyComponent>(
+        PrivacyComponent,
+        {
+          data: {
+            message: '',
+            description: '',
+            showCancelButton: false,
+          },
+        },
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        return;
+      });
+    });
   }
 }

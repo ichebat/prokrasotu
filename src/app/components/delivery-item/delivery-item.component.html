@@ -23,11 +23,12 @@
       <h3>
         <mat-icon color="accent">warning</mat-icon>
         Внимание, редактирование способа доставки доступно только для администратора. Меняйте
-        информацию с умом.
+        информацию с умом. Обязательные поля отмечены *
       </h3>
 
       <form [formGroup]="form" (ngSubmit)="sendData()">
         <input type="hidden" formControlName="name" />
+        <p>Введите тут краткое название способа доставки</p>
         <mat-form-field appearance="outline" *ngIf="getVisible('name')">
             <mat-label>Введите название</mat-label>
             <textarea
@@ -73,6 +74,7 @@
             >
           </mat-form-field>
 
+          <p>Введите тут полное название/описание для способа доставки</p>
           <mat-form-field appearance="outline" *ngIf="getVisible('description')">
             <mat-label>Введите описание</mat-label>
             <textarea
@@ -109,6 +111,7 @@
             >
           </mat-form-field>
 
+          <p>Такое сообщение получит клиент в Telegram от бота, когда его заказ обработается в магазине и перейдет в статус "Готово к оплате".</p>
           <mat-form-field appearance="outline" *ngIf="getVisible('clientMessage')">
             <mat-label>Введите сообщение клиенту</mat-label>
             <textarea
@@ -144,7 +147,7 @@
               >Максимум 5000 символов</mat-error
             >
           </mat-form-field>
-
+          <p>Требуется ли вводить адрес при выборе данного способа доставки при оформлении заказа.</p>
           <mat-form-field appearance="outline" *ngIf="getVisible('isAddressRequired')">
             <mat-label>Обязательный ввод адреса?</mat-label>
             <input
@@ -191,6 +194,7 @@
             >
           </mat-form-field>
 
+          <p>Если сумма заказа больше введенной тут суммы, то доставка будет бесплатной. Если такое не требуется, оставьте это поле равным 0.</p>
           <mat-form-field appearance="outline" *ngIf="getVisible('freeAmount')">
             <mat-label>Сумма бесплатной доставки (руб.)</mat-label>
             <input
@@ -236,7 +240,8 @@
               >Доступно для выбора?</mat-checkbox
             >
           </mat-form-field>
-
+          
+          <p>Фильтр DADATA используется для быстрого набора адреса при оформлении заказа. Например, если указать (Ишимбай) без скобок, то это означает, что при введении адреса доставки будут предлагаться варианты улиц и дома из г.Ишимбай. Если оставить поле пустым, то можно будет ввести любой адрес любого города РФ.</p>
           <mat-form-field appearance="outline" *ngIf="getVisible('dadataFilter')">
             <mat-label>Введите фильтр сервиса DaDaTa</mat-label>
             <input

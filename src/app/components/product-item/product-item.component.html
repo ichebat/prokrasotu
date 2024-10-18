@@ -3,15 +3,27 @@
 <div class="responsive-grid-product-item mb">
   <mat-card appearance="outlined" class="product-item mat-elevation-z5">
     <mat-card-header>
-      <mat-card-title
-        >
+      <mat-card-title>
         @if (product.id > 0) {
           <app-share-buttons
             [url]="getUrl()"
-            [title]="owner.marketName+' '+owner.marketDescription+': '+product.name"
-            [description]="owner.marketName+' '+owner.marketDescription+': '+product.name"
+            [title]="
+              owner.marketName +
+              ' ' +
+              owner.marketDescription +
+              ': ' +
+              product.name
+            "
+            [description]="
+              owner.marketName +
+              ' ' +
+              owner.marketDescription +
+              ': ' +
+              product.name
+            "
           ></app-share-buttons>
-        }{{ product.name }}
+        }
+        {{ product.name }}
       </mat-card-title>
       <mat-card-subtitle
         >{{ product.brand }}
@@ -44,7 +56,7 @@
         </div>
       }
 
-      @if(telegramService.isAdmin &&  (action == 'edit' || product.id == 0)){
+      @if (telegramService.isAdmin && (action == "edit" || product.id == 0)) {
         <app-image-cropper-loader
           [maintainAspectRatio]="true"
           [containWithinAspectRatio]="true"
@@ -64,55 +76,73 @@
 
     <mat-card-content>
       @if (!selectedProductAttribute && product.price == 0) {
-        @if(minPrice()+maxPrice()>0)
-        {
+        @if (minPrice() + maxPrice() > 0) {
           <div class="buy-button">
-            <button
-              mat-button
-              >
-              {{minPrice() == maxPrice()?(minPrice() | currency: "RUB" : "symbol-narrow"):'от '+(minPrice() | currency: "RUB" : "symbol-narrow")+' до '+(maxPrice() | currency: "RUB" : "symbol-narrow")}}
+            <button mat-button>
+              {{
+                minPrice() == maxPrice()
+                  ? (minPrice() | currency: "RUB" : "symbol-narrow")
+                  : "от " +
+                    (minPrice() | currency: "RUB" : "symbol-narrow") +
+                    " до " +
+                    (maxPrice() | currency: "RUB" : "symbol-narrow")
+              }}
             </button>
           </div>
         }
       }
 
-      @if((selectedProductAttribute && selectedProductAttribute!.price > 0) || product.price>0){
-        
-          <p>
-            Цена действительна только для интернет-магазина и может отличаться от
-            цен в розничных магазинах
-          </p>
-  
-          <div class="buy-button pb">
-            @if (product.discount == 0) {
-              <button mat-flat-button (click)="addItem()" color="primary">
-                В корзину 
-                @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
+      @if (
+        (selectedProductAttribute && selectedProductAttribute!.price > 0) ||
+        product.price > 0
+      ) {
+        <p>
+          Цена действительна только для интернет-магазина и может отличаться от
+          цен в розничных магазинах
+        </p>
+
+        <div class="buy-button pb">
+          @if (product.discount == 0) {
+            <button mat-flat-button (click)="addItem()" color="primary">
+              В корзину
+              @if (
+                product.price > 0 ||
+                (selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0)
+              ) {
                 за
                 {{
-                  selectedProductAttribute && selectedProductAttribute!.price > 0
-                    ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
+                  selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0
+                    ? (selectedProductAttribute!.price
+                      | currency: "RUB" : "symbol-narrow")
                     : (product.price | currency: "RUB" : "symbol-narrow")
-                }}  
-                }
-              </button>
-            }
-            @if (product.discount > 0) {
-              <button
-                mat-flat-button
-                matBadge="%"
-                matBadgeSize="large"
-                matBadgePosition="after"
-                matBadgeColor="accent"
-                (click)="addItem()"
-                color="primary"
-              >
-                В корзину
-                @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
+                }}
+              }
+            </button>
+          }
+          @if (product.discount > 0) {
+            <button
+              mat-flat-button
+              matBadge="%"
+              matBadgeSize="large"
+              matBadgePosition="after"
+              matBadgeColor="accent"
+              (click)="addItem()"
+              color="primary"
+            >
+              В корзину
+              @if (
+                product.price > 0 ||
+                (selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0)
+              ) {
                 за
                 <s>{{
-                  selectedProductAttribute && selectedProductAttribute!.price > 0
-                    ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
+                  selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0
+                    ? (selectedProductAttribute!.price
+                      | currency: "RUB" : "symbol-narrow")
                     : (product.price | currency: "RUB" : "symbol-narrow")
                 }}</s>
                 {{
@@ -122,12 +152,11 @@
                     : product.price) /
                     100) *
                     (100 - product.discount) | currency: "RUB" : "symbol-narrow"
-                }}  
-                } 
-              </button>
-            }
-          </div>
-        
+                }}
+              }
+            </button>
+          }
+        </div>
       }
       @if (product.description != "") {
         <p class="pre-line">{{ product.description }}</p>
@@ -183,15 +212,14 @@
               [compareWith]="compareFunction"
               *ngIf="getVisible('selectedProductAttribute')"
             >
-            
-            <mat-option>
-              <ngx-mat-select-search
-                [formControl]="dataFilterCtrl"
-                ngDefaultControl
-                placeholderLabel="Найти"
-                noEntriesFoundLabel="Ничего не найдено"
-              ></ngx-mat-select-search>
-            </mat-option>
+              <mat-option>
+                <ngx-mat-select-search
+                  [formControl]="dataFilterCtrl"
+                  ngDefaultControl
+                  placeholderLabel="Найти"
+                  noEntriesFoundLabel="Ничего не найдено"
+                ></ngx-mat-select-search>
+              </mat-option>
 
               <mat-option
                 *ngFor="let attribute of filteredData | async"
@@ -199,11 +227,18 @@
                 [disabled]="!attribute.isActive"
               >
                 <strong>
-                  {{ 
-                    attribute.keyValues.join(' ')+((attribute.price==0 && product.price==0)?(" (бесплатно)"):(" ("+(((attribute.price>0)?(attribute.price):(product.price)) | currency: "RUB" : "symbol-narrow")+")"))
+                  {{
+                    attribute.keyValues.join(" ") +
+                      (attribute.price == 0 && product.price == 0
+                        ? " (бесплатно)"
+                        : " (" +
+                          ((attribute.price > 0
+                            ? attribute.price
+                            : product.price
+                          ) | currency: "RUB" : "symbol-narrow") +
+                          ")")
                   }}
-                </strong
-                >
+                </strong>
               </mat-option>
             </mat-select>
             <mat-error
@@ -254,13 +289,19 @@
           @if (product.discount == 0) {
             <button mat-flat-button (click)="addItem()" color="primary">
               В корзину
-              @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
-               за
-              {{
-                selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
-                  : (product.price | currency: "RUB" : "symbol-narrow")
-              }}
+              @if (
+                product.price > 0 ||
+                (selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0)
+              ) {
+                за
+                {{
+                  selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0
+                    ? (selectedProductAttribute!.price
+                      | currency: "RUB" : "symbol-narrow")
+                    : (product.price | currency: "RUB" : "symbol-narrow")
+                }}
               }
             </button>
           }
@@ -275,21 +316,27 @@
               color="primary"
             >
               В корзину
-              @if(product.price>0||(selectedProductAttribute && selectedProductAttribute!.price > 0)){
-               за
-              <s>{{
-                selectedProductAttribute && selectedProductAttribute!.price > 0
-                  ? (selectedProductAttribute!.price | currency: "RUB" : "symbol-narrow")
-                  : (product.price | currency: "RUB" : "symbol-narrow")
-              }}</s>
-              {{
-                ((selectedProductAttribute &&
-                selectedProductAttribute!.price > 0
-                  ? selectedProductAttribute!.price
-                  : product.price) /
-                  100) *
-                  (100 - product.discount) | currency: "RUB" : "symbol-narrow"
-              }}
+              @if (
+                product.price > 0 ||
+                (selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0)
+              ) {
+                за
+                <s>{{
+                  selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0
+                    ? (selectedProductAttribute!.price
+                      | currency: "RUB" : "symbol-narrow")
+                    : (product.price | currency: "RUB" : "symbol-narrow")
+                }}</s>
+                {{
+                  ((selectedProductAttribute &&
+                  selectedProductAttribute!.price > 0
+                    ? selectedProductAttribute!.price
+                    : product.price) /
+                    100) *
+                    (100 - product.discount) | currency: "RUB" : "symbol-narrow"
+                }}
               }
             </button>
           }
@@ -299,14 +346,14 @@
   </mat-card>
 </div>
 
-@if (telegramService.isAdmin && (action == 'edit' || product.id == 0)) {
+@if (telegramService.isAdmin && (action == "edit" || product.id == 0)) {
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
   <mat-divider></mat-divider><br />
-  @if (product.id > 0 && product.id != productService.$maxId()+1) {
+  @if (product.id > 0 && product.id != productService.$maxId() + 1) {
     <h2>Удаление товара</h2>
     <div class="buy-button-x3">
       <button
@@ -321,7 +368,6 @@
     </div>
   }
 
-
   @if (product.id > 0) {
     <h2>Редактирование товара</h2>
   }
@@ -331,7 +377,7 @@
   <h3>
     <mat-icon color="accent">warning</mat-icon>
     Внимание, редактирование товара доступно только для администратора. Меняйте
-    информацию с умом.
+    информацию с умом. Обязательные поля отмечены *
   </h3>
   <h4>
     Результаты изменений можно увидеть сразу же в карточке товара в верхней
@@ -339,16 +385,24 @@
   </h4>
 
   @if (product.id > 0) {
-
-    <app-product-detail [product]="product"
-    (onDetailChanged)="detailFormChanged($event)"></app-product-detail>
+    <app-product-detail
+      [product]="product"
+      (onDetailChanged)="detailFormChanged($event)"
+    ></app-product-detail>
     <mat-error *ngIf="form.get('detail')!.hasError('incorrect')">
-              Некорректно заполнены товары в карточке
-            </mat-error>
+      Некорректно заполнены товары в карточке
+    </mat-error>
   }
 
   <form [formGroup]="form" (ngSubmit)="sendData()">
     <input type="hidden" formControlName="name" />
+    <p>
+      Введите тут краткое название продукта. Такое название увидит клиент,
+      например, если поделиться с ним ссылкой по кнопке <mat-icon>share</mat-icon> в названии продукта на этой странице. Рекомендуется указывать
+      полноценное/понятное название товара: вместо "LITTLE ME" используйте
+      "Детский шампунь для волос Лёгкое расчёсывание ESTEL LITTLE ME" так
+      клиенту будет понятно по названию, о чем идет речь.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('name')">
       <mat-label>Введите название</mat-label>
       <textarea
@@ -592,6 +646,7 @@
       >
     </mat-form-field>
 
+    <p>Ссылка на сайт производителя. Но она не отображается для клиента. Не обязательное поле.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('url')">
       <mat-label>Введите ссылку на товар</mat-label>
       <textarea
@@ -637,6 +692,12 @@
       >
     </mat-form-field>
 
+    <p>
+      Если не знаете точный адрес картинки в сети Интернет, то можно загрузить
+      свою картинку. Для этого в верху страницы нажмите "Загрузить изображение",
+      затем при помощи рамки откорректируйте его (выберите нужную часть) и нажмите "Сохранить". Ссылка
+      проставится автоматически.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('imageUrl')">
       <mat-label>Введите ссылку на картинку</mat-label>
 
@@ -683,6 +744,7 @@
       >
     </mat-form-field>
 
+    <p>При выборе категории старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('category')">
       <mat-label>Введите категорию</mat-label>
       <input
@@ -727,6 +789,7 @@
       }
     </mat-autocomplete>
 
+    <p>При выборе типа старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('type')">
       <mat-label>Введите тип</mat-label>
       <input
@@ -769,6 +832,7 @@
       }
     </mat-autocomplete>
 
+    <p>При выборе бренда старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brand')">
       <mat-label>Введите бренд</mat-label>
       <input
@@ -811,6 +875,7 @@
       }
     </mat-autocomplete>
 
+    <p>При выборе линейки для бренда старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brandLine')">
       <mat-label>Введите линейку для бренда</mat-label>
       <input
@@ -855,6 +920,7 @@
       }
     </mat-autocomplete>
 
+    <p>При выборе серии для бренда старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brandSeries')">
       <mat-label>Введите серию для бренда</mat-label>
       <input
@@ -904,23 +970,25 @@
     }
 
     @if (!telegramService.IsTelegramWebAppOpened || telegramService.isAdmin) {
-    <div class="buy-button pb">
-      @if (getVisible("button_submit")) {
-        <button
-          mat-flat-button
-          [disabled]="!form.valid || disableButton || !getEnabled('button_submit')"
-          color="accent"
-          type="submit"
-        >
-          @if (product.id == 0) {
-            Отправить в {{owner.marketName}}
-          }
-          @if (product.id > 0) {
-            Обновить данные
-          }
-        </button>
-      }
-    </div>
+      <div class="buy-button pb">
+        @if (getVisible("button_submit")) {
+          <button
+            mat-flat-button
+            [disabled]="
+              !form.valid || disableButton || !getEnabled('button_submit')
+            "
+            color="accent"
+            type="submit"
+          >
+            @if (product.id == 0) {
+              Отправить в {{ owner.marketName }}
+            }
+            @if (product.id > 0) {
+              Обновить данные
+            }
+          </button>
+        }
+      </div>
     }
   </form>
 }

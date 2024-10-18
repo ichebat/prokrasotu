@@ -645,15 +645,25 @@
     >
   </mat-form-field>
 
-  <h3 *ngIf="getVisible('isAgeePersonalData') && order.id == 0">
-    Ознакомиться с соглашением на обработку персональных данныхо данных можно
+  <!-- <h3 *ngIf="getVisible('isAgeePersonalData') && order.id == 0">
+    Ознакомиться с соглашением на обработку персональных данных данных можно
     <a routerLink="/company/privacy/agreement/">по ссылке</a>
   </h3>
 
   <h3 *ngIf="getVisible('isAgeePersonalData') && order.id == 0">
     Ознакомиться с политикой в отношении обработки персональных данных можно
     <a routerLink="/company/privacy/">по ссылке</a>
-  </h3>
+  </h3> -->
+
+  @if(getVisible('isAgeePersonalData') && order.id == 0){
+    <p>Ознакомиться с соглашением на обработку персональных данных (ПД) и политикой в отношении обработки ПД можно по ссылкам ниже:</p>
+    <button mat-button color="primary" (click)="showModalAgreement()">
+      Соглашение на обработку ПД
+    </button>
+    <button mat-button color="primary" (click)="showModalPrivacy()">
+      Политика в отношении обработки ПД
+    </button>
+  }
 
   @if (totalAmountOrder > 0) {
     <h3>
