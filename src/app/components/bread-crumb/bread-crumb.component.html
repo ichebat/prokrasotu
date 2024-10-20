@@ -12,7 +12,7 @@
       <mat-chip highlighted color="primary" routerLink="/shop">{{
         productsService.$productCategory()?.name | uppercase
       }}
-      <button matChipRemove routerLink="/shop">
+      <button matChipRemove routerLink="/shop" type="button">
         <mat-icon>cancel</mat-icon>
       </button>
     </mat-chip>
@@ -21,7 +21,7 @@
       <mat-chip highlighted color="accent" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit">{{
         productsService.$productType()?.name | uppercase
       }}
-      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit">
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit" type="button">
         <mat-icon>cancel</mat-icon>
       </button>
     </mat-chip>
@@ -30,7 +30,7 @@
       <mat-chip highlighted color="warn" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit">{{
         productsService.$productBrand()?.name | uppercase
       }}
-      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit">
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit" type="button">
         <mat-icon>cancel</mat-icon>
       </button>
       </mat-chip>
@@ -39,7 +39,7 @@
       <mat-chip highlighted color="primary" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit">{{
         productsService.$productBrandLine()?.name | uppercase
       }}
-      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit">
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit" type="button">
         <mat-icon>cancel</mat-icon>
       </button>
       </mat-chip>
@@ -49,7 +49,7 @@
       <mat-chip highlighted color="accent" [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit">{{
         productsService.$productBrandSeries()?.name | uppercase
       }}
-      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit">
+      <button matChipRemove [routerLink]="'/shop/'+productsService.$productType()?.category?.translit+'/'+productsService.$productType()?.translit+'/'+productsService.$productBrand()?.translit+'/'+productsService.$productBrandLine()?.translit" type="button">
         <mat-icon>cancel</mat-icon>
       </button>
       </mat-chip>

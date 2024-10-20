@@ -4,7 +4,7 @@
       class="product-image-host"
       [routerLink]="'/product/' + product.id + '/' + product.translit"
     >
-      <button mat-button disabled>{{ product.brand }}</button>
+      <button mat-button disabled type="button">{{ product.brand }}</button>
       <img
         mat-card-image
         [src]="((selectedProductAttribute && selectedProductAttribute.imageUrl)?(selectedProductAttribute.imageUrl):(product.imageUrl))"
@@ -21,7 +21,7 @@
           <div class="buy-button">
             <button
               mat-button
-              [routerLink]="'/product/' + product.id + '/' + product.translit">
+              [routerLink]="'/product/' + product.id + '/' + product.translit" type="button">
               {{minPrice() == maxPrice()?(minPrice() | currency: "RUB" : "symbol-narrow"):'от '+(minPrice() | currency: "RUB" : "symbol-narrow")+' до '+(maxPrice() | currency: "RUB" : "symbol-narrow")}}
             </button>
           </div>
@@ -36,7 +36,7 @@
         @if (product.discount == 0) {
           <button
             mat-button
-            [routerLink]="'/product/' + product.id + '/' + product.translit"
+            [routerLink]="'/product/' + product.id + '/' + product.translit" type="button"
           >
             {{
               selectedProductAttribute && selectedProductAttribute!.price > 0
@@ -53,7 +53,7 @@
             matBadgeSize="large"
             matBadgePosition="after"
             matBadgeColor="accent"
-            [routerLink]="'/product/' + product.id + '/' + product.translit"
+            [routerLink]="'/product/' + product.id + '/' + product.translit" type="button"
           >
             <s>{{
               selectedProductAttribute && selectedProductAttribute!.price > 0
@@ -147,10 +147,10 @@
   <mat-card-actions>
     @if (isInCart(product)) {
       <div class="buy-button-x3">
-        <button mat-icon-button (click)="removeItem()">
+        <button mat-icon-button (click)="removeItem()" type="button">
           <mat-icon>remove</mat-icon>
         </button>
-        <button mat-icon-button routerLink="/cart">
+        <button mat-icon-button routerLink="/cart" type="button">
           @if (quantityInCart(product) > 0) {
             <mat-icon
               [attr.aria-hidden]="false"
@@ -164,7 +164,7 @@
             <mat-icon>shopping_cart</mat-icon>
           }
         </button>
-        <button mat-icon-button color="accent" (click)="addItem()">
+        <button mat-icon-button color="accent" (click)="addItem()" type="button">
           <mat-icon>add</mat-icon>
         </button>
       </div>
@@ -175,11 +175,11 @@
           <button class="mx"
             mat-mini-fab
             color="primary"
-            (click)="addItem()"
+            (click)="addItem()" type="button"
           >
             <mat-icon>add_shopping_cart</mat-icon>
           </button>
-          <!-- <button mat-flat-button color="primary" (click)="addItem()">
+          <!-- <button mat-flat-button color="primary" (click)="addItem()" type="button">
             В корзину
           </button> -->
         </div>
@@ -189,14 +189,14 @@
           <button class="mx"
             mat-mini-fab
             color="primary"
-            (click)="addItem()"
+            (click)="addItem()" type="button"
           >
             <mat-icon>add_shopping_cart</mat-icon>
           </button>
           <button class="mx"
             mat-mini-fab
             color="accent"
-            [routerLink]="'/product/' + product.id + '/' + product.translit + '/edit'">
+            [routerLink]="'/product/' + product.id + '/' + product.translit + '/edit'" type="button">
             <mat-icon>edit</mat-icon>
           </button>
         </div>

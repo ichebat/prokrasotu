@@ -35,25 +35,25 @@
   <mat-card-actions>
     <div class="buy-button-x3">
       @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
-        <button mat-icon-button color="accent" [routerLink]="'/order/' + order!.id+'/accept'" matTooltip="Подтвердить заказ">
+        <button mat-icon-button color="accent" [routerLink]="'/order/' + order!.id+'/accept'" matTooltip="Подтвердить заказ" type="button">
           <mat-icon>monetization_on</mat-icon>
         </button> 
       }
       @if(telegramService.isAdmin && !order.isAccepted && !order.isCompleted  && !order.isCancelled){
-        <button mat-icon-button color="primary" [routerLink]="'/order/' + order!.id+'/edit'" matTooltip="Изменить заказ">
+        <button mat-icon-button color="primary" [routerLink]="'/order/' + order!.id+'/edit'" matTooltip="Изменить заказ" type="button">
           <mat-icon>build</mat-icon>
         </button> 
       }      
-      <button mat-icon-button color="accent" [routerLink]="'/order/' + order!.id+'/view'" matTooltip="Посмотреть заказ">
+      <button mat-icon-button color="accent" [routerLink]="'/order/' + order!.id+'/view'" matTooltip="Посмотреть заказ" type="button">
         <mat-icon>find_in_page</mat-icon>
       </button> 
       @if(telegramService.isAdmin && order.isAccepted && !order.isCompleted  && !order.isCancelled){
-        <button mat-icon-button color="primary" [routerLink]="'/order/' + order!.id+'/complete'" matTooltip="Завершить заказ">
+        <button mat-icon-button color="primary" [routerLink]="'/order/' + order!.id+'/complete'" matTooltip="Завершить заказ" type="button">
           <mat-icon>check</mat-icon>
         </button> 
       } 
       @if(!order.isCompleted  && !order.isCancelled){
-        <button mat-icon-button color="warn" [routerLink]="'/order/' + order!.id+'/cancel'" matTooltip="Отменить заказ">
+        <button mat-icon-button color="warn" [routerLink]="'/order/' + order!.id+'/cancel'" matTooltip="Отменить заказ" type="button">
           <mat-icon>delete</mat-icon>
         </button> 
       } 

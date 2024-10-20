@@ -1721,9 +1721,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         AgreementComponent,
         {
           data: {
-            message: '',
-            description: '',
-            showCancelButton: false,
+            isModal: true,
           },
         },
       );
@@ -1739,9 +1737,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         PrivacyComponent,
         {
           data: {
-            message: '',
-            description: '',
-            showCancelButton: false,
+            isModal: true,
           },
         },
       );

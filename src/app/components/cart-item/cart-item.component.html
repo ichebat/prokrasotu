@@ -74,16 +74,16 @@
   <mat-card-actions>
     <div class="buy-button-x3">
       @if (cartItem.checked) {
-        <button mat-icon-button (click)="checkedChange()">
+        <button mat-icon-button (click)="checkedChange()" type="button">
           <mat-icon>check_box</mat-icon>
         </button>
       }
       @if (!cartItem.checked) {
-        <button mat-icon-button (click)="checkedChange()">
+        <button mat-icon-button (click)="checkedChange()" type="button">
           <mat-icon>check_box_outline_blank</mat-icon>
         </button>
       }
-      <button mat-icon-button (click)="removeItem()">
+      <button mat-icon-button (click)="removeItem()" type="button">
         <mat-icon>remove</mat-icon>
       </button>
 
@@ -100,7 +100,7 @@
         <mat-icon>shopping_cart</mat-icon>
       }
 
-      <button mat-icon-button color="accent" (click)="addItem()">
+      <button mat-icon-button color="accent" (click)="addItem()" type="button">
         <mat-icon>add</mat-icon>
       </button>
     </div>

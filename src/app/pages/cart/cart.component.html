@@ -17,7 +17,7 @@
 
   @if (!telegramService.IsTelegramWebAppOpened  || telegramService.isAdmin){
   <div class="buy-button pb">    
-      <button mat-flat-button  color="accent" (click)="sendData()">
+      <button mat-flat-button  color="accent" (click)="sendData()" type="button">
         Оформить заказ в {{owner.marketName}}
       </button>
   </div>

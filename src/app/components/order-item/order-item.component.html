@@ -657,10 +657,10 @@
 
   @if(getVisible('isAgeePersonalData') && order.id == 0){
     <p>Ознакомиться с соглашением на обработку персональных данных (ПД) и политикой в отношении обработки ПД можно по ссылкам ниже:</p>
-    <button mat-button color="primary" (click)="showModalAgreement()">
+    <button mat-button color="primary" (click)="showModalAgreement()" type="button">
       Соглашение на обработку ПД
     </button>
-    <button mat-button color="primary" (click)="showModalPrivacy()">
+    <button mat-button color="primary" (click)="showModalPrivacy()" type="button">
       Политика в отношении обработки ПД
     </button>
   }

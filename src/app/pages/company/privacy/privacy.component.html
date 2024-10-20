@@ -207,8 +207,11 @@
         </p>
       </mat-card-content>
     </mat-card>
+    @if(!data || data.isModal == false){
+      <mat-chip-listbox>
+        <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
+      </mat-chip-listbox>
+    }
     
-    <!-- <mat-chip-listbox>
-      <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
-    </mat-chip-listbox> -->
+   
 </mat-dialog-content>

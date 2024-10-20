@@ -60,7 +60,7 @@ export const environment = {
     telegramBot: 'ProKrasotuBot',
     startBotUrl: 'https://t.me/prokrasotubot?start=_shop',
     privacyUrl: 'https://t.me/prokrasotubot?start=_company_privacy',
-    phoneText: '+7 917 491-81-37',
+    phoneText: '+7 917 49-18-317',
     phoneLink: '9174918317',
     telegram: 'NatrishaChe',
     whatsapp: '9174918317',

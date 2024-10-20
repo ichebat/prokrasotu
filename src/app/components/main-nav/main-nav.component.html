@@ -1,5 +1,5 @@
 <mat-toolbar color="primary">
-  <button mat-icon-button aria-label="Menu icon" (click)="toggleMenu()">
+  <button mat-icon-button aria-label="Menu icon" (click)="toggleMenu()" type="button">
     <mat-icon>menu</mat-icon>
   </button>
 
@@ -13,7 +13,7 @@
 
   <span class="spacer"></span>
 
-  <button mat-icon-button routerLink="/cart">
+  <button mat-icon-button routerLink="/cart" type="button">
     @if(cartService.$cart()!.totalCount > 0){
       <mat-icon
         [attr.aria-hidden]="false" aria-hidden="false"
@@ -27,7 +27,7 @@
     }
   </button>
 
-  <button mat-icon-button (click)="onThemeChange($event)">
+  <button mat-icon-button (click)="onThemeChange($event)" type="button">
     <mat-icon>format_color_fill</mat-icon>
   </button>
 </mat-toolbar>
