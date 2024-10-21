@@ -44,7 +44,7 @@
           class="product-item-image"
         />
       </div>
-      @if (selectedProductAttribute && selectedProductAttribute.imageUrl) {
+      @if (selectedProductAttribute && selectedProductAttribute.imageUrl && selectedProductAttribute.imageUrl != product.imageUrl) {
         <div class="product-image-host">
           <img
             mat-card-image
@@ -191,7 +191,7 @@
         </p>
         <p>
           В этой карточке имеется
-          {{ product.detail.attributes.length }} товаров. Необходимо выбрать из
+          {{ product.detail.attributes.length }} шт. товаров. Необходимо выбрать из
           списка.
         </p>
         <form [formGroup]="formSelectedAttribute" class="mx">
