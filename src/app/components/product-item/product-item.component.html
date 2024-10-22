@@ -384,17 +384,62 @@
     части этой страницы. Чтобы сохранить изменения нажмите кнопку.
   </h4>
 
-  @if (product.id > 0) {
-    <app-product-detail
-      [product]="product"
-      (onDetailChanged)="detailFormChanged($event)"
-    ></app-product-detail>
-    <mat-error *ngIf="form.get('detail')!.hasError('incorrect')">
-      Некорректно заполнены товары в карточке
-    </mat-error>
-  }
+  
 
   <form [formGroup]="form" (ngSubmit)="sendData()">
+    <p>
+      Если не знаете точный адрес картинки в сети Интернет, то можно загрузить
+      свою картинку. Для этого в верху страницы нажмите "Загрузить изображение",
+      затем при помощи рамки откорректируйте его (выберите нужную часть) и нажмите "Сохранить". Ссылка
+      проставится автоматически.
+    </p>
+    <mat-form-field appearance="outline" *ngIf="getVisible('imageUrl')">
+      <mat-label>Введите ссылку на картинку</mat-label>
+
+      <textarea
+        matInput
+        cdkTextareaAutosize
+        matNativeControl
+        formControlName="imageUrl"
+        #imageUrl
+        placeholder="Введите ссылку на картинку"
+        [readonly]="!getEnabled('imageUrl')"
+      ></textarea>
+      @if (imageUrl.value) {
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          [disabled]="!getEnabled('imageUrl')"
+          (click)="onImageUrlClear()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-hint align="end"
+        >Введите ссылку на картинку {{ imageUrl.value.length }}/255</mat-hint
+      >
+      <mat-error *ngIf="form.get('imageUrl')?.hasError('required')"
+        >Это обязательное поле</mat-error
+      >
+      <mat-error *ngIf="form.get('imageUrl')?.hasError('minlength')"
+        >Минимум 2 символа</mat-error
+      >
+      <mat-error *ngIf="form.get('imageUrl')?.hasError('maxlength')"
+        >Максимум 1000 символов</mat-error
+      >
+      <mat-error
+        *ngIf="
+          !form.get('imageUrl')?.hasError('minlength') &&
+          !form.get('imageUrl')?.hasError('maxlength') &&
+          form.get('imageUrl')?.hasError('pattern')
+        "
+      >
+        Некорректный формат ссылки</mat-error
+      >
+    </mat-form-field>
+
+
     <input type="hidden" formControlName="name" />
     <p>
       Введите тут краткое название продукта. Такое название увидит клиент,
@@ -540,39 +585,7 @@
       >
     </mat-form-field>
 
-    <mat-form-field appearance="outline" *ngIf="getVisible('artikul')">
-      <mat-label>Введите артикул</mat-label>
-      <input
-        matNativeControl
-        formControlName="artikul"
-        #artikul
-        placeholder="Введите артикул"
-        [readonly]="!getEnabled('artikul')"
-      />
-      @if (artikul.value) {
-        <button
-          matSuffix
-          mat-icon-button
-          type="button"
-          [disabled]="!getEnabled('artikul')"
-          (click)="onArtikulClear()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-      <mat-hint align="end"
-        >Введите артикул {{ artikul.value.length }}/50</mat-hint
-      >
-      <mat-error *ngIf="form.get('artikul')?.hasError('required')"
-        >Это обязательное поле</mat-error
-      >
-      <mat-error *ngIf="form.get('artikul')?.hasError('minlength')"
-        >Минимум 2 символа</mat-error
-      >
-      <mat-error *ngIf="form.get('artikul')?.hasError('maxlength')"
-        >Максимум 50 символов</mat-error
-      >
-    </mat-form-field>
+    
 
     <mat-form-field appearance="outline" *ngIf="getVisible('description')">
       <mat-label>Введите описание</mat-label>
@@ -646,6 +659,50 @@
       >
     </mat-form-field>
 
+    <mat-form-field appearance="outline" *ngIf="getVisible('artikul')">
+      <mat-label>Введите артикул</mat-label>
+      <input
+        matNativeControl
+        formControlName="artikul"
+        #artikul
+        placeholder="Введите артикул"
+        [readonly]="!getEnabled('artikul')"
+      />
+      @if (artikul.value) {
+        <button
+          matSuffix
+          mat-icon-button
+          type="button"
+          [disabled]="!getEnabled('artikul')"
+          (click)="onArtikulClear()"
+        >
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+      <mat-hint align="end"
+        >Введите артикул {{ artikul.value.length }}/50</mat-hint
+      >
+      <mat-error *ngIf="form.get('artikul')?.hasError('required')"
+        >Это обязательное поле</mat-error
+      >
+      <mat-error *ngIf="form.get('artikul')?.hasError('minlength')"
+        >Минимум 2 символа</mat-error
+      >
+      <mat-error *ngIf="form.get('artikul')?.hasError('maxlength')"
+        >Максимум 50 символов</mat-error
+      >
+    </mat-form-field>
+
+    @if (product.id > 0) {
+      <app-product-detail
+        [product]="product"
+        (onDetailChanged)="detailFormChanged($event)"
+      ></app-product-detail>
+      <mat-error *ngIf="form.get('detail')!.hasError('incorrect')">
+        Некорректно заполнены товары в карточке
+      </mat-error>
+    }
+
     <p>Ссылка на сайт производителя. Но она не отображается для клиента. Не обязательное поле.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('url')">
       <mat-label>Введите ссылку на товар</mat-label>
@@ -692,57 +749,7 @@
       >
     </mat-form-field>
 
-    <p>
-      Если не знаете точный адрес картинки в сети Интернет, то можно загрузить
-      свою картинку. Для этого в верху страницы нажмите "Загрузить изображение",
-      затем при помощи рамки откорректируйте его (выберите нужную часть) и нажмите "Сохранить". Ссылка
-      проставится автоматически.
-    </p>
-    <mat-form-field appearance="outline" *ngIf="getVisible('imageUrl')">
-      <mat-label>Введите ссылку на картинку</mat-label>
-
-      <textarea
-        matInput
-        cdkTextareaAutosize
-        matNativeControl
-        formControlName="imageUrl"
-        #imageUrl
-        placeholder="Введите ссылку на картинку"
-        [readonly]="!getEnabled('imageUrl')"
-      ></textarea>
-      @if (imageUrl.value) {
-        <button
-          matSuffix
-          mat-icon-button
-          type="button"
-          [disabled]="!getEnabled('imageUrl')"
-          (click)="onImageUrlClear()"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      }
-      <mat-hint align="end"
-        >Введите ссылку на картинку {{ imageUrl.value.length }}/255</mat-hint
-      >
-      <mat-error *ngIf="form.get('imageUrl')?.hasError('required')"
-        >Это обязательное поле</mat-error
-      >
-      <mat-error *ngIf="form.get('imageUrl')?.hasError('minlength')"
-        >Минимум 2 символа</mat-error
-      >
-      <mat-error *ngIf="form.get('imageUrl')?.hasError('maxlength')"
-        >Максимум 255 символов</mat-error
-      >
-      <mat-error
-        *ngIf="
-          !form.get('imageUrl')?.hasError('minlength') &&
-          !form.get('imageUrl')?.hasError('maxlength') &&
-          form.get('imageUrl')?.hasError('pattern')
-        "
-      >
-        Некорректный формат ссылки</mat-error
-      >
-    </mat-form-field>
+    
 
     <p>При выборе категории старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('category')">
