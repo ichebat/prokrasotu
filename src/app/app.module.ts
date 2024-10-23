@@ -57,6 +57,7 @@ import { DeliveryComponent } from './pages/delivery/delivery.component';
 import { DeliveryListComponent } from './components/delivery-list/delivery-list.component';
 import { DeliveryItemComponent } from './components/delivery-item/delivery-item.component';
 import { DeliveryEditComponent } from './pages/delivery/delivery-edit/delivery-edit.component';
+import { ScrollNearEndDirective } from './scroll-near-end.directive';
 
 @NgModule({
   declarations: [
@@ -98,6 +99,7 @@ import { DeliveryEditComponent } from './pages/delivery/delivery-edit/delivery-e
     DeliveryListComponent,
     DeliveryItemComponent,
     DeliveryEditComponent,
+    ScrollNearEndDirective,
   ],
   bootstrap: [AppComponent],
   imports: [

@@ -4,6 +4,12 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   grid-template-columns: repeat(auto-fill, minmax(var(--main-grid-width), 1fr));
+  
   // grid-template-columns: repeat(auto-fit, minmax(var(--main-grid-width), 1fr));
   // grid-template-rows: minmax(var(--main-grid-width), var(--main-grid-width-x2));
+}
+
+.scrolledDiv{
+  height: 100%;
+  overflow: scroll;
 }

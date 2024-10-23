@@ -1,8 +1,10 @@
 <h2 class="mb">{{ titleList | uppercase }}</h2>
 <h4 class="mb">{{ subtitleList | uppercase }}</h4>
 
-<div class="responsive-grid pb">
-  @for (product of products; track $index) {
-    <app-product-icon [product]="product" />
-  }
-</div>
+  <div class="responsive-grid pb" appScrollNearEnd (nearEnd)="onNearEndScroll()">
+    @for (product of dataSourceSignal(); track $index) {
+      <app-product-icon [product]="product" />
+    }
+  </div>
+
+
