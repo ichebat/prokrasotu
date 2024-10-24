@@ -11,13 +11,15 @@ export class NavigationService {
   constructor(private router: Router,
     private location: Location) { 
       this.router.events.subscribe((event)=>{
-        if (event instanceof NavigationEnd){
+        if (event instanceof NavigationEnd && !this.history.find(p=>p == event.urlAfterRedirects)){
           this.history.push(event.urlAfterRedirects)
+          //console.log(this.history);
         }
       });
     }
 
     back():void{
+      
       this.history.pop()
       if(this.history.length >0){
         this.location.back()

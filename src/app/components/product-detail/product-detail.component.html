@@ -19,7 +19,7 @@
   </mat-form-field>
 
   @if (form.get("isProductDetailExist")?.value == true) {
-    <p>
+    <p class="intro">
       Если указать ссылку на общее изображение, то она появится у каждого товара
       в этой карточке
     </p>
@@ -90,7 +90,7 @@
       (onGitHubLoading)="GitHubLoading($event)"
     ></app-image-cropper-loader>
 
-    <p>
+    <p class="intro">
       С таким описанием будет доступно скачивание изображения, общего для всех
       товаров в карточке. Тут может быть картинка прайс-листа, или палитры
       красок, таблица размеров и т.д.
@@ -204,7 +204,7 @@
                   >
                 </mat-card-header>
                 <mat-card-content>
-                  <p>
+                  <p class="intro">
                     Если указать изображение, то оно будет отображаться рядом с
                     изображением в карточке товара при выборе
                   </p>
@@ -391,7 +391,7 @@
                       >
                     </mat-form-field> -->
 
-                    <p>
+                    <p class="intro">
                       Если указать цену 0 рублей, то будет взята цена из
                       карточки
                     </p>
@@ -449,7 +449,7 @@
       </div>
 
       @if (product.detail.keys.length > 0) {
-        <p>Заполнено места {{ getPercentFillGoogleSheetCell() | percent }}</p>
+        <p class="intro">Заполнено места {{ getPercentFillGoogleSheetCell() | percent }}</p>
       }
 
       <!-- @if (product.detail.keys.length > 0) {
@@ -585,7 +585,7 @@
       </mat-card>
     }
     @if (product.detail.attributes.length == 0) {
-      <p>
+      <p class="intro">
         В данной карточке может быть множество товаров с отличительными
         свойствами. Например, разные цвета или размеры одежды - это
         отличительные свойства.

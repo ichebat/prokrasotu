@@ -103,7 +103,8 @@
 
         <div class="buy-button pb">
           @if (product.discount == 0) {
-            <button mat-flat-button (click)="addItem()" color="primary" type="button">
+            <button mat-flat-button (click)="addItem()" color="primary" type="button"
+            [disabled]="(action=='edit'||product.id==0)">
               В корзину
               @if (
                 product.price > 0 ||
@@ -129,7 +130,8 @@
               matBadgePosition="after"
               matBadgeColor="accent"
               (click)="addItem()"
-              color="primary" type="button"
+              color="primary" type="button"              
+              [disabled]="(action=='edit'||product.id==0)"
             >
               В корзину
               @if (
@@ -287,7 +289,8 @@
             В корзину
           </button> -->
           @if (product.discount == 0) {
-            <button mat-flat-button (click)="addItem()" color="primary" type="button">
+            <button mat-flat-button (click)="addItem()" color="primary" type="button"
+            [disabled]="(action=='edit'||product.id==0)">
               В корзину
               @if (
                 product.price > 0 ||
@@ -314,6 +317,7 @@
               matBadgeColor="accent"
               (click)="addItem()"
               color="primary" type="button"
+              [disabled]="(action=='edit'||product.id==0)"
             >
               В корзину
               @if (
@@ -387,7 +391,7 @@
   
 
   <form [formGroup]="form" (ngSubmit)="sendData()">
-    <p>
+    <p class="intro">
       Если не знаете точный адрес картинки в сети Интернет, то можно загрузить
       свою картинку. Для этого в верху страницы нажмите "Загрузить изображение",
       затем при помощи рамки откорректируйте его (выберите нужную часть) и нажмите "Сохранить". Ссылка
@@ -441,7 +445,7 @@
 
 
     <input type="hidden" formControlName="name" />
-    <p>
+    <p class="intro">
       Введите тут краткое название продукта. Такое название увидит клиент,
       например, если поделиться с ним ссылкой по кнопке <mat-icon>share</mat-icon> в названии продукта на этой странице. Рекомендуется указывать
       полноценное/понятное название товара: вместо "LITTLE ME" используйте
@@ -703,7 +707,7 @@
       </mat-error>
     }
 
-    <p>Ссылка на сайт производителя. Но она не отображается для клиента. Не обязательное поле.</p>
+    <p class="intro">Ссылка на сайт производителя. Но она не отображается для клиента. Не обязательное поле.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('url')">
       <mat-label>Введите ссылку на товар</mat-label>
       <textarea
@@ -751,7 +755,7 @@
 
     
 
-    <p>При выборе категории старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">При выборе категории старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('category')">
       <mat-label>Введите категорию</mat-label>
       <input
@@ -796,7 +800,7 @@
       }
     </mat-autocomplete>
 
-    <p>При выборе типа старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">При выборе типа старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('type')">
       <mat-label>Введите тип</mat-label>
       <input
@@ -839,7 +843,7 @@
       }
     </mat-autocomplete>
 
-    <p>При выборе бренда старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">При выборе бренда старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brand')">
       <mat-label>Введите бренд</mat-label>
       <input
@@ -882,7 +886,7 @@
       }
     </mat-autocomplete>
 
-    <p>При выборе линейки для бренда старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">При выборе линейки для бренда старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brandLine')">
       <mat-label>Введите линейку для бренда</mat-label>
       <input
@@ -927,7 +931,7 @@
       }
     </mat-autocomplete>
 
-    <p>При выборе серии для бренда старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">При выборе серии для бренда старайтесь пользоваться выпадающим списком.</p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brandSeries')">
       <mat-label>Введите серию для бренда</mat-label>
       <input
