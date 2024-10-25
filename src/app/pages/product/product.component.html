@@ -3,11 +3,12 @@
 </mat-chip-listbox>
 
 @if (productsService.$product()) {
-  
-  <app-product-item [product]="productsService.$product()!" [action]="productsService.$action()"/>
+  <app-product-item
+    [product]="productsService.$product()!"
+    [action]="productsService.$action()"
+  />
 
-  <!-- <mat-chip-listbox>
+  <mat-chip-listbox>
     <mat-chip highlighted (click)="goBack()">Вернуться назад</mat-chip>
-  </mat-chip-listbox> -->
+  </mat-chip-listbox>
 }
-

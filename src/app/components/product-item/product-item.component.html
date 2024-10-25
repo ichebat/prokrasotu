@@ -96,7 +96,7 @@
         (selectedProductAttribute && selectedProductAttribute!.price > 0) ||
         product.price > 0
       ) {
-        <p>
+        <p class="intro">
           Цена действительна только для интернет-магазина и может отличаться от
           цен в розничных магазинах
         </p>
@@ -187,11 +187,11 @@
       }
 
       @if (getVisible("selectedProductAttribute")) {
-        <p>
+        <p class="intro">
           Цена действительна только для интернет-магазина и может отличаться от
           цен в розничных магазинах
         </p>
-        <p>
+        <p class="intro">
           В этой карточке имеется
           {{ product.detail.attributes.length }} шт. товаров. Необходимо выбрать из
           списка.
