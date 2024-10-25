@@ -20,7 +20,6 @@ import { HttpClient } from '@angular/common/http';
 import { decrypt, environment } from '../../../environments/environment';
 import { GitHubCdnService } from '../../services/git-hub-cdn.service';
 
-
 @Component({
   selector: 'app-shop',
   templateUrl: './shop.component.html',
@@ -80,7 +79,7 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private git: GitHubCdnService
+    private git: GitHubCdnService,
   ) {
     //если запустили телеграм бота по прямой ссылке с параметром https://t.me/botusername/appname?startapp=someParamValue
     //то считываем someParamValue и парсим для перехода
@@ -94,11 +93,8 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
       }
 
     this.goBack = this.goBack.bind(this);
-    
-    
-    
   }
-  ngAfterViewInit(): void {    
+  ngAfterViewInit(): void {
     let top = document.getElementById('top');
     if (top !== null) {
       top.scrollIntoView();
@@ -113,14 +109,11 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
     //     this.productsService.updateSelectedTypeTranslit(this.productsService.$productTypes()[0].translit);
     //     this.router.navigate(['/shop/'+this.productsService.$productCategory()?.translit+'/'+this.productsService.$productTypes()[0].translit]);
     //   }
-   
   }
-
-  
 
   ngOnDestroy(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.hide();
+      //this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
     }
     //this.subscription.unsubscribe();
