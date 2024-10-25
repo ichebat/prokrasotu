@@ -88,9 +88,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   //когда нажимаем отправку кнопки становятся неактивными
   disableButton: boolean = false; //отключает кнопки на время отправки данных
 
-  mainButtonTextValid = "Отправить в "+this.owner.marketName;
-  mainButtonTextProgress = "Отправка...";
-  mainButtonTextInvalid = "Некорректно заполнены поля";
+  mainButtonTextValid = 'Отправить в ' + this.owner.marketName;
+  mainButtonTextProgress = 'Отправка...';
+  mainButtonTextInvalid = 'Некорректно заполнены поля';
 
   ClientAddressOptionsJSON; //для работы с dadata
 
@@ -114,7 +114,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.cancelOrder = this.cancelOrder.bind(this); //функция для главной MainButton кнопки телеграм
     this.completeOrder = this.completeOrder.bind(this); //функция для главной MainButton кнопки телеграм
     this.closeForm = this.closeForm.bind(this); //функция для главной MainButton кнопки телеграм
-    
+
     //ниже привязка действия к MainButton телеграм
     //если существующий заказ просматривает не админ, то его можно только отменить
     // const sendDataToTelegram = () => {
@@ -253,7 +253,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     this.form.controls['id'].setValue(this.order?.id);
     this.form.controls['items'].setValue(this.order?.items);
     this.form.controls['delivery'].setValue(this.order?.delivery), //{value: this.order?.delivery, disabled: (this.order?.isAccepted || this.order?.isCompleted || this.order?.isCancelled)});
-    this.form.controls['totalAmount'].setValue(this.order?.totalAmount);
+      this.form.controls['totalAmount'].setValue(this.order?.totalAmount);
     this.form.controls['totalCount'].setValue(this.order?.totalCount);
     this.form.controls['clientName'].setValue(this.order?.clientName);
     this.form.controls['clientTgName'].setValue(this.order?.clientTgName);
@@ -477,10 +477,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
         }
         if (item.controlName == 'clientAddress') {
           item.enabled =
-            true &&
-            this.telegramService.isAdmin &&
-            
-            this.action == 'edit';
+            true && this.telegramService.isAdmin && this.action == 'edit';
         }
         if (item.controlName == 'correctionReason') {
           item.enabled =
@@ -839,8 +836,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     // this.form.updateValueAndValidity(); //обновляем статус формы
 
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.show();
-      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+      //this.telegramService.BackButton.show();
+      //this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
       this.telegramService.MainButton.show();
       this.telegramService.MainButton.enable();
       //this.telegramService.MainButton.onClick(this.sendData);
@@ -870,7 +867,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       ) {
         this.telegramService.MainButton.onClick(this.closeForm);
       }
-      
+
       this.telegramService.MainButton.setText(this.mainButtonTextValid);
     }
 
@@ -881,8 +878,8 @@ export class OrderItemComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscr_form.unsubscribe();
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.hide();
-      this.telegramService.BackButton.offClick(this.goBack);
+      //this.telegramService.BackButton.hide();
+      //this.telegramService.BackButton.offClick(this.goBack);
 
       this.telegramService.MainButton.hide();
       //this.telegramService.MainButton.offClick(this.mainButtonClick);
@@ -937,11 +934,11 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     //или если мы открыли страницу с кнопкой закрыть и истории ранее нету, то закрывает телеграм
     if (
       this.telegramService.IsTelegramWebAppOpened &&
-      ((this.action == 'edit' ||
+      (this.action == 'edit' ||
         this.action == 'complete' ||
         this.action == 'cancel' ||
-        this.action == 'accept')
-        && !this.navigation.isHistoryAvailable)
+        this.action == 'accept') &&
+      !this.navigation.isHistoryAvailable
     ) {
       console.log('Закрываем Tg');
       this.telegramService.tg.close();
@@ -1069,8 +1066,7 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
   //функция отправки данных (id ==0 для нового заказа, id>0 для редактирования)
   sendData() {
-
-    if(!this.form.valid){      
+    if (!this.form.valid) {
       this.telegramService.MainButton.setText(this.mainButtonTextInvalid);
       this.telegramService.MainButton.disable();
       setTimeout(() => {
@@ -1382,7 +1378,9 @@ export class OrderItemComponent implements OnInit, OnDestroy {
       if (this.order.id > 0) {
         this.telegramService.MainButton.setText('Обновить данные');
       } else {
-        this.telegramService.MainButton.setText('Отправить в '+this.owner.marketName);
+        this.telegramService.MainButton.setText(
+          'Отправить в ' + this.owner.marketName,
+        );
       }
     } else if (
       this.getVisible('button_accept') &&
@@ -1526,31 +1524,56 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
     if (!this.isMainButtonHidden) this.telegramService.MainButton.hide();
     this.zone.run(() => {
-    const dialogRef = this.dialog.open<ProductSearchComponent>(
-      ProductSearchComponent,
-      {
-        data: {
-          message: 'Добавление позиции в заказ',
-          description: 'Выберите продукт и укажите количество',
-          cartItem: {
-            product: null,
-            quantity: 1,
-            checked: true,
+      const dialogRef = this.dialog.open<ProductSearchComponent>(
+        ProductSearchComponent,
+        {
+          data: {
+            message: 'Добавление позиции в заказ',
+            description: 'Выберите продукт и укажите количество',
+            cartItem: {
+              product: null,
+              quantity: 1,
+              checked: true,
+            },
           },
         },
-      },
-    );
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!this.isMainButtonHidden) this.telegramService.MainButton.show();
-      if (result && result.flag) {
-        let isItemChanged = false;
-        const newCartItem = result.cartItem as ICartItem;
-        if (newCartItem) {
-          this.order.items.forEach((item) => {
-            //если такой продукт уже был в корзине то количество увеличиваем
-            if (item.product.id == newCartItem.product.id) {
+      );
+      dialogRef.afterClosed().subscribe((result) => {
+        if (!this.isMainButtonHidden) this.telegramService.MainButton.show();
+        if (result && result.flag) {
+          let isItemChanged = false;
+          const newCartItem = result.cartItem as ICartItem;
+          if (newCartItem) {
+            this.order.items.forEach((item) => {
+              //если такой продукт уже был в корзине то количество увеличиваем
+              if (item.product.id == newCartItem.product.id) {
+                isItemChanged = true;
+                item.quantity += newCartItem.quantity;
+                this.order.totalAmount = this.orderService.calculateTotalAmount(
+                  this.order?.items,
+                );
+                this.order.totalCount = this.orderService.calculateTotalCount(
+                  this.order?.items,
+                );
+
+                if (isItemChanged) {
+                  this.isOrderItemsChanged = true;
+                  this.order.correctionReason =
+                    'Состав заказа изменен в магазине';
+                  this.form.controls['correctionReason'].setValue(
+                    this.order.correctionReason,
+                  );
+                }
+                return;
+              }
+            });
+
+            if (!isItemChanged) {
+              //если такого продукта не было то добавляем
               isItemChanged = true;
-              item.quantity += newCartItem.quantity;
+              //console.log(newCartItem);
+              this.order.items.push(newCartItem);
+
               this.order.totalAmount = this.orderService.calculateTotalAmount(
                 this.order?.items,
               );
@@ -1558,43 +1581,18 @@ export class OrderItemComponent implements OnInit, OnDestroy {
                 this.order?.items,
               );
 
-              if (isItemChanged) {
-                this.isOrderItemsChanged = true;
-                this.order.correctionReason =
-                  'Состав заказа изменен в магазине';
-                this.form.controls['correctionReason'].setValue(
-                  this.order.correctionReason,
-                );
-              }
-              return;
+              this.isOrderItemsChanged = true;
+              this.order.correctionReason = 'Состав заказа изменен в магазине';
+              this.form.controls['correctionReason'].setValue(
+                this.order.correctionReason,
+              );
             }
-          });
 
-          if (!isItemChanged) {
-            //если такого продукта не было то добавляем
-            isItemChanged = true;
-            //console.log(newCartItem);
-            this.order.items.push(newCartItem);
-
-            this.order.totalAmount = this.orderService.calculateTotalAmount(
-              this.order?.items,
-            );
-            this.order.totalCount = this.orderService.calculateTotalCount(
-              this.order?.items,
-            );
-
-            this.isOrderItemsChanged = true;
-            this.order.correctionReason = 'Состав заказа изменен в магазине';
-            this.form.controls['correctionReason'].setValue(
-              this.order.correctionReason,
-            );
+            this.dataSource = new MatTableDataSource(this.order.items);
           }
-
-          this.dataSource = new MatTableDataSource(this.order.items);
         }
-      }
+      });
     });
-  });
   }
   //удаление продукта из заказа
   removeProduct(cartItem: ICartItem) {
@@ -1654,68 +1652,68 @@ export class OrderItemComponent implements OnInit, OnDestroy {
 
     if (!this.isMainButtonHidden) this.telegramService.MainButton.hide();
     this.zone.run(() => {
-    const dialogRef = this.dialog.open<ProductSearchComponent>(
-      ProductSearchComponent,
-      {
-        data: {
-          message: 'Замена позиции в заказе',
-          description:
-            '' +
-            (cartItem.product.artikul
-              ? 'арт.' + cartItem.product.artikul + ': '
-              : '') +
-            cartItem.product.name +
-            ' - ' +
-            cartItem.quantity +
-            ' шт.',
-          cartItem: cartItem,
+      const dialogRef = this.dialog.open<ProductSearchComponent>(
+        ProductSearchComponent,
+        {
+          data: {
+            message: 'Замена позиции в заказе',
+            description:
+              '' +
+              (cartItem.product.artikul
+                ? 'арт.' + cartItem.product.artikul + ': '
+                : '') +
+              cartItem.product.name +
+              ' - ' +
+              cartItem.quantity +
+              ' шт.',
+            cartItem: cartItem,
+          },
         },
-      },
-    );
-    let initialCartItem = structuredClone(cartItem);
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!this.isMainButtonHidden) this.telegramService.MainButton.show();
-      console.log(result);
-      if (result && result.flag) {
-        let isItemChanged = false;
-        const newCartItem = result.cartItem as ICartItem;
-        if (newCartItem)
-          this.order.items.forEach((item) => {
-            if (item.product.id == cartItem.product.id) {
-              // console.log(cartItem);
-              // console.log(newCartItem);
-              if (
-                initialCartItem.product.id != newCartItem.product.id ||
-                initialCartItem.quantity != newCartItem.quantity
-              )
-                isItemChanged = true;
+      );
+      let initialCartItem = structuredClone(cartItem);
+      dialogRef.afterClosed().subscribe((result) => {
+        if (!this.isMainButtonHidden) this.telegramService.MainButton.show();
+        console.log(result);
+        if (result && result.flag) {
+          let isItemChanged = false;
+          const newCartItem = result.cartItem as ICartItem;
+          if (newCartItem)
+            this.order.items.forEach((item) => {
+              if (item.product.id == cartItem.product.id) {
+                // console.log(cartItem);
+                // console.log(newCartItem);
+                if (
+                  initialCartItem.product.id != newCartItem.product.id ||
+                  initialCartItem.quantity != newCartItem.quantity
+                )
+                  isItemChanged = true;
 
-              item = newCartItem;
-              this.order.totalAmount = this.orderService.calculateTotalAmount(
-                this.order?.items,
-              );
-              this.order.totalCount = this.orderService.calculateTotalCount(
-                this.order?.items,
-              );
-              if (isItemChanged) {
-                this.isOrderItemsChanged = true;
-                this.order.correctionReason =
-                  'Состав заказа изменен в магазине';
-                this.form.controls['correctionReason'].setValue(
-                  this.order.correctionReason,
+                item = newCartItem;
+                this.order.totalAmount = this.orderService.calculateTotalAmount(
+                  this.order?.items,
                 );
+                this.order.totalCount = this.orderService.calculateTotalCount(
+                  this.order?.items,
+                );
+                if (isItemChanged) {
+                  this.isOrderItemsChanged = true;
+                  this.order.correctionReason =
+                    'Состав заказа изменен в магазине';
+                  this.form.controls['correctionReason'].setValue(
+                    this.order.correctionReason,
+                  );
 
-                this.dataSource = new MatTableDataSource(this.order.items);
+                  this.dataSource = new MatTableDataSource(this.order.items);
+                }
+                return;
               }
-              return;
-            }
-          });
-      }
+            });
+        }
+      });
     });
-  });
   }
 
-  showModalAgreement(){
+  showModalAgreement() {
     this.zone.run(() => {
       const dialogRef = this.dialog.open<AgreementComponent>(
         AgreementComponent,
@@ -1731,16 +1729,13 @@ export class OrderItemComponent implements OnInit, OnDestroy {
     });
   }
 
-  showModalPrivacy(){
+  showModalPrivacy() {
     this.zone.run(() => {
-      const dialogRef = this.dialog.open<PrivacyComponent>(
-        PrivacyComponent,
-        {
-          data: {
-            isModal: true,
-          },
+      const dialogRef = this.dialog.open<PrivacyComponent>(PrivacyComponent, {
+        data: {
+          isModal: true,
         },
-      );
+      });
       dialogRef.afterClosed().subscribe((result) => {
         return;
       });

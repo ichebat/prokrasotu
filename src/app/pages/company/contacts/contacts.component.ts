@@ -9,9 +9,8 @@ import { QRCodeComponent } from 'angularx-qrcode';
   templateUrl: './contacts.component.html',
   styleUrl: './contacts.component.scss',
 })
-export class ContactsComponent implements OnInit, OnDestroy, AfterViewInit{
+export class ContactsComponent implements OnInit, OnDestroy, AfterViewInit {
   owner = environment.owner;
-
 
   constructor(
     public telegramService: TelegramService,
@@ -29,7 +28,7 @@ export class ContactsComponent implements OnInit, OnDestroy, AfterViewInit{
 
   ngOnDestroy(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.hide();
+      //this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
     }
   }

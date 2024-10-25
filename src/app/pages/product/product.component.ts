@@ -1,5 +1,16 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
-import { IProduct, ProductClass, ProductsService } from '../../services/products.service';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
+import {
+  IProduct,
+  ProductClass,
+  ProductsService,
+} from '../../services/products.service';
 import { TelegramService } from '../../services/telegram.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -13,19 +24,16 @@ import { CartService } from '../../services/cart.service';
   styleUrl: './product.component.scss',
 })
 export class ProductComponent implements OnInit, OnDestroy, AfterViewInit {
-
   @Input() set action(action: string) {
     //console.log('action: ' + action);
-    if(action)this.productsService.$action.set(action);
-    else
-    this.productsService.$action.set('');
+    if (action) this.productsService.$action.set(action);
+    else this.productsService.$action.set('');
   }
   @Input() set productName(productName: string) {
     //console.log('productName: ' + productName);
-    
   }
 
-// subscription: Subscription;
+  // subscription: Subscription;
 
   // product!: IProduct;
   /**
@@ -40,7 +48,6 @@ export class ProductComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private location: Location,
   ) {
-    
     const id = this.route.snapshot.paramMap.get('id');
     this.productsService.updateId(id);
 
@@ -48,7 +55,7 @@ export class ProductComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.goBack = this.goBack.bind(this);
   }
-  
+
   ngAfterViewInit(): void {
     let top = document.getElementById('top');
     if (top !== null) {
@@ -71,7 +78,7 @@ export class ProductComponent implements OnInit, OnDestroy, AfterViewInit {
 
   ngOnInit(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
-      this.telegramService.BackButton.show();
+      //this.telegramService.BackButton.show();
       this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
     }
   }

@@ -23,12 +23,11 @@ import { environment } from '../../../environments/environment';
   styleUrl: './cart.component.scss',
 })
 export class CartComponent implements OnInit, OnDestroy {
-
   owner = environment.owner;
 
-  mainButtonTextValid = "Оформить заказ в "+this.owner.marketName;
-  mainButtonTextProgress = "Отправка...";
-  mainButtonTextInvalid = "Сначала добавьте товары в корзину";
+  mainButtonTextValid = 'Оформить заказ в ' + this.owner.marketName;
+  mainButtonTextProgress = 'Отправка...';
+  mainButtonTextInvalid = 'Сначала добавьте товары в корзину';
 
   constructor(
     private location: Location,
@@ -47,10 +46,8 @@ export class CartComponent implements OnInit, OnDestroy {
     //   this.sendData();
     // };
 
-
-
     // effect(() => {
-      
+
     //   if (this.cartService.$cart().totalCount > 0) {
     //     // this.telegramService.MainButton.show();
     //     this.telegramService.MainButton.enable();
@@ -72,16 +69,13 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   changeAllItems(flag: boolean) {
-    
     this.cartService.$cart().items.forEach((element, index) => {
       this.cartService.$cart().items[index].checked = flag;
     });
-    
   }
-  
 
   ngOnInit(): void {
-    if (this.telegramService.IsTelegramWebAppOpened){      
+    if (this.telegramService.IsTelegramWebAppOpened) {
       this.telegramService.BackButton.show();
       this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
       this.telegramService.MainButton.show();
@@ -90,15 +84,14 @@ export class CartComponent implements OnInit, OnDestroy {
       this.telegramService.MainButton.setText(this.mainButtonTextValid);
     }
 
-    
     //this.telegramService.MainButton.show();
   }
 
   ngOnDestroy(): void {
-    if (this.telegramService.IsTelegramWebAppOpened){      
-      this.telegramService.BackButton.hide();
+    if (this.telegramService.IsTelegramWebAppOpened) {
+      //this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
-      
+
       this.telegramService.MainButton.hide();
       this.telegramService.MainButton.offClick(this.sendData);
     }
@@ -106,8 +99,9 @@ export class CartComponent implements OnInit, OnDestroy {
 
   goBack() {
     if (
-      this.telegramService.IsTelegramWebAppOpened && !this.navigation.isHistoryAvailable)
-    {
+      this.telegramService.IsTelegramWebAppOpened &&
+      !this.navigation.isHistoryAvailable
+    ) {
       console.log('Закрываем Tg');
       this.telegramService.tg.close();
     }
@@ -117,41 +111,39 @@ export class CartComponent implements OnInit, OnDestroy {
 
   sendData() {
     if (this.cartService.$cart().totalCount > 0) {
-    this.orderService.updateId('');// Обновляет сигналы на заказе
-    
-    // this.orderService.setOrderSignal({
-    //   id: 0,
-    //   items: this.cartService.$cart().items.filter(p=>p.checked),
-    //   totalAmount: this.orderService.calculateTotalAmount(this.cartService.$cart().items.filter(p=>p.checked)),
-    //   totalCount: this.orderService.calculateTotalCount(this.cartService.$cart().items.filter(p=>p.checked)),
-    //   clientName: "",
-    //   clientTgName: this.telegramService.UserName,
-    //   clientPhone: "",
-    //   clientAddress: "",
-    //   delivery: {id: 0, name: "", description: "", amount: 0, freeAmount: 0},
-    //   orderDate: new Date(),
-    //   isAccepted:false,
-    //   acceptDate: new Date(),
-    //   isCompleted: false,
-    //   completeDate: new Date(),
-    //   isDeclined: false,
-    //   declineDate: new Date(),
-    //   declineReason: "",
-    //   isCorrected: false,
-    //   correctionDate: new Date(),
-    //   correctionReason:"",
-    //   description:"",
-    // });
-    this.router.navigate(['/order/']);
-    //this.telegramService.MainButton.setText('Отправляем заказ в ProKrasotu');
+      this.orderService.updateId(''); // Обновляет сигналы на заказе
 
-    // this.telegramService.sendToGoogleAppsScript({"newOrder":this.product}).subscribe(response => {
-    //   console.log("SUCCESS");
-    //   this.telegramService.MainButton.setText('Ваш заказ отправлен в ProKrasotu');
-    // });
-    }
-    else
-    {
+      // this.orderService.setOrderSignal({
+      //   id: 0,
+      //   items: this.cartService.$cart().items.filter(p=>p.checked),
+      //   totalAmount: this.orderService.calculateTotalAmount(this.cartService.$cart().items.filter(p=>p.checked)),
+      //   totalCount: this.orderService.calculateTotalCount(this.cartService.$cart().items.filter(p=>p.checked)),
+      //   clientName: "",
+      //   clientTgName: this.telegramService.UserName,
+      //   clientPhone: "",
+      //   clientAddress: "",
+      //   delivery: {id: 0, name: "", description: "", amount: 0, freeAmount: 0},
+      //   orderDate: new Date(),
+      //   isAccepted:false,
+      //   acceptDate: new Date(),
+      //   isCompleted: false,
+      //   completeDate: new Date(),
+      //   isDeclined: false,
+      //   declineDate: new Date(),
+      //   declineReason: "",
+      //   isCorrected: false,
+      //   correctionDate: new Date(),
+      //   correctionReason:"",
+      //   description:"",
+      // });
+      this.router.navigate(['/order/']);
+      //this.telegramService.MainButton.setText('Отправляем заказ в ProKrasotu');
+
+      // this.telegramService.sendToGoogleAppsScript({"newOrder":this.product}).subscribe(response => {
+      //   console.log("SUCCESS");
+      //   this.telegramService.MainButton.setText('Ваш заказ отправлен в ProKrasotu');
+      // });
+    } else {
       this.telegramService.MainButton.setText(this.mainButtonTextInvalid);
       this.telegramService.MainButton.disable();
       setTimeout(() => {
@@ -159,7 +151,7 @@ export class CartComponent implements OnInit, OnDestroy {
         this.telegramService.MainButton.enable();
         return;
       }, 5000);
-      return;   
+      return;
     }
   }
 }

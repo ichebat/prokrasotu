@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, Signal, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+  Signal,
+  signal,
+} from '@angular/core';
 import { TelegramService } from '../../services/telegram.service';
 import { NavigationService } from '../../services/navigation.service';
 import { OrderService } from '../../services/order.service';
@@ -21,20 +29,20 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
   disableButton: boolean = false;
 
   $checkMaxSignal = signal<boolean>(false);
-  
 
   @Input() set id(id: string) {
     //if (!id) this.orderService.updateId('');
     this.orderService.updateId(id);
 
     //обновляем только если не загружен список и id >0 (редактирование заказа)
-    if (parseInt(id) > 0 && (!this.orderService.$orders() || this.orderService.$orders().length == 0))
+    if (
+      parseInt(id) > 0 &&
+      (!this.orderService.$orders() || this.orderService.$orders().length == 0)
+    )
       this.orderService.updateOrdersApi();
-    
   }
 
-  @Input() set action(action: string){
-
+  @Input() set action(action: string) {
     //можно открыть заказ (order-item.component) с вариантами /order/:id/:action:
     // /order/:id/cancel - будут скрыты поля и доступна кнопка отмены заказа
     // /order/:id/accept - будут скрыты поля и доступна кнопка принятия заказа
@@ -42,17 +50,19 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
     // /order/:id/edit - будут показаны поля и доступна кнопка обновить заказ
     // /order/:id/complete - будут показаны поля и доступна кнопка закрыть для выхода из просмотра заказа
     // в этих вариантах кнопка "Назад" в телеграм должна закрывать приложение Web App
-    if (action && (
-      action!.toString().toLocaleLowerCase() == "cancel" || 
-      action!.toString().toLocaleLowerCase() == "accept" || 
-      action!.toString().toLocaleLowerCase() == "complete" || 
-      action!.toString().toLocaleLowerCase() == "edit" || 
-      action!.toString().toLocaleLowerCase() == "view"
-      )) this.orderAction = action!.toString().toLocaleLowerCase();
+    if (
+      action &&
+      (action!.toString().toLocaleLowerCase() == 'cancel' ||
+        action!.toString().toLocaleLowerCase() == 'accept' ||
+        action!.toString().toLocaleLowerCase() == 'complete' ||
+        action!.toString().toLocaleLowerCase() == 'edit' ||
+        action!.toString().toLocaleLowerCase() == 'view')
+    )
+      this.orderAction = action!.toString().toLocaleLowerCase();
     //console.log(action+" - "+this.orderAction);
   }
 
-  orderAction: string = "";
+  orderAction: string = '';
 
   /**
    *
@@ -79,7 +89,6 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
     this.goBack = this.goBack.bind(this);
   }
 
-
   ngAfterViewInit(): void {
     let top = document.getElementById('top');
     if (top !== null) {
@@ -95,14 +104,14 @@ export class OrderComponent implements OnInit, OnDestroy, AfterViewInit {
     //   this.orderService.updateId(-1);
     //   this.orderService.updateOrdersApi();//обновляем список заказов с сервера для проверки
     // }
-    if (this.telegramService.IsTelegramWebAppOpened){      
+    if (this.telegramService.IsTelegramWebAppOpened) {
       this.telegramService.BackButton.show();
       this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
     }
   }
   ngOnDestroy(): void {
-    if (this.telegramService.IsTelegramWebAppOpened){      
-      this.telegramService.BackButton.hide();
+    if (this.telegramService.IsTelegramWebAppOpened) {
+      //this.telegramService.BackButton.hide();
       this.telegramService.BackButton.offClick(this.goBack);
     }
   }
