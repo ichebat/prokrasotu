@@ -475,7 +475,7 @@
         </button>
       }
       <mat-hint align="end"
-        >Введите название {{ name.value.length }}/100</mat-hint
+        >Введите название {{ name.value.length }}/200</mat-hint
       >
       <mat-error *ngIf="form.get('name')?.hasError('required')"
         >Это обязательное поле</mat-error
@@ -484,7 +484,7 @@
         >Минимум 2 символа</mat-error
       >
       <mat-error *ngIf="form.get('name')?.hasError('maxlength')"
-        >Максимум 100 символов</mat-error
+        >Максимум 200 символов</mat-error
       >
       <mat-error
         *ngIf="

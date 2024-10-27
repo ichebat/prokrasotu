@@ -267,8 +267,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         [
           Validators.required,
           Validators.minLength(2),
-          Validators.maxLength(100),
-          Validators.pattern('[A-Za-zА-ЯЁа-яё0-9-:()!/,/.«»/"_% ]{2,100}'),
+          Validators.maxLength(200),
+          Validators.pattern('[A-Za-zА-ЯЁа-яё0-9-:()!/,/.«»/"_% ]{2,200}'),
         ],
       ],
       description: [
