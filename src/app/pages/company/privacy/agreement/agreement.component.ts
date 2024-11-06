@@ -51,7 +51,7 @@ export class AgreementComponent implements OnInit, OnDestroy, AfterViewInit {
       ((this.data && this.data.isModal == false) || !this.data)
     ) {
       //this.telegramService.BackButton.hide();
-      this.telegramService.BackButton.offClick(this.goBack);
+      //this.telegramService.BackButton.offClick(this.goBack);
     }
   }
 

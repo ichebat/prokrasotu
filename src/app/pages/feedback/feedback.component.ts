@@ -150,7 +150,7 @@ export class FeedbackComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
       //this.telegramService.BackButton.hide();
-      this.telegramService.BackButton.offClick(this.goBack);
+      //this.telegramService.BackButton.offClick(this.goBack);
 
       this.telegramService.MainButton.hide();
       this.telegramService.MainButton.offClick(this.sendData);
