@@ -16,6 +16,7 @@ import {
   ProductClass,
   ProductDetailClass,
   ProductsService,
+  transliterate,
 } from '../../services/products.service';
 import {
   CartItemClass,
@@ -881,7 +882,25 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
             this.onHandleUpdate();
             console.log('removeProduct complete');
-            this.router.navigate(['/']);
+            //this.router.navigate(['/']);
+            this.router.navigate([
+              '/shop/' +
+                (this.form.controls['category'].value
+                  ? transliterate(this.form.controls['category'].value) + '/'
+                  : '') +
+                (this.form.controls['type'].value
+                  ? transliterate(this.form.controls['type'].value) + '/'
+                  : '') +
+                (this.form.controls['brand'].value
+                  ? transliterate(this.form.controls['brand'].value) + '/'
+                  : '') +
+                (this.form.controls['brandLine'].value
+                  ? transliterate(this.form.controls['brandLine'].value) + '/'
+                  : '') +
+                (this.form.controls['brandSeries'].value
+                  ? transliterate(this.form.controls['brandSeries'].value) + '/'
+                  : ''),
+            ]);
             this.productService.updateProductsApi();
           },
         });
@@ -940,7 +959,25 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           complete: () => {
             this.onHandleUpdate();
             console.log('addProduct complete');
-            this.router.navigate(['/']);
+            //this.router.navigate(['/']);
+            this.router.navigate([
+              '/shop/' +
+                (this.form.controls['category'].value
+                  ? transliterate(this.form.controls['category'].value) + '/'
+                  : '') +
+                (this.form.controls['type'].value
+                  ? transliterate(this.form.controls['type'].value) + '/'
+                  : '') +
+                (this.form.controls['brand'].value
+                  ? transliterate(this.form.controls['brand'].value) + '/'
+                  : '') +
+                (this.form.controls['brandLine'].value
+                  ? transliterate(this.form.controls['brandLine'].value) + '/'
+                  : '') +
+                (this.form.controls['brandSeries'].value
+                  ? transliterate(this.form.controls['brandSeries'].value) + '/'
+                  : ''),
+            ]);
             this.productService.updateProductsApi();
           },
         });
@@ -1052,7 +1089,25 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
             this.onHandleUpdate();
             console.log('updateProduct complete');
-            this.router.navigate(['/']);
+            //this.router.navigate(['/']);
+            this.router.navigate([
+              '/shop/' +
+                (this.form.controls['category'].value
+                  ? transliterate(this.form.controls['category'].value) + '/'
+                  : '') +
+                (this.form.controls['type'].value
+                  ? transliterate(this.form.controls['type'].value) + '/'
+                  : '') +
+                (this.form.controls['brand'].value
+                  ? transliterate(this.form.controls['brand'].value) + '/'
+                  : '') +
+                (this.form.controls['brandLine'].value
+                  ? transliterate(this.form.controls['brandLine'].value) + '/'
+                  : '') +
+                (this.form.controls['brandSeries'].value
+                  ? transliterate(this.form.controls['brandSeries'].value) + '/'
+                  : ''),
+            ]);
             this.productService.updateProductsApi();
           },
         });
