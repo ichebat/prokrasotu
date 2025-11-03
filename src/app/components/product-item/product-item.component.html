@@ -44,7 +44,11 @@
           class="product-item-image"
         />
       </div>
-      @if (selectedProductAttribute && selectedProductAttribute.imageUrl && selectedProductAttribute.imageUrl != product.imageUrl) {
+      @if (
+        selectedProductAttribute &&
+        selectedProductAttribute.imageUrl &&
+        selectedProductAttribute.imageUrl != product.imageUrl
+      ) {
         <div class="product-image-host">
           <img
             mat-card-image
@@ -103,8 +107,13 @@
 
         <div class="buy-button pb">
           @if (product.discount == 0) {
-            <button mat-flat-button (click)="addItem()" color="primary" type="button"
-            [disabled]="(action=='edit'||product.id==0)">
+            <button
+              mat-flat-button
+              (click)="addItem()"
+              color="primary"
+              type="button"
+              [disabled]="action == 'edit' || product.id == 0"
+            >
               В корзину
               @if (
                 product.price > 0 ||
@@ -130,8 +139,9 @@
               matBadgePosition="after"
               matBadgeColor="accent"
               (click)="addItem()"
-              color="primary" type="button"              
-              [disabled]="(action=='edit'||product.id==0)"
+              color="primary"
+              type="button"
+              [disabled]="action == 'edit' || product.id == 0"
             >
               В корзину
               @if (
@@ -186,15 +196,18 @@
         </p>
       }
 
-      @if (getVisible("selectedProductAttribute")) {
+      @if (
+        getVisible("selectedProductAttribute") &&
+        product.detail.attributes.length > 0
+      ) {
         <p class="intro">
           Цена действительна только для интернет-магазина и может отличаться от
           цен в розничных магазинах
         </p>
         <p class="intro">
           В этой карточке имеется
-          {{ product.detail.attributes.length }} шт. товаров. Необходимо выбрать из
-          списка.
+          {{ product.detail.attributes.length }} шт. товаров. Необходимо выбрать
+          из списка.
         </p>
         <form [formGroup]="formSelectedAttribute" class="mx">
           <mat-form-field
@@ -278,7 +291,12 @@
               <mat-icon>shopping_cart</mat-icon>
             }
           </button>
-          <button mat-icon-button color="accent" (click)="addItem()" type="button">
+          <button
+            mat-icon-button
+            color="accent"
+            (click)="addItem()"
+            type="button"
+          >
             <mat-icon>add</mat-icon>
           </button>
         </div>
@@ -289,8 +307,13 @@
             В корзину
           </button> -->
           @if (product.discount == 0) {
-            <button mat-flat-button (click)="addItem()" color="primary" type="button"
-            [disabled]="(action=='edit'||product.id==0)">
+            <button
+              mat-flat-button
+              (click)="addItem()"
+              color="primary"
+              type="button"
+              [disabled]="action == 'edit' || product.id == 0"
+            >
               В корзину
               @if (
                 product.price > 0 ||
@@ -316,8 +339,9 @@
               matBadgePosition="after"
               matBadgeColor="accent"
               (click)="addItem()"
-              color="primary" type="button"
-              [disabled]="(action=='edit'||product.id==0)"
+              color="primary"
+              type="button"
+              [disabled]="action == 'edit' || product.id == 0"
             >
               В корзину
               @if (
@@ -388,14 +412,12 @@
     части этой страницы. Чтобы сохранить изменения нажмите кнопку.
   </h4>
 
-  
-
   <form [formGroup]="form" (ngSubmit)="sendData()">
     <p class="intro">
       Если не знаете точный адрес картинки в сети Интернет, то можно загрузить
       свою картинку. Для этого в верху страницы нажмите "Загрузить изображение",
-      затем при помощи рамки откорректируйте его (выберите нужную часть) и нажмите "Сохранить". Ссылка
-      проставится автоматически.
+      затем при помощи рамки откорректируйте его (выберите нужную часть) и
+      нажмите "Сохранить". Ссылка проставится автоматически.
     </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('imageUrl')">
       <mat-label>Введите ссылку на картинку</mat-label>
@@ -443,14 +465,14 @@
       >
     </mat-form-field>
 
-
     <input type="hidden" formControlName="name" />
     <p class="intro">
       Введите тут краткое название продукта. Такое название увидит клиент,
-      например, если поделиться с ним ссылкой по кнопке <mat-icon>share</mat-icon> в названии продукта на этой странице. Рекомендуется указывать
-      полноценное/понятное название товара: вместо "LITTLE ME" используйте
-      "Детский шампунь для волос Лёгкое расчёсывание ESTEL LITTLE ME" так
-      клиенту будет понятно по названию, о чем идет речь.
+      например, если поделиться с ним ссылкой по кнопке
+      <mat-icon>share</mat-icon> в названии продукта на этой странице.
+      Рекомендуется указывать полноценное/понятное название товара: вместо
+      "LITTLE ME" используйте "Детский шампунь для волос Лёгкое расчёсывание
+      ESTEL LITTLE ME" так клиенту будет понятно по названию, о чем идет речь.
     </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('name')">
       <mat-label>Введите название</mat-label>
@@ -589,8 +611,6 @@
       >
     </mat-form-field>
 
-    
-
     <mat-form-field appearance="outline" *ngIf="getVisible('description')">
       <mat-label>Введите описание</mat-label>
       <textarea
@@ -707,7 +727,10 @@
       </mat-error>
     }
 
-    <p class="intro">Ссылка на сайт производителя. Но она не отображается для клиента. Не обязательное поле.</p>
+    <p class="intro">
+      Ссылка на сайт производителя. Но она не отображается для клиента. Не
+      обязательное поле.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('url')">
       <mat-label>Введите ссылку на товар</mat-label>
       <textarea
@@ -753,9 +776,9 @@
       >
     </mat-form-field>
 
-    
-
-    <p class="intro">При выборе категории старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">
+      При выборе категории старайтесь пользоваться выпадающим списком.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('category')">
       <mat-label>Введите категорию</mat-label>
       <input
@@ -800,7 +823,9 @@
       }
     </mat-autocomplete>
 
-    <p class="intro">При выборе типа старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">
+      При выборе типа старайтесь пользоваться выпадающим списком.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('type')">
       <mat-label>Введите тип</mat-label>
       <input
@@ -843,7 +868,9 @@
       }
     </mat-autocomplete>
 
-    <p class="intro">При выборе бренда старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">
+      При выборе бренда старайтесь пользоваться выпадающим списком.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brand')">
       <mat-label>Введите бренд</mat-label>
       <input
@@ -886,7 +913,9 @@
       }
     </mat-autocomplete>
 
-    <p class="intro">При выборе линейки для бренда старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">
+      При выборе линейки для бренда старайтесь пользоваться выпадающим списком.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brandLine')">
       <mat-label>Введите линейку для бренда</mat-label>
       <input
@@ -931,7 +960,9 @@
       }
     </mat-autocomplete>
 
-    <p class="intro">При выборе серии для бренда старайтесь пользоваться выпадающим списком.</p>
+    <p class="intro">
+      При выборе серии для бренда старайтесь пользоваться выпадающим списком.
+    </p>
     <mat-form-field appearance="outline" *ngIf="getVisible('brandSeries')">
       <mat-label>Введите серию для бренда</mat-label>
       <input

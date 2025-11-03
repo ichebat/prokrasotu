@@ -16,6 +16,7 @@ import {
   ProductClass,
   ProductDetailClass,
   ProductsService,
+  transliterate,
 } from '../../services/products.service';
 import {
   CartItemClass,
@@ -176,8 +177,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     this.brandLineOptionsAuto = this.productService.$productBrandLines();
     this.brandSeriesOptionsAuto = this.productService.$productBrandSeriesList();
 
-    
-
     // //подписываемся на изменения формы, для скрытия/отображения MainButton
     // this.subscr_form = this.form.statusChanges
     //   .pipe(distinctUntilChanged())
@@ -303,15 +302,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.product?.detail.attributes.length > 0 ? [Validators.required] : [],
       ],
     });
-
-    
   }
 
   //после конструктора необходимо заполнить форму начальными значениями
   setInitialValue() {
-
-    
-
     this.formSelectedAttribute.controls['selectedProductAttribute'].setValue(
       this.selectedProductAttribute,
     );
@@ -335,8 +329,16 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         item.enabled = false;
 
         if (item.controlName == 'selectedProductAttribute') {
-          item.visible = true && this.product.detail.attributes.length > 0;
-          item.enabled = true && this.product.detail.attributes.length > 0;
+          item.visible =
+            true &&
+            this.product.detail &&
+            this.product.detail.attributes &&
+            this.product.detail.attributes.length > 0;
+          item.enabled =
+            true &&
+            this.product.detail &&
+            this.product.detail.attributes &&
+            this.product.detail.attributes.length > 0;
         }
       }
 
@@ -437,10 +439,10 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.filterData();
       });
 
-    if (this.product && this.product.id == 0){
-      this.product.id = this.productService.$maxId()+1;
+    if (this.product && this.product.id == 0) {
+      this.product.id = this.productService.$maxId() + 1;
       this.action = 'edit';
-      console.log('new id of product: '+this.product.id);
+      console.log('new id of product: ' + this.product.id);
     }
 
     if (this.telegramService.IsTelegramWebAppOpened) {
@@ -453,8 +455,6 @@ export class ProductItemComponent implements OnInit, OnDestroy {
         this.telegramService.MainButton.setText(this.mainButtonTextValid);
       } else this.telegramService.MainButton.hide();
     }
-
-    
 
     this.setInitialValue();
 
@@ -749,7 +749,7 @@ export class ProductItemComponent implements OnInit, OnDestroy {
   }
 
   getUrl() {
-    const thisUrl = this.router.url.slice(0,63);
+    const thisUrl = this.router.url.slice(0, 63);
     if (thisUrl.indexOf('#') >= 0) return thisUrl.split('#')[0];
     else return thisUrl;
   }
@@ -882,7 +882,25 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
             this.onHandleUpdate();
             console.log('removeProduct complete');
-            this.router.navigate(['/']);
+            //this.router.navigate(['/']);
+            this.router.navigate([
+              '/shop/' +
+                (this.form.controls['category'].value
+                  ? transliterate(this.form.controls['category'].value) + '/'
+                  : '') +
+                (this.form.controls['type'].value
+                  ? transliterate(this.form.controls['type'].value) + '/'
+                  : '') +
+                (this.form.controls['brand'].value
+                  ? transliterate(this.form.controls['brand'].value) + '/'
+                  : '') +
+                (this.form.controls['brandLine'].value
+                  ? transliterate(this.form.controls['brandLine'].value) + '/'
+                  : '') +
+                (this.form.controls['brandSeries'].value
+                  ? transliterate(this.form.controls['brandSeries'].value) + '/'
+                  : ''),
+            ]);
             this.productService.updateProductsApi();
           },
         });
@@ -891,7 +909,8 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     //добавление нового товара делается кнопкой submit
 
     if (
-      (this.product.id == 0 || this.product.id == this.productService.$maxId()+1) &&
+      (this.product.id == 0 ||
+        this.product.id == this.productService.$maxId() + 1) &&
       this.getVisible('button_submit') &&
       this.getEnabled('button_submit') &&
       this.form.valid &&
@@ -940,14 +959,33 @@ export class ProductItemComponent implements OnInit, OnDestroy {
           complete: () => {
             this.onHandleUpdate();
             console.log('addProduct complete');
-            this.router.navigate(['/']);
+            //this.router.navigate(['/']);
+            this.router.navigate([
+              '/shop/' +
+                (this.form.controls['category'].value
+                  ? transliterate(this.form.controls['category'].value) + '/'
+                  : '') +
+                (this.form.controls['type'].value
+                  ? transliterate(this.form.controls['type'].value) + '/'
+                  : '') +
+                (this.form.controls['brand'].value
+                  ? transliterate(this.form.controls['brand'].value) + '/'
+                  : '') +
+                (this.form.controls['brandLine'].value
+                  ? transliterate(this.form.controls['brandLine'].value) + '/'
+                  : '') +
+                (this.form.controls['brandSeries'].value
+                  ? transliterate(this.form.controls['brandSeries'].value) + '/'
+                  : ''),
+            ]);
             this.productService.updateProductsApi();
           },
         });
     }
 
     if (
-      (this.product.id > 0 && this.product.id != this.productService.$maxId()+1) &&
+      this.product.id > 0 &&
+      this.product.id != this.productService.$maxId() + 1 &&
       this.getVisible('button_submit') &&
       this.getEnabled('button_submit') &&
       this.form.valid &&
@@ -1051,7 +1089,25 @@ export class ProductItemComponent implements OnInit, OnDestroy {
 
             this.onHandleUpdate();
             console.log('updateProduct complete');
-            this.router.navigate(['/']);
+            //this.router.navigate(['/']);
+            this.router.navigate([
+              '/shop/' +
+                (this.form.controls['category'].value
+                  ? transliterate(this.form.controls['category'].value) + '/'
+                  : '') +
+                (this.form.controls['type'].value
+                  ? transliterate(this.form.controls['type'].value) + '/'
+                  : '') +
+                (this.form.controls['brand'].value
+                  ? transliterate(this.form.controls['brand'].value) + '/'
+                  : '') +
+                (this.form.controls['brandLine'].value
+                  ? transliterate(this.form.controls['brandLine'].value) + '/'
+                  : '') +
+                (this.form.controls['brandSeries'].value
+                  ? transliterate(this.form.controls['brandSeries'].value) + '/'
+                  : ''),
+            ]);
             this.productService.updateProductsApi();
           },
         });
@@ -1380,18 +1436,18 @@ export class ProductItemComponent implements OnInit, OnDestroy {
     }
   }
 
-  minPrice(){
+  minPrice() {
     let result = this.product.price;
-    this.product.detail.attributes.forEach(p=>{
-      if((p.price>0 && p.price<result) || result == 0) result = p.price;
+    this.product.detail.attributes.forEach((p) => {
+      if ((p.price > 0 && p.price < result) || result == 0) result = p.price;
     });
     return result;
   }
 
-  maxPrice(){
+  maxPrice() {
     let result = this.product.price;
-    this.product.detail.attributes.forEach(p=>{
-      if((p.price>0 && p.price>result) || result == 0) result = p.price;
+    this.product.detail.attributes.forEach((p) => {
+      if ((p.price > 0 && p.price > result) || result == 0) result = p.price;
     });
     return result;
   }

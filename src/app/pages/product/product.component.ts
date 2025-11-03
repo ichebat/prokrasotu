@@ -79,7 +79,7 @@ export class ProductComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
       //this.telegramService.BackButton.show();
-      this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
+      //this.telegramService.BackButton.onClick(this.goBack); //при передаче параметра this теряется, поэтому забандить его в конструкторе
     }
   }
 }

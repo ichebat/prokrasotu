@@ -114,7 +114,7 @@ export class ShopComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     if (this.telegramService.IsTelegramWebAppOpened) {
       //this.telegramService.BackButton.hide();
-      this.telegramService.BackButton.offClick(this.goBack);
+      //this.telegramService.BackButton.offClick(this.goBack);
     }
     //this.subscription.unsubscribe();
   }
