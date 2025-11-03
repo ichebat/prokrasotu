@@ -43,6 +43,7 @@ export class GitHubCdnService {
       var folder = environment.gitHubCdnFolder;
       var fileName = selectedFileName;
       var token = decrypt(environment.pass, environment.gitHubCdnApiToken);
+      //console.log('Зашифрованный ключ для хранения: '+environment.gitHubCdnApiToken);
       var url = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}/${fileName}`;
       var sha = shaString ? shaString : null;
       var content = window.btoa(file);
