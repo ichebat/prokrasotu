@@ -108,6 +108,7 @@
         <div class="buy-button pb">
           @if (product.discount == 0) {
             <button
+              id="add-to-cart"
               mat-flat-button
               (click)="addItem()"
               color="primary"
@@ -133,6 +134,7 @@
           }
           @if (product.discount > 0) {
             <button
+              id="add-to-cart"
               mat-flat-button
               matBadge="%"
               matBadgeSize="large"
@@ -274,7 +276,7 @@
     <mat-card-actions>
       @if (isInCart(product)) {
         <div class="buy-button-x3">
-          <button mat-icon-button (click)="removeItem()" type="button">
+          <button  id="remove-from-cart" mat-icon-button (click)="removeItem()" type="button">
             <mat-icon>remove</mat-icon>
           </button>
           <button mat-icon-button routerLink="/cart" type="button">
@@ -292,6 +294,7 @@
             }
           </button>
           <button
+            id="add-to-cart"
             mat-icon-button
             color="accent"
             (click)="addItem()"
@@ -308,6 +311,7 @@
           </button> -->
           @if (product.discount == 0) {
             <button
+              id="add-to-cart"
               mat-flat-button
               (click)="addItem()"
               color="primary"
@@ -333,6 +337,7 @@
           }
           @if (product.discount > 0) {
             <button
+              id="add-to-cart"
               mat-flat-button
               matBadge="%"
               matBadgeSize="large"
