@@ -147,7 +147,7 @@
   <mat-card-actions>
     @if (isInCart(product)) {
       <div class="buy-button-x3">
-        <button  id="remove-form-cart" mat-icon-button (click)="removeItem()" type="button">
+        <button data-gtm-remove-from-cart-button mat-icon-button (click)="removeItem()" type="button">
           <mat-icon>remove</mat-icon>
         </button>
         <button mat-icon-button routerLink="/cart" type="button">
@@ -164,7 +164,7 @@
             <mat-icon>shopping_cart</mat-icon>
           }
         </button>
-        <button  id="add-to-cart" mat-icon-button color="accent" (click)="addItem()" type="button">
+        <button data-gtm-add-to-cart-button mat-icon-button color="accent" (click)="addItem()" type="button">
           <mat-icon>add</mat-icon>
         </button>
       </div>
@@ -172,7 +172,9 @@
     @if (!isInCart(product)) {
       @if (!telegramService.isAdmin) {
         <div class="buy-button-x3">
-          <button id="add-to-cart" class="mx"
+          <button 
+            data-gtm-add-to-cart-button
+            class="mx"
             mat-mini-fab
             color="primary"
             (click)="addItem()" type="button"
@@ -186,7 +188,9 @@
       }
       @if (telegramService.isAdmin) {
         <div class="buy-button-x3">
-          <button  id="add-to-cart"class="mx"
+          <button 
+            data-gtm-add-to-cart-button
+            class="mx"
             mat-mini-fab
             color="primary"
             (click)="addItem()" type="button"
