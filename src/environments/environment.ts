@@ -58,7 +58,7 @@ export const environment = {
     marketName: 'PROКРАСОТУ',
     marketAddress: 'г.Ишимбай, ТЦ Лето, Стахановская 35, Секция С6',
     telegramBot: 'ProKrasotuBot',
-    startBotUrl: 'https://t.me/prokrasotubot?start=_shop',
+    startBotUrl: 'https://t.me/prokrasotubot',
     privacyUrl: 'https://t.me/prokrasotubot?start=_company_privacy',
     phoneText: '+7 917 49-18-317',
     phoneLink: '9174918317',
